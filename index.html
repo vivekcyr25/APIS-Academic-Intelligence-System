@@ -76,16 +76,26 @@
             }
             [data-theme="light"] body { background: #f4f6f9 !important; }
 
-            .glass-panel, .navbar, .stat-card, .info-item, .card {
+            .glass-panel, .navbar, .stat-card, .info-item, .card, .modal-content {
                 background: #1a1a2e !important;
                 border: 1px solid rgba(255,255,255,0.1) !important;
                 border-radius: 12px !important;
                 transform: none !important;
+                padding: 1.2rem !important; /* Smaller padding on mobile */
             }
-            [data-theme="light"] .glass-panel, [data-theme="light"] .navbar, [data-theme="light"] .stat-card, [data-theme="light"] .info-item, [data-theme="light"] .card {
+            [data-theme="light"] .glass-panel, [data-theme="light"] .navbar, [data-theme="light"] .stat-card, [data-theme="light"] .info-item, [data-theme="light"] .card, [data-theme="light"] .modal-content {
                 background: #ffffff !important;
                 border: 1px solid rgba(0,0,0,0.1) !important;
             }
+            
+            .navbar { flex-direction: column; gap: 12px; }
+            .nav-links { justify-content: center; }
+            .stat-val { font-size: 2rem; }
+            .login-wrapper h1 { font-size: 1.8rem; }
+            .info-grid { grid-template-columns: 1fr; } /* Stack student info */
+            .modal-grid { grid-template-columns: 1fr; } /* Stack modal inputs */
+            .bottom-table-row h2 { flex-direction: column; gap: 15px; align-items: flex-start; }
+            .container { padding: 1rem; }
         }
 
         body {
@@ -469,6 +479,8 @@
         .grade-b { background: rgba(23, 162, 184, 0.2); color: #17a2b8; border: 1px solid #17a2b8; }
         .grade-c { background: rgba(255, 193, 7, 0.2); color: #ffc107; border: 1px solid #ffc107; }
 
+        .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+
         @media (max-width: 992px) {
             .top-stats-row { grid-template-columns: 1fr; }
             .middle-row { grid-template-columns: 1fr; }
@@ -634,7 +646,7 @@
                     <label>Select Subject</label>
                     <select id="editSubject" onchange="loadSubjectMarksForEdit()"></select>
                 </div>
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <div class="modal-grid">
                     <div class="input-group">
                         <label>CA1 (Out of 15)</label>
                         <input type="number" id="editCa1" min="0" max="15" required />
