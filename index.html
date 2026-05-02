@@ -1150,8 +1150,8 @@
         // 1. DATA & CONFIG
         // ==========================================
         const subjectsList = ["Mathematics", "Physics", "Computer Science", "English", "DBMS", "C Programming"];
-        const isLocalFile = window.location.protocol === 'file:';
-        const API_BASE = isLocalFile ? "http://localhost:3000/api" : "/api";
+        const isLocalFile = window.location.protocol === 'file:' || window.location.hostname === 'localhost';
+        const API_BASE = isLocalFile ? "http://localhost:3000/api" : "https://ca3-s3xb.onrender.com/api";
 
         let currentUser = null;
         let viewStudent = null;
