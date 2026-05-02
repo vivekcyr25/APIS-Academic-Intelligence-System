@@ -2,6 +2,7 @@ const express = require('express');
 const Student = require('../models/Student');
 const { protect } = require('../middleware/authMiddleware');
 const { syncUMS, UMSError } = require('../umsService');
+const { checkStudentHealth } = require('../nudgeService');
 const router = express.Router();
 
 /**
@@ -57,6 +58,10 @@ router.post('/sync', protect, async (req, res) => {
         }
 
         console.log(`[SYNC] ✅ Sync complete for ${regNo}.`);
+
+        // Step 14: Fire proactive nudge check (non-blocking)
+        checkStudentHealth(student).catch(e => console.error('[SYNC] Nudge error:', e.message));
+
         res.json({
             message: 'UMS sync successful!',
             lastSyncDate: student.lastSyncDate,
@@ -78,6 +83,38 @@ router.post('/sync', protect, async (req, res) => {
         }
 
         res.status(500).json({ error: 'UMS sync failed.', detail: err.message });
+    }
+});
+
+// ── Step 16: DELETE /api/student/privacy — "Right to be Forgotten" ───────────
+// Wipes timetable, academicHistory, and marks; resets umsSynced to false
+router.delete('/privacy', protect, async (req, res) => {
+    const regNo = req.user.regNo; // a student can only delete their OWN data
+
+    try {
+        const student = await Student.findOneAndUpdate(
+            { regNo },
+            {
+                $set: {
+                    timetable:       [],
+                    academicHistory: {},
+                    syllabus:        [],
+                    marks:           {},
+                    umsSynced:       false,
+                    lastSyncDate:    null
+                }
+            },
+            { new: true }
+        ).select('-password');
+
+        if (!student) return res.status(404).json({ error: 'Student not found.' });
+
+        console.log(`[PRIVACY] ✅ Synced data wiped for ${regNo}`);
+        res.json({ message: 'All synced data has been permanently deleted. Your portal login remains active.' });
+
+    } catch (err) {
+        console.error('[PRIVACY] Error:', err.message);
+        res.status(500).json({ error: 'Failed to delete data.' });
     }
 });
 

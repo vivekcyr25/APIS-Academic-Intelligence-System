@@ -49,4 +49,20 @@ router.post('/login', async (req, res) => {
     }
 });
 
+const { protect } = require('../middleware/authMiddleware');
+
+// GET /api/student/me — silent token validation for auth guard
+router.get('/student/me', protect, async (req, res) => {
+    try {
+        if (req.user.role === 'admin') {
+            return res.json({ role: 'admin', regNo: req.user.regNo, name: 'Administrator' });
+        }
+        const student = await Student.findOne({ regNo: req.user.regNo }).select('-password');
+        if (!student) return res.status(404).json({ error: 'User not found.' });
+        res.json(student);
+    } catch (e) {
+        res.status(500).json({ error: 'Server error.' });
+    }
+});
+
 module.exports = router;
