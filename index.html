@@ -2112,32 +2112,32 @@
         function exportPDF() {
             if(typeof html2pdf === 'undefined') { showToast('PDF library still loading...', 'warning'); return; }
             const element = document.getElementById('resultsWrapper');
-            const opt = { margin: 0.5, filename: \`Transcript_\${viewStudent.regNo}.pdf\`, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+            const opt = { margin: 0.5, filename: `Transcript_${viewStudent.regNo}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
             html2pdf().set(opt).from(element).save();
             showToast('Downloading PDF...', 'success');
         }
 
         function exportCSV() {
-            let csv = 'Subject,CA1,CA2,MTE,ETE,Total,Grade\\n';
+            let csv = 'Subject,CA1,CA2,MTE,ETE,Total,Grade\n';
             subjectsList.forEach(subj => {
                 const marks = viewStudent.marks[subj];
                 const total = marks.ca1 + marks.ca2 + marks.mte + marks.ete;
-                csv += \`\${subj},\${marks.ca1},\${marks.ca2},\${marks.mte},\${marks.ete},\${total},\${calculateGrade(total).l}\\n\`;
+                csv += `${subj},${marks.ca1},${marks.ca2},${marks.mte},${marks.ete},${total},${calculateGrade(total).l}\n`;
             });
             const blob = new Blob([csv], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.setAttribute('href', url);
-            a.setAttribute('download', \`Transcript_\${viewStudent.regNo}.csv\`);
+            a.setAttribute('download', `Transcript_${viewStudent.regNo}.csv`);
             a.click();
             showToast('Downloading CSV...', 'success');
         }
 
         function copyTable() {
-            let text = 'Subject\\tCA1\\tCA2\\tMTE\\tETE\\tTotal\\n';
+            let text = 'Subject\tCA1\tCA2\tMTE\tETE\tTotal\n';
             subjectsList.forEach(subj => {
                 const marks = viewStudent.marks[subj];
-                text += \`\${subj}\\t\${marks.ca1}\\t\${marks.ca2}\\t\${marks.mte}\\t\${marks.ete}\\t\${marks.ca1+marks.ca2+marks.mte+marks.ete}\\n\`;
+                text += `${subj}\t${marks.ca1}\t${marks.ca2}\t${marks.mte}\t${marks.ete}\t${marks.ca1+marks.ca2+marks.mte+marks.ete}\n`;
             });
             navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!', 'success'));
         }
@@ -2146,12 +2146,12 @@
             if(!currentUser || currentUser.role !== 'admin') return;
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(\`\${API_BASE}/activity\`, { headers: { 'Authorization': \`Bearer \${token}\` } });
+                const res = await fetch(`${API_BASE}/activity`, { headers: { 'Authorization': `Bearer ${token}` } });
                 const logs = await res.json();
                 if(res.ok && logs.length > 0) {
                     document.getElementById('activityLogPanel').style.display = 'block';
                     const content = document.getElementById('activityLogContent');
-                    content.innerHTML = logs.map(l => \`<div class="log-item"><span class="log-time">\${new Date(l.timestamp).toLocaleTimeString()}</span> \${l.action}</div>\`).join('');
+                    content.innerHTML = logs.map(l => `<div class="log-item"><span class="log-time">${new Date(l.timestamp).toLocaleTimeString()}</span> ${l.action}</div>`).join('');
                 }
             } catch (e) {}
         }
@@ -2161,8 +2161,8 @@
             if(!allStudentsCache) { showToast('Loading students...', 'warning'); fetchAllStudents().then(openCompareModal); return; }
             const s1 = document.getElementById('compareS1');
             const s2 = document.getElementById('compareS2');
-            s1.innerHTML = '<option value="">Select Student 1</option>' + allStudentsCache.map(s => \`<option value="\${s.regNo}">\${s.name} (\${s.regNo})</option>\`).join('');
-            s2.innerHTML = '<option value="">Select Student 2</option>' + allStudentsCache.map(s => \`<option value="\${s.regNo}">\${s.name} (\${s.regNo})</option>\`).join('');
+            s1.innerHTML = '<option value="">Select Student 1</option>' + allStudentsCache.map(s => `<option value="${s.regNo}">${s.name} (${s.regNo})</option>`).join('');
+            s2.innerHTML = '<option value="">Select Student 2</option>' + allStudentsCache.map(s => `<option value="${s.regNo}">${s.name} (${s.regNo})</option>`).join('');
             if(viewStudent) { s1.value = viewStudent.regNo; }
             document.getElementById('compareModal').style.display = 'flex';
         }
@@ -2197,7 +2197,7 @@
         let drillDownChartInst = null;
         function openDrillDown(subject) {
             if(!allStudentsCache) { fetchAllStudents().then(() => openDrillDown(subject)); return; }
-            document.getElementById('drillDownTitle').textContent = \`Class Stats: \${subject}\`;
+            document.getElementById('drillDownTitle').textContent = `Class Stats: ${subject}`;
             const scores = allStudentsCache.map(s => {
                 const m = s.marks[subject];
                 if (!m) return { name: s.name, total: 0 };
