@@ -4,7 +4,7 @@ const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const GEMINI_API = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent';
+const GEMINI_API = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
 
 function getTodayName() { return DAYS[new Date().getDay()]; }
 

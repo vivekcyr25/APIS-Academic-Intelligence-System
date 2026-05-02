@@ -26,7 +26,7 @@ router.post('/', protect, async (req, res) => {
     try {
         const prompt = `Analyze the following student academic record and provide a short, actionable performance tactic summary (3-4 sentences max). Be encouraging but specific about which subjects and assessment types (CA1, CA2, MTE) need the most focus for the upcoming ETE. Use markdown formatting.\n\nStudent Data:\n${JSON.stringify(studentData, null, 2)}`;
         
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${apiKey}`, {
+        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
