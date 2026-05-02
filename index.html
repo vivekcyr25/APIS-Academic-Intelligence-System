@@ -1090,6 +1090,10 @@
         <div class="nav-links">
             <div class="theme-toggle ripple-btn" onclick="toggleTheme()" id="themeBtn">☀️ Light</div>
             <div class="nav-item active ripple-btn" id="navDash" onclick="switchTab('dashboard')">Dashboard</div>
+            <div class="nav-item ripple-btn" id="syncNavBtn" onclick="openSyncModal()" style="color: var(--primary); display:none;"
+                title="Sync your data from LPU UMS">
+                🔄 Sync UMS
+            </div>
             <div class="nav-item ripple-btn" onclick="logout()" style="color: var(--danger);">Logout</div>
             <div class="profile-dropdown" title="User Profile">
                 <div class="profile-avatar" id="navAvatar">U</div>
@@ -1255,6 +1259,27 @@
 
             </div>
         </section>
+    </div>
+
+    <!-- UMS Sync Modal -->
+    <div id="syncModal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 420px; text-align: center;">
+            <span class="close-btn" onclick="closeSyncModal()">&times;</span>
+            <h2 style="margin-bottom: 0.5rem;">🔄 Sync with LPU UMS</h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;">Enter your UMS password to fetch your latest timetable, marks &amp; attendance. Your password is never stored.</p>
+            <div id="syncLoadingState" style="display:none; flex-direction:column; align-items:center; gap:16px; padding: 20px 0;">
+                <div class="spinner" style="width:36px; height:36px; border-width:4px;"></div>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">Syncing with LPU Servers&hellip;<br><span style="font-size:0.78rem; color:var(--text-dim);">This may take up to 15 seconds.</span></p>
+            </div>
+            <div id="syncFormState">
+                <div class="input-group" style="text-align:left;">
+                    <label>UMS Password</label>
+                    <input type="password" id="umsSyncPassword" placeholder="Your UMS password" />
+                </div>
+                <div id="syncMsg" class="msg-box"></div>
+                <button class="btn ripple-btn" onclick="submitUmsSync()">Sync Now</button>
+            </div>
+        </div>
     </div>
 
     <!-- Session Warning Modal -->
@@ -1487,6 +1512,7 @@
         document.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeEditModal();
+                closeSyncModal();
                 if(typeof closeCompareModal === 'function') closeCompareModal();
                 if(typeof closeDrillDown === 'function') closeDrillDown();
             }
@@ -1610,7 +1636,11 @@
             document.getElementById('dashboardSection').classList.add('active');
             document.getElementById('appNavbar').style.display = 'flex';
             document.getElementById('navAvatar').textContent = currentUser.name.charAt(0).toUpperCase();
+            // Show Sync UMS button only for students
+            const syncBtn = document.getElementById('syncNavBtn');
+            if (syncBtn) syncBtn.style.display = currentUser.role === 'student' ? 'block' : 'none';
             renderDashboardStructure();
+            resetSessionTimer();
         }
 
         function logout() {
@@ -2345,6 +2375,60 @@
         function switchTab(tab) {
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             event.target.classList.add('active');
+        }
+
+        // ==========================================
+        // UMS SYNC MODAL
+        // ==========================================
+        function openSyncModal() {
+            document.getElementById('syncModal').style.display = 'flex';
+            document.getElementById('syncFormState').style.display = 'block';
+            document.getElementById('syncLoadingState').style.display = 'none';
+            document.getElementById('umsSyncPassword').value = '';
+            document.getElementById('syncMsg').style.display = 'none';
+        }
+        function closeSyncModal() {
+            document.getElementById('syncModal').style.display = 'none';
+        }
+        async function submitUmsSync() {
+            const pwd = document.getElementById('umsSyncPassword').value.trim();
+            if (!pwd) {
+                showMsg('syncMsg', 'Please enter your UMS password.', 'msg-error'); return;
+            }
+            if (!currentUser) { closeSyncModal(); return; }
+
+            // Show loading animation
+            document.getElementById('syncFormState').style.display = 'none';
+            document.getElementById('syncLoadingState').style.display = 'flex';
+
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_BASE}/student/sync`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ regNo: currentUser.regNo, password: pwd })
+                });
+                const data = await res.json();
+
+                closeSyncModal();
+
+                if (res.ok) {
+                    showToast(`✅ Sync successful! Timetable &amp; data updated.`, 'success');
+                    // Refresh student view with new data
+                    const freshRes = await fetch(`${API_BASE}/student/${currentUser.regNo}`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (freshRes.ok) {
+                        viewStudent = await freshRes.json();
+                        renderStudentData();
+                    }
+                } else {
+                    showToast(`❌ Sync failed: ${data.error || data.detail || 'Unknown error'}`, 'error');
+                }
+            } catch (err) {
+                closeSyncModal();
+                showToast('❌ Network error during sync. Please try again.', 'error');
+            }
         }
 
         // REFINED: Dual-ring cursor — only on true pointer (mouse) devices

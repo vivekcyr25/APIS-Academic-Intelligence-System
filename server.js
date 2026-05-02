@@ -8,10 +8,13 @@ const bcrypt = require('bcryptjs');
 
 dotenv.config();
 
-const authRoutes = require('./routes/authRoutes');
-const studentRoutes = require('./routes/studentRoutes');
+const authRoutes     = require('./routes/authRoutes');
+const studentRoutes  = require('./routes/studentRoutes');
 const activityRoutes = require('./routes/activityRoutes');
-const aiRoutes = require('./routes/aiRoutes');
+const aiRoutes       = require('./routes/aiRoutes');
+const chatRoutes     = require('./routes/chatRoutes');
+const syncRoutes     = require('./routes/syncRoutes');
+const whatsappRoutes = require('./routes/whatsappRoutes');
 const Student = require('./models/Student');
 const { studentsDb } = require('./database');
 
@@ -28,10 +31,13 @@ app.use(express.static(__dirname));
 // ==========================================
 // API ROUTES
 // ==========================================
-app.use('/api', authRoutes); // login
-app.use('/api/student', studentRoutes); // fetch and update marks
-app.use('/api/activity', activityRoutes); // admin activity logs
-app.use('/api/ai-analysis', aiRoutes); // gemini ai analysis
+app.use('/api', authRoutes);                  // login
+app.use('/api/student', studentRoutes);        // fetch and update marks
+app.use('/api/student', syncRoutes);           // UMS sync (POST /api/student/sync)
+app.use('/api/activity', activityRoutes);      // admin activity logs
+app.use('/api/ai-analysis', aiRoutes);         // gemini ai analysis
+app.use('/api/chat', chatRoutes);              // chatbot intent-switch
+app.use('/api/whatsapp', whatsappRoutes);      // Twilio WhatsApp webhook
 
 // Fallback route for SPA
 app.get('*', (req, res) => {
