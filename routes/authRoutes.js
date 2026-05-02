@@ -55,6 +55,16 @@ router.post('/login', async (req, res) => {
             if (!isMatch) {
                 return res.status(401).json({ error: "Invalid credentials! Access denied." });
             }
+
+            // FAIL-SAFE: If existing student has no marks, generate them now
+            if (!student.marks || student.marks.size === 0) {
+                const baseline = generateSimulatedData(username);
+                student.marks = baseline.marks;
+                student.attendance = student.attendance || baseline.attendance;
+                student.subjectAttendance = student.subjectAttendance || baseline.subjectAttendance;
+                student.timetable = (student.timetable && student.timetable.length > 0) ? student.timetable : baseline.timetable;
+                await student.save();
+            }
         }
 
         // Explicit Role Check (Override for Admin ID 12510200)
