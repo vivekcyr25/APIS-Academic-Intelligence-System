@@ -1,5 +1,6 @@
 const express = require('express');
 const { protect } = require('../middleware/authMiddleware');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const router = express.Router();
 
 // POST /api/ai-analysis
@@ -10,10 +11,8 @@ router.post('/', protect, async (req, res) => {
         return res.status(400).json({ error: "Student data is required for analysis." });
     }
 
-    const apiKey = process.env.GEMINI_API_KEY;
-    
-    // Fallback if no API key is configured
-    if (!apiKey) {
+    const rawKey = process.env.GEMINI_API_KEY;
+    if (!rawKey) {
         console.warn("GEMINI_API_KEY not found in environment. Using fallback mock AI response.");
         return res.json({
             analysis: "⚠️ *API Key Missing*. This is a mock response.\n\n" +
@@ -23,26 +22,28 @@ router.post('/', protect, async (req, res) => {
         });
     }
 
-    try {
-        console.log("Using Gemini model: gemini-1.5-flash");
-        const prompt = `Analyze the following student academic record and provide a short, actionable performance tactic summary (3-4 sentences max). Be encouraging but specific about which subjects and assessment types (CA1, CA2, MTE) need the most focus for the upcoming ETE. Use markdown formatting.\n\nStudent Data:\n${JSON.stringify(studentData, null, 2)}`;
-        
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent?key=${apiKey}`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                contents: [{ parts: [{ text: prompt }] }]
-            })
-        });
+    const apiKey = rawKey.trim();
+    console.log("Initializing Gemini with Key length:", apiKey.length);
 
-        const data = await response.json();
-        
-        if (data.error) {
-            console.error("Gemini API Error:", data.error);
-            return res.status(500).json({ error: "AI API returned an error." });
+    try {
+        const genAI = new GoogleGenerativeAI(apiKey);
+        let model;
+        let result;
+
+        try {
+            console.log("Using Gemini model: gemini-1.5-flash");
+            model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const prompt = `Analyze the following student academic record and provide a short, actionable performance tactic summary (3-4 sentences max). Be encouraging but specific about which subjects and assessment types (CA1, CA2, MTE) need the most focus for the upcoming ETE. Use markdown formatting.\n\nStudent Data:\n${JSON.stringify(studentData, null, 2)}`;
+            result = await model.generateContent(prompt);
+        } catch (primaryErr) {
+            console.warn("Primary model failed, trying fallback: gemini-1.5-flash-latest", primaryErr.message);
+            model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+            const prompt = `Analyze the following student academic record and provide a short, actionable performance tactic summary (3-4 sentences max). Be encouraging but specific about which subjects and assessment types (CA1, CA2, MTE) need the most focus for the upcoming ETE. Use markdown formatting.\n\nStudent Data:\n${JSON.stringify(studentData, null, 2)}`;
+            result = await model.generateContent(prompt);
         }
 
-        const analysisText = data.candidates?.[0]?.content?.parts?.[0]?.text || "Unable to generate analysis at this time.";
+        const response = await result.response;
+        const analysisText = response.text() || "Unable to generate analysis at this time.";
         res.json({ analysis: analysisText });
 
     } catch (error) {

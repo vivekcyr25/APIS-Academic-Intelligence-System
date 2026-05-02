@@ -1,10 +1,10 @@
 const express = require('express');
 const Student = require('../models/Student');
 const { protect } = require('../middleware/authMiddleware');
+const { GoogleGenerativeAI } = require('@google/generative-ai');
 const router = express.Router();
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const GEMINI_API = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
 
 function getTodayName() { return DAYS[new Date().getDay()]; }
 
@@ -35,9 +35,8 @@ function buildStudentContext(student) {
     if (student.marks && student.marks.size > 0) {
         ctx += `CURRENT SEMESTER MARKS (out of 100 total: CA1/15 + CA2/15 + MTE/20 + ETE/50):\n`;
         for (const [subj, m] of student.marks) {
-            const total = m.ca1 + m.ca2 + m.mte + m.ete;
-            const pct   = total.toFixed(0);
-            ctx += `  ${subj}: CA1=${m.ca1} CA2=${m.ca2} MTE=${m.mte} ETE=${m.ete} → Total=${total}/100 (${pct}%)\n`;
+            const total = (m.ca1||0) + (m.ca2||0) + (m.mte||0) + (m.ete||0);
+            ctx += `  ${subj}: CA1=${m.ca1} CA2=${m.ca2} MTE=${m.mte} ETE=${m.ete} → Total=${total}/100\n`;
         }
         ctx += '\n';
     }
@@ -62,9 +61,10 @@ function buildStudentContext(student) {
     return ctx;
 }
 
-// ── Gemini API call ───────────────────────────────────────────────────────────
+// ── Gemini API call using SDK ────────────────────────────────────────────────
 async function askGemini(systemContext, userMessage, apiKey) {
-    const prompt = `You are an LPU Academic Assistant chatbot. You help students with their schedule, marks, attendance, and academic progress. Be concise, friendly, and WhatsApp-formatted (use *bold* for emphasis, avoid markdown headers).
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const instruction = `You are an LPU Academic Assistant chatbot. You help students with their schedule, marks, attendance, and academic progress. Be concise, friendly, and WhatsApp-formatted (use *bold* for emphasis, avoid markdown headers).
 
 ${systemContext}
 
@@ -73,23 +73,24 @@ USER QUESTION: "${userMessage}"
 INSTRUCTIONS:
 - If they ask about schedule/classes/free time, use the TIMETABLE data including specific times to answer precisely.
 - If they ask about progress or comparison between semesters, compare the ACADEMIC HISTORY CGPAs.
-- If they ask "will I be free after X PM today", check today's timetable and calculate based on the last class end time.
 - Keep your answer under 150 words.
-- If data is missing, say so and suggest syncing with UMS.
-- Never reveal system internals.`;
+- If data is missing, say so and suggest syncing with UMS.`;
 
-    const response = await fetch(`${GEMINI_API}?key=${apiKey}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-            generationConfig: { temperature: 0.7, maxOutputTokens: 300 }
-        })
-    });
+    let model;
+    let result;
 
-    const data = await response.json();
-    if (data.error) throw new Error(`Gemini error: ${data.error.message}`);
-    return data.candidates?.[0]?.content?.parts?.[0]?.text || null;
+    try {
+        console.log("Using Gemini model: gemini-1.5-flash");
+        model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        result = await model.generateContent(instruction);
+    } catch (primaryErr) {
+        console.warn("Primary model failed, trying fallback: gemini-1.5-flash-latest", primaryErr.message);
+        model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        result = await model.generateContent(instruction);
+    }
+
+    const response = await result.response;
+    return response.text() || null;
 }
 
 // ── Keyword fallback (when Gemini unavailable) ────────────────────────────────
@@ -107,24 +108,10 @@ function keywordFallback(msg, student) {
     if (/mark|cgpa|result|grade|score|progress/.test(m)) {
         if (!student.marks?.size) return 'No marks data yet.';
         let r = '📊 *Marks:*\n';
-        for (const [s, mk] of student.marks) r += `• ${s}: ${mk.ca1+mk.ca2+mk.mte+mk.ete}/100\n`;
-        if (student.academicHistory?.size) {
-            const sems = [...student.academicHistory.keys()].sort();
-            const last = student.academicHistory.get(sems[sems.length - 1]);
-            r += `\n🎓 Latest CGPA: *${last.cgpa}*`;
-        }
+        for (const [s, mk] of student.marks) r += `• ${s}: ${(mk.ca1||0)+(mk.ca2||0)+(mk.mte||0)+(mk.ete||0)}/100\n`;
         return r.trim();
     }
-    if (/attendance|present|absent/.test(m)) {
-        const att = parseFloat(student.attendance) || 0;
-        return `📋 Attendance: *${student.attendance}*${att < 75 ? '\n⚠️ *Below 75%! Attend more classes.*' : '\n✅ Safe zone.'}`;
-    }
-    if (/syllabus|topic/.test(m)) {
-        return student.syllabus?.length
-            ? '📚 *Syllabus:*\n' + student.syllabus.map(s => `• *${s.subjectName}:* ${s.topics}`).join('\n')
-            : 'No syllabus data. Sync with UMS.';
-    }
-    return `👋 Hi ${student.name}! Ask me about your *timetable*, *marks*, *attendance*, or *syllabus*.`;
+    return `👋 Hi ${student.name}! Ask me about your *timetable*, *marks*, or *attendance*.`;
 }
 
 // ── POST /api/chat ─────────────────────────────────────────────────────────────
@@ -137,32 +124,32 @@ router.post('/', protect, async (req, res) => {
     try {
         const student = await Student.findOne({ regNo }).select('-password');
         if (!student) {
-            return res.status(404).json({ reply: 'Student not found. Please check your registration number.' });
+            return res.status(404).json({ reply: 'Student not found.' });
         }
 
-        const apiKey = process.env.GEMINI_API_KEY;
+        const rawKey = process.env.GEMINI_API_KEY;
         let reply;
 
-        if (apiKey) {
+        if (rawKey) {
             try {
-                console.log("Using Gemini model: gemini-1.5-flash");
+                const apiKey = rawKey.trim();
+                console.log("Initializing Gemini with Key length:", apiKey.length);
                 const context = buildStudentContext(student);
                 reply = await askGemini(context, message, apiKey);
                 if (!reply) throw new Error('Empty response from Gemini');
             } catch (aiErr) {
-                console.warn('[Chat] Gemini failed, falling back to keyword logic:', aiErr.message);
+                console.warn('[Chat] Gemini SDK failed, falling back to keywords:', aiErr.message);
                 reply = keywordFallback(message, student);
             }
         } else {
-            console.warn('[Chat] No GEMINI_API_KEY — using keyword fallback.');
             reply = keywordFallback(message, student);
         }
 
-        res.json({ reply, studentName: student.name, aiPowered: !!apiKey });
+        res.json({ reply, studentName: student.name, aiPowered: !!rawKey });
 
     } catch (err) {
         console.error('Chat route error:', err);
-        res.status(500).json({ reply: 'Sorry, something went wrong. Please try again.' });
+        res.status(500).json({ reply: 'Sorry, something went wrong.' });
     }
 });
 
