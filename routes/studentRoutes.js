@@ -1,7 +1,18 @@
 const express = require('express');
 const Student = require('../models/Student');
+const ActivityLog = require('../models/ActivityLog');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
 const router = express.Router();
+
+// GET all students (Admin only)
+router.get('/', protect, adminOnly, async (req, res) => {
+    try {
+        const students = await Student.find().select('-password -__v');
+        res.json(students);
+    } catch (error) {
+        res.status(500).json({ error: "Server error fetching students." });
+    }
+});
 
 // GET a specific student
 router.get('/:regNo', protect, async (req, res) => {
@@ -39,6 +50,17 @@ router.put('/:regNo/marks', protect, adminOnly, async (req, res) => {
         // Update the specific subject marks using Mongoose Map set
         student.marks.set(subject, marks);
         await student.save();
+
+        // Log the activity
+        try {
+            await ActivityLog.create({
+                adminId: req.user.regNo,
+                action: `Updated marks for ${student.name} (${student.regNo}) in ${subject}`,
+                details: { studentRegNo: student.regNo, subject, newMarks: marks }
+            });
+        } catch (logErr) {
+            console.error("Failed to log activity:", logErr);
+        }
 
         res.json({ message: "Marks updated successfully!", marks: student.marks.get(subject) });
     } catch (error) {

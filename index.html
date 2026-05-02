@@ -7,6 +7,7 @@
     <!-- REFINED: Switched to DM Sans + Syne for cinematic-premium typography -->
     <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         /* =============================================
            REFINED: CSS CUSTOM PROPERTIES — CALMER PALETTE
@@ -924,6 +925,127 @@
             color: var(--primary);
             background: var(--primary-subtle);
         }
+
+        /* TOAST NOTIFICATIONS */
+        #toast-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 10000;
+            pointer-events: none;
+        }
+        .toast {
+            background: var(--surface);
+            color: var(--text-main);
+            padding: 14px 20px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            font-size: 0.9rem;
+            animation: slideInRight 0.3s forwards, fadeOut 0.3s forwards 2.7s;
+            backdrop-filter: blur(10px);
+        }
+        .toast.success { border-left-color: var(--success); }
+        .toast.error { border-left-color: var(--danger); }
+        .toast.warning { border-left-color: var(--warning); }
+        @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes fadeOut { to { opacity: 0; } }
+
+        /* SKELETON SCREENS */
+        .skeleton-box {
+            background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%);
+            background-size: 200% 100%;
+            animation: skeletonLoading 1.5s infinite;
+            border-radius: 8px;
+        }
+        [data-theme="light"] .skeleton-box {
+            background: linear-gradient(90deg, rgba(0,0,0,0.05) 25%, rgba(0,0,0,0.1) 50%, rgba(0,0,0,0.05) 75%);
+            background-size: 200% 100%;
+        }
+        @keyframes skeletonLoading { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+        /* AUTOCOMPLETE DROPDOWN */
+        .autocomplete-list {
+            position: absolute;
+            top: 100%; left: 0; right: 0;
+            background: var(--bg-color);
+            border: 1px solid var(--border);
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 100;
+            display: none;
+            padding: 0; margin: 0;
+            list-style: none;
+        }
+        .autocomplete-list li {
+            padding: 10px 18px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .autocomplete-list li:hover {
+            background: var(--surface-hover);
+            color: var(--primary);
+        }
+
+        /* TABLE SORTING */
+        th.sortable { cursor: pointer; user-select: none; }
+        th.sortable:hover { color: var(--primary); }
+        .sort-icon { font-size: 0.8rem; margin-left: 4px; opacity: 0.5; }
+
+        /* FORM VALIDATION */
+        .input-group input.error { border-color: var(--danger); }
+        .error-text { color: var(--danger); font-size: 0.75rem; margin-top: 4px; display: none; }
+
+        /* DROPDOWN & EXPORT */
+        .dropdown { position: relative; display: inline-block; width: 100%; }
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color: var(--bg-color);
+            min-width: 100%;
+            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+            z-index: 1;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .dropdown-content a {
+            color: var(--text-main);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            font-size: 0.9rem;
+        }
+        .dropdown-content a:hover { background-color: var(--surface-hover); color: var(--primary); }
+        .dropdown.show .dropdown-content { display: block; }
+        
+        /* ADMIN ACTIVITY LOG */
+        .activity-log-panel {
+            margin-top: 1.5rem;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface);
+            padding: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            display: none;
+        }
+        .log-item {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .log-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+        .log-time { color: var(--primary); font-size: 0.75rem; margin-right: 8px; }
+
     </style>
 </head>
 <body>
@@ -1021,18 +1143,32 @@
                 <!-- Middle Row -->
                 <div class="middle-row">
                     <div id="middleMainCard" class="glass-panel card"></div>
-                    <div class="glass-panel card">
+                    <div class="glass-panel card" style="position: relative;">
                         <h2>Quick Links</h2>
                         <a href="https://ums.lpu.in/lpuums/" target="_blank" class="btn ripple-btn"
-                           style="background: var(--primary-subtle); border: 1px solid var(--primary-dim); color: var(--primary); text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: none;">
+                           style="background: var(--primary-subtle); border: 1px solid var(--primary-dim); color: var(--primary); text-decoration: none; display: flex; justify-content: center; align-items: center; gap: 8px; box-shadow: none; margin-bottom: 10px;">
                             <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                                 <path d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path>
                             </svg>
                             Open LPU UMS
                         </a>
-                        <button class="btn-ghost ripple-btn" onclick="alert('Downloading transcript...')">
-                            Download Transcript
-                        </button>
+                        <div class="dropdown" id="exportDropdown">
+                            <button class="btn-ghost ripple-btn" onclick="toggleExportMenu()">
+                                Download Transcript ▼
+                            </button>
+                            <div class="dropdown-content" id="exportMenu">
+                                <a href="#" onclick="exportPDF()">Download as PDF</a>
+                                <a href="#" onclick="exportCSV()">Download as CSV</a>
+                                <a href="#" onclick="copyTable()">Copy to Clipboard</a>
+                            </div>
+                        </div>
+                        
+                        <!-- Admin Activity Log Panel (Hidden by default) -->
+                        <div id="activityLogPanel" class="activity-log-panel">
+                            <h3 style="font-size: 0.95rem; margin-bottom: 10px; color: var(--primary);">Recent Activity</h3>
+                            <div id="activityLogContent"></div>
+                        </div>
+                    </div>
                     </div>
                 </div>
 
@@ -1048,23 +1184,26 @@
                 <!-- Results Table -->
                 <div id="resultsWrapper" style="display:none;">
                     <div class="bottom-table-row glass-panel card">
-                        <h2 style="display: flex; justify-content: space-between; width: 100%;">
+                        <h2 style="display: flex; justify-content: space-between; width: 100%; align-items: center;">
                             <span>Academic Record</span>
-                            <button id="adminEditBtn" class="btn ripple-btn"
-                                style="width: auto; padding: 7px 18px; font-size: 0.82rem; display: none; box-shadow: none;"
-                                onclick="openEditModal()">Edit Marks</button>
+                            <div style="display:flex; gap:10px;">
+                                <button id="filterFailingBtn" class="btn-ghost ripple-btn" style="width:auto; padding: 7px 15px; font-size: 0.8rem;" onclick="toggleFailingOnly()">Failing Only</button>
+                                <button id="adminEditBtn" class="btn ripple-btn"
+                                    style="width: auto; padding: 7px 18px; font-size: 0.82rem; display: none; box-shadow: none;"
+                                    onclick="openEditModal()">Edit Marks</button>
+                            </div>
                         </h2>
                         <div class="table-responsive">
-                            <table>
+                            <table id="marksTable">
                                 <thead>
                                     <tr>
-                                        <th>Subject</th>
-                                        <th>CA1 (15)</th>
-                                        <th>CA2 (15)</th>
-                                        <th>MTE (20)</th>
-                                        <th>ETE (50)</th>
-                                        <th>Total</th>
-                                        <th>Grade</th>
+                                        <th class="sortable" onclick="sortTable(0, 'string')">Subject <span class="sort-icon">⇅</span></th>
+                                        <th class="sortable" onclick="sortTable(1, 'number')">CA1 (15) <span class="sort-icon">⇅</span></th>
+                                        <th class="sortable" onclick="sortTable(2, 'number')">CA2 (15) <span class="sort-icon">⇅</span></th>
+                                        <th class="sortable" onclick="sortTable(3, 'number')">MTE (20) <span class="sort-icon">⇅</span></th>
+                                        <th class="sortable" onclick="sortTable(4, 'number')">ETE (50) <span class="sort-icon">⇅</span></th>
+                                        <th class="sortable" onclick="sortTable(5, 'number')">Total <span class="sort-icon">⇅</span></th>
+                                        <th class="sortable" onclick="sortTable(6, 'string')">Grade <span class="sort-icon">⇅</span></th>
                                     </tr>
                                 </thead>
                                 <tbody id="marksTableBody"></tbody>
@@ -1093,7 +1232,12 @@
                         <div class="charts-row" id="chartsRow">
                             <div class="glass-panel card chart-card">
                                 <h2>Subject Performance</h2>
+                                <p style="font-size:0.75rem; color:var(--text-dim); margin-bottom:10px;" id="chartHint">Admin: Click a bar to view class stats</p>
                                 <div class="chart-container"><canvas id="barChart"></canvas></div>
+                            </div>
+                            <div class="glass-panel card chart-card">
+                                <h2>Skill Radar</h2>
+                                <div class="chart-container"><canvas id="radarChart"></canvas></div>
                             </div>
                             <div class="glass-panel card chart-card">
                                 <h2>Assessment Trend</h2>
@@ -1110,6 +1254,46 @@
             </div>
         </section>
     </div>
+
+    <!-- Session Warning Modal -->
+    <div id="sessionWarningModal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 400px; text-align: center;">
+            <h2 style="color: var(--warning); margin-bottom: 1rem;">Session Expiring Soon</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">Your session will expire in <span id="sessionTimerText" style="color: var(--text-main); font-weight: bold;">60</span> seconds due to inactivity.</p>
+            <button class="btn ripple-btn" onclick="extendSession()">Keep Me Signed In</button>
+        </div>
+    </div>
+
+    <!-- Compare Students Modal -->
+    <div id="compareModal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 800px;">
+            <span class="close-btn" onclick="closeCompareModal()">&times;</span>
+            <h2 style="margin-bottom: 1.2rem;">Compare Students</h2>
+            <div class="modal-grid">
+                <div class="input-group">
+                    <label>Student 1</label>
+                    <select id="compareS1" onchange="renderCompareChart()"><option value="">Select...</option></select>
+                </div>
+                <div class="input-group">
+                    <label>Student 2</label>
+                    <select id="compareS2" onchange="renderCompareChart()"><option value="">Select...</option></select>
+                </div>
+            </div>
+            <div class="chart-container" style="height: 300px; margin-top: 1rem;"><canvas id="compareChartCanvas"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Drill-down Modal -->
+    <div id="drillDownModal" class="modal">
+        <div class="modal-content glass-panel" style="max-width: 600px;">
+            <span class="close-btn" onclick="closeDrillDown()">&times;</span>
+            <h2 id="drillDownTitle" style="margin-bottom: 1.2rem;">Class Stats</h2>
+            <div class="chart-container" style="height: 300px;"><canvas id="drillDownCanvas"></canvas></div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div id="toast-container"></div>
 
     <!-- Edit Modal -->
     <div id="editModal" class="modal">
@@ -1138,7 +1322,12 @@
                     <div class="input-group">
                         <label>ETE / 50</label>
                         <input type="number" id="editEte" min="0" max="50" required />
+                        <div id="eteError" class="error-text">Must be between 0 and 50</div>
                     </div>
+                </div>
+                <div style="margin: 10px 0 20px 0; font-size: 0.9rem; color: var(--text-muted); background: var(--surface-hover); padding: 12px; border-radius: 8px; text-align: center;">
+                    <span id="livePreviewTotal">Total: -- / 100</span> &nbsp;|&nbsp; 
+                    <span id="livePreviewGrade" style="font-weight: bold;">Grade: --</span>
                 </div>
                 <button type="button" class="btn ripple-btn" onclick="saveSubjectMarks()">Save Marks</button>
             </form>
@@ -1180,12 +1369,164 @@
             return { l: 'F', cls: 'msg-error', gp: 0 };
         }
 
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = msg;
+            container.appendChild(toast);
+            setTimeout(() => { toast.remove(); }, 3000);
+        }
+
+        // Override showMsg to use Toasts if preferred, but leaving it for form errors
         function showMsg(id, text, typeClass) {
-            const box = document.getElementById(id);
-            box.textContent = text;
-            box.className = 'msg-box ' + typeClass;
-            box.style.display = 'block';
-            setTimeout(() => box.style.display = 'none', 4000);
+            if (id === 'modalMsg' || id === 'loginMsg' || id === 'searchMsg') {
+                const box = document.getElementById(id);
+                box.textContent = text;
+                box.className = 'msg-box ' + typeClass;
+                box.style.display = 'block';
+                setTimeout(() => box.style.display = 'none', 4000);
+            } else {
+                showToast(text, typeClass.includes('error') ? 'error' : 'success');
+            }
+        }
+
+        // ==========================================
+        // THEME PERSISTENCE
+        // ==========================================
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const btn = document.getElementById('themeBtn');
+            if (savedTheme === 'light') {
+                document.body.setAttribute('data-theme', 'light');
+                if (btn) btn.innerHTML = '🌙 Dark';
+            } else {
+                document.body.removeAttribute('data-theme');
+                if (btn) btn.innerHTML = '☀️ Light';
+            }
+        }
+        document.addEventListener('DOMContentLoaded', applySavedTheme);
+
+        // ==========================================
+        // SESSION TIMEOUT
+        // ==========================================
+        let sessionTimer;
+        let warningTimer;
+        let countdownInterval;
+
+        function resetSessionTimer() {
+            if (!currentUser) return;
+            clearTimeout(sessionTimer);
+            clearTimeout(warningTimer);
+            clearInterval(countdownInterval);
+            document.getElementById('sessionWarningModal').classList.remove('active');
+
+            // Warning after 9 minutes (540s)
+            warningTimer = setTimeout(showSessionWarning, 540 * 1000);
+            // Logout after 10 minutes (600s)
+            sessionTimer = setTimeout(handleAutoLogout, 600 * 1000);
+        }
+
+        function showSessionWarning() {
+            let timeLeft = 60;
+            const textEl = document.getElementById('sessionTimerText');
+            textEl.textContent = timeLeft;
+            document.getElementById('sessionWarningModal').classList.add('active');
+            
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                textEl.textContent = timeLeft;
+                if (timeLeft <= 0) clearInterval(countdownInterval);
+            }, 1000);
+        }
+
+        function extendSession() {
+            resetSessionTimer();
+        }
+
+        function handleAutoLogout() {
+            logout();
+            showToast('Session expired due to inactivity. Please log in again.', 'warning');
+        }
+
+        // Reset timer on user activity
+        ['click', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(evt => {
+            document.addEventListener(evt, () => {
+                if (currentUser && !document.getElementById('sessionWarningModal').classList.contains('active')) {
+                    resetSessionTimer();
+                }
+            }, { passive: true });
+        });
+
+        // ==========================================
+        // KEYBOARD NAVIGATION & AUTOCOMPLETE
+        // ==========================================
+        let allStudentsCache = null;
+        let autocompleteTimeout;
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeEditModal();
+                if(typeof closeCompareModal === 'function') closeCompareModal();
+                if(typeof closeDrillDown === 'function') closeDrillDown();
+            }
+        });
+
+        async function fetchAllStudents() {
+            if (allStudentsCache || !currentUser || currentUser.role !== 'admin') return;
+            const token = localStorage.getItem('token');
+            try {
+                const res = await fetch(`${API_BASE}/student`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (res.ok) allStudentsCache = await res.json();
+            } catch (err) {}
+        }
+
+        function handleSearchInput(e) {
+            clearTimeout(autocompleteTimeout);
+            const val = e.target.value.trim();
+            const list = document.getElementById('autocompleteList');
+            if (!list) return;
+            if (!val || !allStudentsCache) { list.style.display = 'none'; return; }
+            
+            autocompleteTimeout = setTimeout(() => {
+                const matches = allStudentsCache.filter(s => s.regNo.includes(val) || s.name.toLowerCase().includes(val.toLowerCase()));
+                if (matches.length > 0) {
+                    list.innerHTML = matches.map(s => `<li onclick="selectAutocomplete('${s.regNo}')">${s.name} (${s.regNo})</li>`).join('');
+                    list.style.display = 'block';
+                } else {
+                    list.style.display = 'none';
+                }
+            }, 300); // debounced
+        }
+
+        function selectAutocomplete(regNo) {
+            document.getElementById('searchRegNo').value = regNo;
+            document.getElementById('autocompleteList').style.display = 'none';
+            fetchStudent();
+        }
+
+        document.addEventListener('click', (e) => {
+            if (!e.target.closest('.input-group')) {
+                const list = document.getElementById('autocompleteList');
+                if (list) list.style.display = 'none';
+            }
+        });
+
+        // ==========================================
+        // ANIMATED STATS
+        // ==========================================
+        function animateValue(obj, start, end, duration, isFloat = false) {
+            let startTimestamp = null;
+            const step = (timestamp) => {
+                if (!startTimestamp) startTimestamp = timestamp;
+                const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+                const current = progress * (end - start) + start;
+                obj.textContent = isFloat ? current.toFixed(2) : Math.floor(current) + (obj.id === 'statAvg' ? '%' : '');
+                if (progress < 1) {
+                    window.requestAnimationFrame(step);
+                }
+            };
+            window.requestAnimationFrame(step);
         }
 
         // Ripple effect
@@ -1227,6 +1568,7 @@
                 if (res.ok) {
                     localStorage.setItem('token', data.token);
                     currentUser = data.user;
+                    showToast('Logged in successfully', 'success');
                     loginSuccess();
                 } else {
                     showMsg('loginMsg', data.error || 'Invalid credentials.', 'msg-error');
@@ -1247,6 +1589,8 @@
         }
 
         function logout() {
+            clearTimeout(sessionTimer); clearTimeout(warningTimer); clearInterval(countdownInterval);
+            document.getElementById('sessionWarningModal').classList.remove('active');
             localStorage.removeItem('token');
             currentUser = null; viewStudent = null;
             document.getElementById('dashboardSection').classList.remove('active');
@@ -1269,14 +1613,19 @@
                 middleMain.innerHTML = `
                     <h2>Admin Search</h2>
                     <p class="info-text">Enter a student registration number to view or manage records.</p>
-                    <div class="input-group">
+                    <div class="input-group" style="position: relative;">
                         <label>Registration Number</label>
                         <input type="text" id="searchRegNo" placeholder="e.g., 12510201"
-                            onkeypress="if(event.key==='Enter') fetchStudent()" />
+                            onkeypress="if(event.key==='Enter') { document.getElementById('autocompleteList').style.display='none'; fetchStudent(); }" 
+                            oninput="handleSearchInput(event)" autocomplete="off" />
+                        <ul id="autocompleteList" class="autocomplete-list"></ul>
                     </div>
                     <button id="fetchBtn" class="btn ripple-btn" onclick="fetchStudent()">Fetch Record</button>
+                    <button id="compareBtn" class="btn-ghost ripple-btn" onclick="openCompareModal()" style="margin-top: 10px;">Compare Students</button>
                     <div id="searchMsg" class="msg-box"></div>
                 `;
+                fetchAllStudents();
+                fetchActivityLogs();
             } else {
                 viewStudent = currentUser;
                 document.getElementById('emptyState').style.display = 'none';
@@ -1291,7 +1640,18 @@
 
             btn.innerHTML = '<span class="spinner"></span>';
             btn.disabled = true;
-            await new Promise(r => setTimeout(r, 600));
+
+            // Show skeleton UI
+            document.getElementById('emptyState').style.display = 'none';
+            document.getElementById('resultsWrapper').style.display = 'block';
+            document.getElementById('statsRow').style.display = 'grid';
+            document.getElementById('middleMainCard').innerHTML = '<div class="skeleton-box" style="height: 120px;"></div>';
+            document.getElementById('marksTableBody').innerHTML = Array(5).fill('<tr>' + '<td class="skeleton-box" style="height:20px; margin:5px;"></td>'.repeat(7) + '</tr>').join('');
+            document.getElementById('statAvg').textContent = '--';
+            document.getElementById('statBest').textContent = '--';
+            document.getElementById('statGrade').textContent = '--';
+
+            await new Promise(r => setTimeout(r, 800)); // Artificial delay for skeleton demo
             btn.innerHTML = 'Fetch Record';
             btn.disabled = false;
 
@@ -1303,7 +1663,6 @@
                 const data = await res.json();
                 if (res.ok) {
                     viewStudent = data;
-                    document.getElementById('emptyState').style.display = 'none';
                     showMsg('searchMsg', 'Record found.', 'msg-success');
                     renderStudentData();
                 } else {
@@ -1313,6 +1672,9 @@
                     showMsg('searchMsg', data.error || 'No record found.', 'msg-error');
                 }
             } catch {
+                document.getElementById('emptyState').style.display = 'block';
+                document.getElementById('resultsWrapper').style.display = 'none';
+                document.getElementById('statsRow').style.display = 'none';
                 showMsg('searchMsg', 'Server error while fetching record.', 'msg-error');
             }
         }
@@ -1368,48 +1730,65 @@
                     </tr>`;
             });
 
-            const avg = (totalOverall / subjectsList.length).toFixed(1);
-            const gpa = (totalGp / subjectsList.length).toFixed(2);
-            document.getElementById('statAvg').textContent = avg + '%';
+            const avg = (totalOverall / subjectsList.length);
+            const gpa = (totalGp / subjectsList.length);
+            
+            animateValue(document.getElementById('statAvg'), 0, avg, 800, true);
             document.getElementById('statBest').textContent = bestSubj.split(' ')[0];
-            document.getElementById('statGrade').textContent = gpa;
+            animateValue(document.getElementById('statGrade'), 0, gpa, 800, true);
 
-            // AI Recommendations
-            const subjectCredits = {
-                "Mathematics": 4, "Physics": 4, "Computer Science": 4,
-                "English": 2, "DBMS": 3, "C Programming": 3
-            };
-            let perfData = subjectsList.map(subj => {
+            // Fetch actual AI Recommendations
+            analyzeStudent();
+            if(document.getElementById('analyticsContainer').style.display === 'block') {
+                renderCharts();
+            }
+            // Add ETE Predictor
+            let predictedEteSum = 0;
+            let currentMarksSum = 0;
+            subjectsList.forEach(subj => {
                 const marks = viewStudent.marks[subj];
-                const total = marks.ca1 + marks.ca2 + marks.mte + marks.ete;
-                return { subject: subj, total, credits: subjectCredits[subj] || 3, mte: marks.mte, ete: marks.ete, ca: marks.ca1 + marks.ca2 };
+                const caMte = marks.ca1 + marks.ca2 + marks.mte;
+                currentMarksSum += caMte;
+                // Simple historical weight: if they got X out of 50 so far, predict they'll get slightly better out of 50 for ETE
+                predictedEteSum += (caMte / 50) * 50 * 1.05; 
             });
-            perfData.sort((a, b) => a.total - b.total);
-
+            const predictedEteAvg = Math.min((predictedEteSum / subjectsList.length), 50).toFixed(1);
+            
             const aiContainer = document.getElementById('aiRecommendations');
-            aiContainer.innerHTML = '';
-            for (let i = 0; i < 2; i++) {
-                const item = perfData[i];
-                let tacticMsg = '', priorityLevel = item.credits >= 4 ? 'High Impact' : 'Medium Impact';
-                let accentColor = item.total < 50 ? 'var(--danger)' : (item.total < 70 ? 'var(--warning)' : 'var(--success)');
-                let dotColor    = item.total < 50 ? '#e05454' : (item.total < 70 ? '#d4a017' : '#2eb87a');
+            if(currentUser.role === 'student' || viewStudent) {
+                aiContainer.innerHTML = `<div style="padding: 15px; border-radius: 8px; background: var(--surface); color: var(--text-dim);">
+                    <strong>Predicted Average ETE Score:</strong> ${predictedEteAvg} / 50
+                </div><div id="aiAnalysisText"></div>`;
+            }
 
-                if (item.total < 50) {
-                    if (item.ete < 20) tacticMsg = `Your ETE score in ${item.subject} is critically low. Prioritize mock finals — this ${item.credits}-credit course can significantly impact your GPA.`;
-                    else if (item.ca < 15) tacticMsg = `Your CA scores in ${item.subject} are pulling down your average. Never miss assessments in this ${item.credits}-credit course.`;
-                    else tacticMsg = `${item.subject} (${item.credits} credits) needs immediate attention. Targeted revision is recommended this week.`;
-                } else if (item.total < 70) {
-                    if (item.mte < 12) tacticMsg = `You lost marks in MTE for ${item.subject}. Consistent daily study in this ${item.credits}-credit course will push your grade to the next tier.`;
-                    else tacticMsg = `You're averaging in ${item.subject}. Just one focused hour per week in this ${item.credits}-credit subject can noticeably lift your CGPA.`;
+        }
+
+        async function analyzeStudent() {
+            const aiContainer = document.getElementById('aiAnalysisText');
+            if(!aiContainer) return;
+            aiContainer.innerHTML = '<div style="padding: 10px; color: var(--text-muted); font-size: 0.9rem;">Generating AI insights... <span class="spinner" style="display:inline-block; width:12px; height:12px; border-width:2px; border-color:var(--text-muted) transparent transparent transparent;"></span></div>';
+            
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_BASE}/ai-analysis`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify({ studentData: viewStudent.marks })
+                });
+                const data = await res.json();
+                
+                if (res.ok && data.analysis) {
+                    aiContainer.innerHTML = `
+                        <div style="padding:14px 16px; border-radius:10px; background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--primary); margin-top: 10px;">
+                            <span style="font-size:0.92rem; color:var(--text-main); line-height:1.6;">
+                                ${data.analysis.replace(/\n/g, '<br>')}
+                            </span>
+                        </div>`;
                 } else {
-                    tacticMsg = `Outstanding performance in ${item.subject}. Maintain this level to secure your top-tier ranking.`;
-                    priorityLevel = 'Good Standing';
+                    aiContainer.innerHTML = `<div class="msg-box msg-error" style="margin-top: 10px;">AI Analysis unavailable.</div>`;
                 }
-                aiContainer.innerHTML += `
-                    <div style="padding:14px 16px; border-radius:10px; background:var(--surface); border:1px solid var(--border); border-left:3px solid ${dotColor}; display:flex; flex-direction:column; gap:5px; transition:border-color 0.25s ease;" onmouseover="this.style.borderColor='${dotColor}'" onmouseout="this.style.borderColor='var(--border)'">
-                        <span style="font-size:0.72rem; font-weight:600; text-transform:uppercase; color:${dotColor}; letter-spacing:0.1em;">${priorityLevel} &nbsp;·&nbsp; ${item.credits} Credits</span>
-                        <span style="font-size:0.92rem; color:var(--text-main); line-height:1.6;">${tacticMsg}</span>
-                    </div>`;
+            } catch (e) {
+                aiContainer.innerHTML = `<div class="msg-box msg-error" style="margin-top: 10px;">Server error generating analysis.</div>`;
             }
 
             const sphereBtn = document.getElementById('sphereBtn');
@@ -1462,6 +1841,12 @@
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
+                    onClick: (e, elements) => {
+                        if (!elements.length || currentUser.role !== 'admin') return;
+                        const subjectIndex = elements[0].index;
+                        const subject = labels[subjectIndex];
+                        if(typeof openDrillDown === 'function') openDrillDown(subject);
+                    },
                     scales: {
                         y: { beginAtZero: true, max: 100, grid: { color: gridColor }, border: { display: false } },
                         x: { grid: { display: false }, border: { display: false } }
@@ -1471,17 +1856,58 @@
                 }
             });
 
-            // Line
+            // Radar
+            let radarChartInst = Chart.getChart('radarChart');
+            if (radarChartInst) radarChartInst.destroy();
+            radarChartInst = new Chart(document.getElementById('radarChart').getContext('2d'), {
+                type: 'radar',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'Scores',
+                        data: totals,
+                        backgroundColor: 'rgba(232,98,26,0.2)',
+                        borderColor: primary,
+                        pointBackgroundColor: primary,
+                        pointBorderColor: '#fff'
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        r: { 
+                            angleLines: { color: gridColor }, 
+                            grid: { color: gridColor }, 
+                            pointLabels: { color: textMuted }, 
+                            ticks: { display: false, max: 100, min: 0 } 
+                        }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Line (Assessment Trend per Subject)
             if (lineChartInst) lineChartInst.destroy();
+            const assessLabels = ['CA (30)', 'MTE (20)', 'ETE (50)'];
+            const lineColors = ['#e8621a', '#38b6cb', '#d4a017', '#2eb87a', '#a638cb', '#38cb65'];
+            const subjectDatasets = subjectsList.map((subj, i) => {
+                const marks = viewStudent.marks[subj];
+                return {
+                    label: subj,
+                    data: [marks.ca1 + marks.ca2, marks.mte, marks.ete],
+                    borderColor: lineColors[i % lineColors.length],
+                    backgroundColor: 'transparent',
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                };
+            });
+
             lineChartInst = new Chart(document.getElementById('lineChart').getContext('2d'), {
                 type: 'line',
                 data: {
-                    labels,
-                    datasets: [
-                        { label: 'CA (30)',  data: caTotal, borderColor: '#38b6cb', backgroundColor: 'rgba(56,182,203,0.1)', tension: 0.4, fill: true, pointRadius: 3, pointHoverRadius: 6 },
-                        { label: 'MTE (20)', data: mteData, borderColor: '#d4a017', backgroundColor: 'rgba(212,160,23,0.1)',  tension: 0.4, fill: true, pointRadius: 3, pointHoverRadius: 6 },
-                        { label: 'ETE (50)', data: eteData, borderColor: '#2eb87a', backgroundColor: 'rgba(46,184,122,0.1)', tension: 0.4, fill: true, pointRadius: 3, pointHoverRadius: 6 }
-                    ]
+                    labels: assessLabels,
+                    datasets: subjectDatasets
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
@@ -1491,16 +1917,13 @@
                         x: { grid: { display: false }, border: { display: false } }
                     },
                     plugins: {
-                        legend: { position: 'top' },
+                        legend: { position: 'right', labels: { boxWidth: 10, font: {size: 10} } },
                         tooltip: {
                             backgroundColor: 'rgba(11,11,20,0.92)',
                             titleFont: { size: 13, weight: '600' },
                             bodyFont:  { size: 12 },
                             padding: 12,
-                            cornerRadius: 10,
-                            usePointStyle: true,
-                            borderColor: 'rgba(232,98,26,0.2)',
-                            borderWidth: 1
+                            cornerRadius: 10
                         }
                     },
                     animation: { duration: 600, easing: 'easeOutQuart' }
@@ -1553,16 +1976,56 @@
             document.getElementById('editCa2').value = marks.ca2;
             document.getElementById('editMte').value  = marks.mte;
             document.getElementById('editEte').value  = marks.ete;
+            updateLivePreview();
         }
+
+        ['editCa1', 'editCa2', 'editMte', 'editEte'].forEach(id => {
+            const el = document.getElementById(id);
+            if(el) {
+                el.addEventListener('input', () => {
+                    const val = Number(el.value);
+                    const max = Number(el.getAttribute('max'));
+                    if(val < 0 || val > max) {
+                        el.classList.add('error');
+                        if(id === 'editEte') document.getElementById('eteError').style.display = 'block';
+                    } else {
+                        el.classList.remove('error');
+                        if(id === 'editEte') document.getElementById('eteError').style.display = 'none';
+                    }
+                    updateLivePreview();
+                });
+            }
+        });
+
+        function updateLivePreview() {
+            const c1 = Number(document.getElementById('editCa1').value) || 0;
+            const c2 = Number(document.getElementById('editCa2').value) || 0;
+            const m = Number(document.getElementById('editMte').value) || 0;
+            const e = Number(document.getElementById('editEte').value) || 0;
+            const total = c1 + c2 + m + e;
+            const grade = calculateGrade(total);
+            document.getElementById('livePreviewTotal').textContent = `Total: ${total} / 100`;
+            document.getElementById('livePreviewGrade').textContent = `Grade: ${grade.l}`;
+            document.getElementById('livePreviewGrade').className = grade.cls;
+        }
+
         function saveSubjectMarks() {
             const subj = document.getElementById('editSubject').value;
             const c1 = Number(document.getElementById('editCa1').value);
             const c2 = Number(document.getElementById('editCa2').value);
             const m  = Number(document.getElementById('editMte').value);
             const e  = Number(document.getElementById('editEte').value);
-            if (c1>15||c2>15||m>20||e>50||c1<0||c2<0||m<0||e<0) {
-                showMsg('modalMsg', 'Marks are out of range.', 'msg-error'); return;
+            
+            let hasError = false;
+            if(c1<0||c1>15) { document.getElementById('editCa1').classList.add('error'); hasError = true; }
+            if(c2<0||c2>15) { document.getElementById('editCa2').classList.add('error'); hasError = true; }
+            if(m<0||m>20) { document.getElementById('editMte').classList.add('error'); hasError = true; }
+            if(e<0||e>50) { document.getElementById('editEte').classList.add('error'); document.getElementById('eteError').style.display='block'; hasError = true; }
+            
+            if (hasError) {
+                showMsg('modalMsg', 'Please fix the highlighted errors.', 'msg-error'); return;
             }
+            
             const token = localStorage.getItem('token');
             fetch(`${API_BASE}/student/${viewStudent.regNo}/marks`, {
                 method: 'PUT',
@@ -1574,12 +2037,187 @@
                 if (data.error) { showMsg('modalMsg', data.error, 'msg-error'); }
                 else {
                     viewStudent.marks[subj] = { ca1: c1, ca2: c2, mte: m, ete: e };
-                    showMsg('modalMsg', 'Marks updated.', 'msg-success');
+                    showToast('Marks updated successfully.', 'success');
+                    fetchActivityLogs();
                     setTimeout(() => { closeEditModal(); renderStudentData(); }, 900);
                 }
             })
             .catch(() => showMsg('modalMsg', 'Server error. Failed to update.', 'msg-error'));
         }
+
+        // ==========================================
+        // 7. NEW UTILITIES
+        // ==========================================
+        let sortDirection = {};
+        function sortTable(n, type) {
+            const table = document.getElementById('marksTable');
+            const tbody = document.getElementById('marksTableBody');
+            let rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
+            switching = true;
+            dir = sortDirection[n] === "asc" ? "desc" : "asc";
+            sortDirection[n] = dir;
+            
+            while (switching) {
+                switching = false;
+                rows = tbody.rows;
+                for (i = 0; i < (rows.length - 1); i++) {
+                    shouldSwitch = false;
+                    x = rows[i].getElementsByTagName("TD")[n];
+                    y = rows[i + 1].getElementsByTagName("TD")[n];
+                    
+                    let cmpX = type === 'number' ? Number(x.innerHTML) : x.innerHTML.toLowerCase();
+                    let cmpY = type === 'number' ? Number(y.innerHTML) : y.innerHTML.toLowerCase();
+                    
+                    if (dir == "asc") { if (cmpX > cmpY) { shouldSwitch = true; break; } }
+                    else { if (cmpX < cmpY) { shouldSwitch = true; break; } }
+                }
+                if (shouldSwitch) {
+                    rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                    switching = true;
+                    switchcount++;
+                }
+            }
+        }
+
+        let isFailingOnly = false;
+        function toggleFailingOnly() {
+            isFailingOnly = !isFailingOnly;
+            const btn = document.getElementById('filterFailingBtn');
+            btn.innerHTML = isFailingOnly ? 'Show All' : 'Failing Only';
+            btn.style.color = isFailingOnly ? 'var(--danger)' : '';
+            btn.style.borderColor = isFailingOnly ? 'var(--danger)' : 'var(--border)';
+            
+            const tbody = document.getElementById('marksTableBody');
+            for(let row of tbody.rows) {
+                const total = Number(row.getElementsByTagName("TD")[5].innerHTML);
+                if(isFailingOnly && total < 40) row.style.display = '';
+                else if(isFailingOnly) row.style.display = 'none';
+                else row.style.display = '';
+            }
+        }
+
+        function toggleExportMenu() { document.getElementById("exportDropdown").classList.toggle("show"); }
+        window.onclick = function(event) {
+            if (!event.target.matches('.btn-ghost') && !event.target.closest('.dropdown')) {
+                var dropdowns = document.getElementsByClassName("dropdown-content");
+                for (var i = 0; i < dropdowns.length; i++) {
+                    var openDropdown = dropdowns[i];
+                    if (openDropdown.style.display === 'block' || openDropdown.classList.contains('show')) {
+                        openDropdown.classList.remove('show');
+                    }
+                }
+            }
+        }
+
+        function exportPDF() {
+            if(typeof html2pdf === 'undefined') { showToast('PDF library still loading...', 'warning'); return; }
+            const element = document.getElementById('resultsWrapper');
+            const opt = { margin: 0.5, filename: \`Transcript_\${viewStudent.regNo}.pdf\`, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+            html2pdf().set(opt).from(element).save();
+            showToast('Downloading PDF...', 'success');
+        }
+
+        function exportCSV() {
+            let csv = 'Subject,CA1,CA2,MTE,ETE,Total,Grade\\n';
+            subjectsList.forEach(subj => {
+                const marks = viewStudent.marks[subj];
+                const total = marks.ca1 + marks.ca2 + marks.mte + marks.ete;
+                csv += \`\${subj},\${marks.ca1},\${marks.ca2},\${marks.mte},\${marks.ete},\${total},\${calculateGrade(total).l}\\n\`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.setAttribute('href', url);
+            a.setAttribute('download', \`Transcript_\${viewStudent.regNo}.csv\`);
+            a.click();
+            showToast('Downloading CSV...', 'success');
+        }
+
+        function copyTable() {
+            let text = 'Subject\\tCA1\\tCA2\\tMTE\\tETE\\tTotal\\n';
+            subjectsList.forEach(subj => {
+                const marks = viewStudent.marks[subj];
+                text += \`\${subj}\\t\${marks.ca1}\\t\${marks.ca2}\\t\${marks.mte}\\t\${marks.ete}\\t\${marks.ca1+marks.ca2+marks.mte+marks.ete}\\n\`;
+            });
+            navigator.clipboard.writeText(text).then(() => showToast('Copied to clipboard!', 'success'));
+        }
+
+        async function fetchActivityLogs() {
+            if(!currentUser || currentUser.role !== 'admin') return;
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(\`\${API_BASE}/activity\`, { headers: { 'Authorization': \`Bearer \${token}\` } });
+                const logs = await res.json();
+                if(res.ok && logs.length > 0) {
+                    document.getElementById('activityLogPanel').style.display = 'block';
+                    const content = document.getElementById('activityLogContent');
+                    content.innerHTML = logs.map(l => \`<div class="log-item"><span class="log-time">\${new Date(l.timestamp).toLocaleTimeString()}</span> \${l.action}</div>\`).join('');
+                }
+            } catch (e) {}
+        }
+
+        let compareChartInst = null;
+        function openCompareModal() {
+            if(!allStudentsCache) { showToast('Loading students...', 'warning'); fetchAllStudents().then(openCompareModal); return; }
+            const s1 = document.getElementById('compareS1');
+            const s2 = document.getElementById('compareS2');
+            s1.innerHTML = '<option value="">Select Student 1</option>' + allStudentsCache.map(s => \`<option value="\${s.regNo}">\${s.name} (\${s.regNo})</option>\`).join('');
+            s2.innerHTML = '<option value="">Select Student 2</option>' + allStudentsCache.map(s => \`<option value="\${s.regNo}">\${s.name} (\${s.regNo})</option>\`).join('');
+            if(viewStudent) { s1.value = viewStudent.regNo; }
+            document.getElementById('compareModal').style.display = 'flex';
+        }
+
+        function closeCompareModal() { document.getElementById('compareModal').style.display = 'none'; }
+
+        function renderCompareChart() {
+            const reg1 = document.getElementById('compareS1').value;
+            const reg2 = document.getElementById('compareS2').value;
+            if(!reg1 || !reg2) return;
+            const s1 = allStudentsCache.find(s => s.regNo === reg1);
+            const s2 = allStudentsCache.find(s => s.regNo === reg2);
+            
+            const t1 = subjectsList.map(subj => s1.marks[subj].ca1 + s1.marks[subj].ca2 + s1.marks[subj].mte + s1.marks[subj].ete);
+            const t2 = subjectsList.map(subj => s2.marks[subj].ca1 + s2.marks[subj].ca2 + s2.marks[subj].mte + s2.marks[subj].ete);
+
+            if(compareChartInst) compareChartInst.destroy();
+            const gridColor = document.body.getAttribute('data-theme') === 'light' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
+            compareChartInst = new Chart(document.getElementById('compareChartCanvas').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: subjectsList,
+                    datasets: [
+                        { label: s1.name, data: t1, backgroundColor: 'rgba(232,98,26,0.8)' },
+                        { label: s2.name, data: t2, backgroundColor: 'rgba(56,182,203,0.8)' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, grid: { color: gridColor } }, x: { grid: { display: false } } } }
+            });
+        }
+
+        let drillDownChartInst = null;
+        function openDrillDown(subject) {
+            if(!allStudentsCache) { fetchAllStudents().then(() => openDrillDown(subject)); return; }
+            document.getElementById('drillDownTitle').textContent = \`Class Stats: \${subject}\`;
+            const scores = allStudentsCache.map(s => {
+                const m = s.marks[subject];
+                if (!m) return { name: s.name, total: 0 };
+                return { name: s.name, total: m.ca1 + m.ca2 + m.mte + m.ete };
+            }).sort((a,b) => b.total - a.total);
+
+            if(drillDownChartInst) drillDownChartInst.destroy();
+            const gridColor = document.body.getAttribute('data-theme') === 'light' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
+            drillDownChartInst = new Chart(document.getElementById('drillDownCanvas').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: scores.map(s => s.name.split(' ')[0]),
+                    datasets: [{ label: 'Total', data: scores.map(s => s.total), backgroundColor: 'rgba(212,160,23,0.8)' }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, max: 100, grid: { color: gridColor } }, x: { grid: { display: false } } } }
+            });
+            document.getElementById('drillDownModal').style.display = 'flex';
+        }
+
+        function closeDrillDown() { document.getElementById('drillDownModal').style.display = 'none'; }
 
         // ==========================================
         // 7. UI UTILITIES
