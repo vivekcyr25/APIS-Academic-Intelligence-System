@@ -85,11 +85,15 @@ async function startServer() {
         // Auto-seed and Sync Students
         console.log('Synchronizing student database...');
         for (let student of studentsDb) {
-            const exists = await Student.findOne({ regNo: student.regNo });
-            if (!exists) {
+            let doc = await Student.findOne({ regNo: student.regNo });
+            if (!doc) {
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(student.password, salt);
                 await Student.create({ ...student, password: hashedPassword });
+            } else if (!doc.marks || doc.marks.size === 0) {
+                // FORCE UPDATE marks if empty (fixes the "all zeros" issue)
+                doc.marks = student.marks;
+                await doc.save();
             }
         }
         console.log('✅ Student database synchronized!');

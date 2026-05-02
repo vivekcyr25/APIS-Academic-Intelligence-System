@@ -2175,7 +2175,7 @@
         // 6. MODAL (ADMIN)
         // ==========================================
         function openEditModal() {
-            if (!viewStudent) return;
+            if (!viewStudent) { showToast('No student selected.', 'error'); return; }
             const sel = document.getElementById('editSubject');
             sel.innerHTML = '';
             subjectsList.forEach(s => sel.innerHTML += `<option value="${s}">${s}</option>`);
@@ -2185,11 +2185,12 @@
         function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
         function loadSubjectMarksForEdit() {
             const subj  = document.getElementById('editSubject').value;
-            const marks = viewStudent.marks[subj];
-            document.getElementById('editCa1').value = marks.ca1;
-            document.getElementById('editCa2').value = marks.ca2;
-            document.getElementById('editMte').value  = marks.mte;
-            document.getElementById('editEte').value  = marks.ete;
+            // Robust check: if marks[subj] doesn't exist, default to 0
+            const m = (viewStudent.marks && viewStudent.marks[subj]) || { ca1:0, ca2:0, mte:0, ete:0 };
+            document.getElementById('editCa1').value = m.ca1 || 0;
+            document.getElementById('editCa2').value = m.ca2 || 0;
+            document.getElementById('editMte').value  = m.mte || 0;
+            document.getElementById('editEte').value  = m.ete || 0;
             updateLivePreview();
         }
 
