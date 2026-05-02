@@ -94,6 +94,22 @@ async function startServer() {
             console.log('✅ Database seeded with authentic hashed passwords!');
         }
 
+        // ALWAYS ensure Admin exists
+        const adminExists = await Student.findOne({ regNo: '12510200' });
+        if (!adminExists) {
+            console.log('Admin account missing. Auto-seeding admin...');
+            const salt = await bcrypt.genSalt(10);
+            const hashedAdminPassword = await bcrypt.hash('Vivek50', salt);
+            await Student.create({
+                regNo: '12510200',
+                name: 'Vivek (Admin)',
+                password: hashedAdminPassword,
+                role: 'admin',
+                semester: 'N/A'
+            });
+            console.log('✅ Admin account (12510200) created!');
+        }
+
         app.listen(PORT, () => {
             console.log(`🚀 Server is running on http://localhost:${PORT}`);
         });

@@ -1317,13 +1317,6 @@
                     </div>
                 </div>
 
-                <!-- Step 19: System Maintenance (Admin only) -->
-                <div id="adminMaintenancePanel" class="glass-panel card" style="display:none; margin-top: 2rem; border: 1px solid var(--danger);">
-                    <h2 style="color: var(--danger);">⚙️ System Maintenance</h2>
-                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">Clear all student data to reset the system for a fresh presentation or batch update. <strong>Warning: This cannot be undone.</strong></p>
-                    <button class="btn ripple-btn" style="background: var(--danger); width: auto; padding: 10px 24px;" onclick="purgeSystem()">🗑️ Clear All Student Data</button>
-                </div>
-
             </div>
         </section>
     </div>
@@ -1754,7 +1747,6 @@
             // Step 10: Load Batch Analytics automatically for admin
             if (currentUser.role === 'admin') {
                 setTimeout(renderBatchAnalytics, 600);
-                document.getElementById('adminMaintenancePanel').style.display = 'block';
             }
         }
 
@@ -2786,27 +2778,6 @@
         function closeStudyPlan() { document.getElementById('studyPlanModal').style.display = 'none'; }
         function printStudyPlan() {
             window.print();
-        }
-
-        // Step 19: Purge System Data
-        async function purgeSystem() {
-            if (!confirm('🛑 WARNING: This will delete ALL student records except the admin account. This action is irreversible. Continue?')) return;
-            try {
-                const token = localStorage.getItem('token');
-                const res = await fetch(`${API_BASE}/admin/purge`, {
-                    method: 'DELETE',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showToast(data.message, 'success');
-                    renderBatchAnalytics(); // Refresh the list
-                } else {
-                    showToast(data.error || 'Purge failed.', 'error');
-                }
-            } catch (err) {
-                showToast('Network error during purge.', 'error');
-            }
         }
 
         // ==========================================

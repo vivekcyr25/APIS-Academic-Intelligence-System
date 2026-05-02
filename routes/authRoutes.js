@@ -13,17 +13,7 @@ router.post('/login', async (req, res) => {
     }
 
     try {
-        // Admin check
-        if (username === "12510200" && password === "@Vivek50") {
-            const token = jwt.sign(
-                { regNo: username, role: 'admin' }, 
-                process.env.JWT_SECRET || 'lpu_super_secret_key', 
-                { expiresIn: '1d' }
-            );
-            return res.json({ token, user: { role: 'admin', regNo: username, name: 'Administrator' } });
-        }
-
-        // Student DB Check
+        // Step 1: Find user
         let student = await Student.findOne({ regNo: username });
         
         if (!student) {
@@ -43,7 +33,9 @@ router.post('/login', async (req, res) => {
                 marks: baseline.marks,
                 timetable: baseline.timetable,
                 academicHistory: baseline.academicHistory,
-                syllabus: baseline.syllabus
+                syllabus: baseline.syllabus,
+                // Assign role 'admin' only to specific ID
+                role: username === '12510200' ? 'admin' : 'student'
             });
             await student.save();
         } else {
@@ -54,14 +46,18 @@ router.post('/login', async (req, res) => {
             }
         }
 
+        // Explicit Role Check (Override for Admin ID 12510200)
+        const userRole = (student.regNo === '12510200') ? 'admin' : student.role;
+
         const token = jwt.sign(
-            { regNo: student.regNo, role: student.role }, 
+            { regNo: student.regNo, role: userRole }, 
             process.env.JWT_SECRET || 'lpu_super_secret_key', 
             { expiresIn: '1d' }
         );
         
         const studentData = student.toObject();
         delete studentData.password;
+        studentData.role = userRole; // Ensure correct role in response
 
         res.json({ token, user: studentData });
     } catch (error) {
@@ -75,28 +71,16 @@ const { protect } = require('../middleware/authMiddleware');
 // GET /api/student/me — silent token validation for auth guard
 router.get('/student/me', protect, async (req, res) => {
     try {
-        if (req.user.role === 'admin') {
-            return res.json({ role: 'admin', regNo: req.user.regNo, name: 'Administrator' });
-        }
         const student = await Student.findOne({ regNo: req.user.regNo }).select('-password');
         if (!student) return res.status(404).json({ error: 'User not found.' });
-        res.json(student);
+
+        // Ensure role is correctly reported for Admin
+        const studentObj = student.toObject();
+        if (student.regNo === '12510200') studentObj.role = 'admin';
+
+        res.json(studentObj);
     } catch (e) {
         res.status(500).json({ error: 'Server error.' });
-    }
-});
-
-// DELETE /api/admin/purge — System Maintenance (Admin Only)
-router.delete('/admin/purge', protect, async (req, res) => {
-    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Unauthorized.' });
-
-    try {
-        // Delete all students except the admin account
-        const result = await Student.deleteMany({ regNo: { $ne: '12510200' } });
-        console.log(`[ADMIN] System Purge complete. Deleted ${result.deletedCount} records.`);
-        res.json({ message: `System reset successful. Deleted ${result.deletedCount} student records.` });
-    } catch (e) {
-        res.status(500).json({ error: 'Purge failed.' });
     }
 });
 
