@@ -31,13 +31,13 @@ router.post('/', protect, async (req, res) => {
         let result;
 
         try {
-            console.log("Using Gemini model: gemini-1.5-flash");
-            model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            console.log("Using Gemini model: gemini-1.5-flash (v1)");
+            model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
             const prompt = `Analyze the following student academic record and provide a short, actionable performance tactic summary (3-4 sentences max). Be encouraging but specific about which subjects and assessment types (CA1, CA2, MTE) need the most focus for the upcoming ETE. Use markdown formatting.\n\nStudent Data:\n${JSON.stringify(studentData, null, 2)}`;
             result = await model.generateContent(prompt);
         } catch (primaryErr) {
-            console.warn("Primary model failed, trying fallback: gemini-1.5-flash-latest", primaryErr.message);
-            model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+            console.warn("Primary model failed, trying fallback: gemini-1.5-flash-latest (v1)", primaryErr.message);
+            model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" }, { apiVersion: 'v1' });
             const prompt = `Analyze the following student academic record and provide a short, actionable performance tactic summary (3-4 sentences max). Be encouraging but specific about which subjects and assessment types (CA1, CA2, MTE) need the most focus for the upcoming ETE. Use markdown formatting.\n\nStudent Data:\n${JSON.stringify(studentData, null, 2)}`;
             result = await model.generateContent(prompt);
         }

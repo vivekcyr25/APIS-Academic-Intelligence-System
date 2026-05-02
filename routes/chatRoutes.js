@@ -80,12 +80,12 @@ INSTRUCTIONS:
     let result;
 
     try {
-        console.log("Using Gemini model: gemini-1.5-flash");
-        model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+        console.log("Using Gemini model: gemini-1.5-flash (v1)");
+        model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" }, { apiVersion: 'v1' });
         result = await model.generateContent(instruction);
     } catch (primaryErr) {
-        console.warn("Primary model failed, trying fallback: gemini-1.5-flash-latest", primaryErr.message);
-        model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" });
+        console.warn("Primary model failed, trying fallback: gemini-1.5-flash-latest (v1)", primaryErr.message);
+        model = genAI.getGenerativeModel({ model: "gemini-1.5-flash-latest" }, { apiVersion: 'v1' });
         result = await model.generateContent(instruction);
     }
 
