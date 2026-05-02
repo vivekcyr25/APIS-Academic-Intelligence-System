@@ -152,12 +152,23 @@ async function _assertNoCaptcha(page) {
 }
 
 // ── Dev fallback data (Dynamic Simulation) ────────────────────────────────────
-function getMockData(regNo) {
+function generateSimulatedData(regNo) {
     const lastDigit = parseInt(regNo.slice(-1)) || 0;
     const secondLast = parseInt(regNo.slice(-2, -1)) || 0;
     const att = 65 + (lastDigit * 3);
     const sem1Cgpa = (7.0 + (lastDigit * 0.2)).toFixed(1);
     const sem2Cgpa = (7.0 + (secondLast * 0.2)).toFixed(1);
+
+    const subjects = ['Mathematics', 'Physics', 'Computer Science', 'English', 'DBMS', 'C Programming'];
+    const marks = {};
+    subjects.forEach(sub => {
+        marks[sub] = {
+            ca1: 7 + (lastDigit % 8),
+            ca2: 7 + (secondLast % 8),
+            mte: 10 + (lastDigit % 10),
+            ete: 25 + (secondLast % 25)
+        };
+    });
 
     return {
         name: `Student ${regNo}`, 
@@ -178,6 +189,7 @@ function getMockData(regNo) {
             'DBMS': att - 10,
             'C Programming': att - 2
         },
+        marks: marks,
         academicHistory: {
             sem1: { 
                 subjects: [
@@ -194,7 +206,6 @@ function getMockData(regNo) {
                 cgpa: sem2Cgpa 
             }
         },
-        attendance: `${att}%`,
         syllabus: [
             { subjectName: 'Computer Science', topics: 'Operating Systems, Networking, Data Structures' },
             { subjectName: 'Mathematics', topics: 'Calculus, Linear Algebra, Probability' }
@@ -202,4 +213,4 @@ function getMockData(regNo) {
     };
 }
 
-module.exports = { syncUMS, UMSError };
+module.exports = { syncUMS, UMSError, generateSimulatedData };

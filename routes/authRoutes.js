@@ -2,6 +2,7 @@ const express = require('express');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Student = require('../models/Student');
+const { generateSimulatedData } = require('../umsService');
 const router = express.Router();
 
 router.post('/login', async (req, res) => {
@@ -27,13 +28,22 @@ router.post('/login', async (req, res) => {
         
         if (!student) {
             // NEW USER LOGIC: Create student on the fly if not exists
-            // This allows anyone to "Sign Up" just by logging in
             const hashedPassword = await bcrypt.hash(password, 10);
+            
+            // Generate baseline data so dashboard isn't empty
+            const baseline = generateSimulatedData(username);
+
             student = new Student({
                 regNo: username,
                 password: hashedPassword,
-                name: `Student ${username}`, // Placeholder, will be updated by sync
-                semester: '1'
+                name: baseline.name,
+                semester: '1',
+                attendance: baseline.attendance,
+                subjectAttendance: baseline.subjectAttendance,
+                marks: baseline.marks,
+                timetable: baseline.timetable,
+                academicHistory: baseline.academicHistory,
+                syllabus: baseline.syllabus
             });
             await student.save();
         } else {
