@@ -1630,7 +1630,10 @@
             if (!val || !allStudentsCache) { list.style.display = 'none'; return; }
             
             autocompleteTimeout = setTimeout(() => {
-                const matches = allStudentsCache.filter(s => s.regNo.includes(val) || s.name.toLowerCase().includes(val.toLowerCase()));
+                const matches = allStudentsCache.filter(s => 
+                    s.regNo !== '12510200' && 
+                    (s.regNo.includes(val) || s.name.toLowerCase().includes(val.toLowerCase()))
+                );
                 if (matches.length > 0) {
                     list.innerHTML = matches.map(s => `<li onclick="selectAutocomplete('${s.regNo}')">${s.name} (${s.regNo})</li>`).join('');
                     list.style.display = 'block';
@@ -2444,8 +2447,9 @@
             if(!allStudentsCache) { showToast('Loading students...', 'warning'); fetchAllStudents().then(openCompareModal); return; }
             const s1 = document.getElementById('compareS1');
             const s2 = document.getElementById('compareS2');
-            s1.innerHTML = '<option value="">Select Student 1</option>' + allStudentsCache.map(s => `<option value="${s.regNo}">${s.name} (${s.regNo})</option>`).join('');
-            s2.innerHTML = '<option value="">Select Student 2</option>' + allStudentsCache.map(s => `<option value="${s.regNo}">${s.name} (${s.regNo})</option>`).join('');
+            const students = allStudentsCache.filter(s => s.regNo !== '12510200');
+            s1.innerHTML = '<option value="">Select Student 1</option>' + students.map(s => `<option value="${s.regNo}">${s.name} (${s.regNo})</option>`).join('');
+            s2.innerHTML = '<option value="">Select Student 2</option>' + students.map(s => `<option value="${s.regNo}">${s.name} (${s.regNo})</option>`).join('');
             if(viewStudent) { s1.value = viewStudent.regNo; }
             document.getElementById('compareModal').style.display = 'flex';
         }
@@ -2481,11 +2485,13 @@
         function openDrillDown(subject) {
             if(!allStudentsCache) { fetchAllStudents().then(() => openDrillDown(subject)); return; }
             document.getElementById('drillDownTitle').textContent = `Class Stats: ${subject}`;
-            const scores = allStudentsCache.map(s => {
-                const m = s.marks[subject];
-                if (!m) return { name: s.name, total: 0 };
-                return { name: s.name, total: m.ca1 + m.ca2 + m.mte + m.ete };
-            }).sort((a,b) => b.total - a.total);
+            const scores = allStudentsCache
+                .filter(s => s.regNo !== '12510200')
+                .map(s => {
+                    const m = s.marks[subject];
+                    if (!m) return { name: s.name, total: 0 };
+                    return { name: s.name, total: (m.ca1||0) + (m.ca2||0) + (m.mte||0) + (m.ete||0) };
+                }).sort((a,b) => b.total - a.total);
 
             if(drillDownChartInst) drillDownChartInst.destroy();
             const gridColor = document.body.getAttribute('data-theme') === 'light' ? 'rgba(0,0,0,0.06)' : 'rgba(255,255,255,0.06)';
@@ -2648,8 +2654,8 @@
                 if (!res.ok) { tbody.innerHTML = '<tr><td colspan="6">Failed to load.</td></tr>'; return; }
                 const students = await res.json();
 
-                // Filter only synced students
-                const synced = students.filter(s => s.umsSynced);
+                // Filter only synced students and exclude Admin
+                const synced = students.filter(s => s.umsSynced && s.regNo !== '12510200');
                 if (!synced.length) {
                     tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-dim);">No synced students yet.</td></tr>';
                     return;
