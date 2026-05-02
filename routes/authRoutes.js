@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 const Student = require('../models/Student');
 const { generateSimulatedData } = require('../umsService');
+const { studentsDb } = require('../database');
 const router = express.Router();
 
 router.post('/login', async (req, res) => {
@@ -22,12 +23,16 @@ router.post('/login', async (req, res) => {
             
             // Generate baseline data so dashboard isn't empty
             const baseline = generateSimulatedData(username);
+            
+            // Try to find real name from studentsDb if it exists
+            const dbMatch = studentsDb.find(s => s.regNo === username);
+            const finalName = dbMatch ? dbMatch.name : baseline.name;
 
             student = new Student({
                 regNo: username,
                 password: hashedPassword,
-                name: baseline.name,
-                semester: '1',
+                name: finalName,
+                semester: dbMatch ? dbMatch.semester : '1',
                 attendance: baseline.attendance,
                 subjectAttendance: baseline.subjectAttendance,
                 marks: baseline.marks,

@@ -170,8 +170,11 @@ function generateSimulatedData(regNo) {
         };
     });
 
+    const namePool = ["Abhay", "Zoya", "Karan", "Ishita", "Rohan", "Meera", "Siddharth", "Ananya", "Varun", "Sanya"];
+    const name = namePool[lastDigit] || "New Student";
+
     return {
-        name: `Student ${regNo}`, 
+        name: name, 
         timetable: [
             { subject: 'Mathematics',      time: '08:00 - 09:00', room: 'Block-32, R-301', day: 'Monday'    },
             { subject: 'Computer Science', time: '10:00 - 11:00', room: 'Block-32, Lab-1', day: 'Monday'    },
