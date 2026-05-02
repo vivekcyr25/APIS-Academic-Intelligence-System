@@ -2,6 +2,7 @@ const express = require('express');
 const Student = require('../models/Student');
 const ActivityLog = require('../models/ActivityLog');
 const { protect, adminOnly } = require('../middleware/authMiddleware');
+const { generateSimulatedData } = require('../umsService');
 const router = express.Router();
 
 // GET all students (Admin only)
@@ -25,6 +26,16 @@ router.get('/:regNo', protect, async (req, res) => {
         const student = await Student.findOne({ regNo: req.params.regNo }).select('-password');
         if (!student) {
             return res.status(404).json({ error: "Student record not found." });
+        }
+
+        // FAIL-SAFE: Ensure marks are NEVER zero when fetched
+        const marksExist = student.marks && (student.marks instanceof Map ? student.marks.size > 0 : Object.keys(student.marks).length > 0);
+        if (!marksExist) {
+            const baseline = generateSimulatedData(student.regNo);
+            student.marks = baseline.marks;
+            student.attendance = student.attendance || baseline.attendance;
+            student.subjectAttendance = student.subjectAttendance || baseline.subjectAttendance;
+            await student.save();
         }
 
         res.json(student);

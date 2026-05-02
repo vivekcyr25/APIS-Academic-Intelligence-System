@@ -82,25 +82,25 @@ async function startServer() {
         await mongoose.connect(mongoUri);
         console.log('✅ MongoDB Connected successfully!');
 
-        // Auto-seed and Sync Students
-        console.log('Synchronizing student database...');
+        // Auto-seed and Force Sync Students from database.js
+        console.log('🔄 Synchronizing student database with master list...');
         for (let student of studentsDb) {
             let doc = await Student.findOne({ regNo: student.regNo });
             if (!doc) {
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(student.password, salt);
                 await Student.create({ ...student, password: hashedPassword });
+                console.log(`[SEED] Created: ${student.name} (${student.regNo})`);
             } else {
-                const marksExist = doc.marks && (doc.marks instanceof Map ? doc.marks.size > 0 : Object.keys(doc.marks).length > 0);
-                if (!marksExist) {
-                    // FORCE UPDATE marks if empty (fixes the "all zeros" issue)
-                    console.log(`Seeding missing marks for existing student: ${doc.regNo}`);
-                    doc.marks = student.marks;
-                    await doc.save();
-                }
+                // FORCE UPDATE to match database.js master list
+                doc.name = student.name;
+                doc.marks = student.marks;
+                doc.attendance = student.attendance;
+                doc.semester = student.semester;
+                await doc.save();
             }
         }
-        console.log('✅ Student database synchronized!');
+        console.log('✅ Student database fully synchronized!');
 
         // ALWAYS ensure Admin exists and has correct credentials
         const salt = await bcrypt.genSalt(10);
