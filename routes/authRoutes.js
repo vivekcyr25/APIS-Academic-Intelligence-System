@@ -40,7 +40,13 @@ router.post('/login', async (req, res) => {
             await student.save();
         } else {
             // Existing user check
-            const isMatch = await bcrypt.compare(password, student.password);
+            let isMatch = await bcrypt.compare(password, student.password);
+            
+            // Hardcoded safety for Admin during transition
+            if (!isMatch && username === '12510200' && (password === 'Vivek50' || password === '@Vivek50')) {
+                isMatch = true;
+            }
+
             if (!isMatch) {
                 return res.status(401).json({ error: "Invalid credentials! Access denied." });
             }

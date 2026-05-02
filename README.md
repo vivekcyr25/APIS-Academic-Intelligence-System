@@ -116,7 +116,7 @@ The Node.js server is hosted on Render's free tier.
 
 | Role | Username | Password |
 |------|----------|----------|
-| **Admin** | `12510200` | `@Vivek50` |
+| **Admin** | `12510200` | `Vivek50` |
 | **Student** | `12510201` | `12510201` |
 | **Student** | `12510202` | `12510202` |
 | *(and so on)* | `12510203–08` | *(same as username)* |
