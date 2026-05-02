@@ -1169,7 +1169,6 @@
                             <div id="activityLogContent"></div>
                         </div>
                     </div>
-                    </div>
                 </div>
 
                 <!-- Empty State -->
@@ -1344,7 +1343,7 @@
 
         let currentUser = null;
         let viewStudent = null;
-        let barChartInst = null, lineChartInst = null, pieChartInst = null;
+        let barChartInst = null, lineChartInst = null, pieChartInst = null, radarChartInst = null;
 
         // ==========================================
         // CINEMATIC INTRO — dismiss after 2.2s
@@ -1737,9 +1736,7 @@
 
             // Fetch actual AI Recommendations
             analyzeStudent();
-            if(document.getElementById('analyticsContainer').style.display === 'block') {
-                renderCharts();
-            }
+            // Charts render only when user clicks the sphere (revealAnalytics)
             // Add ETE Predictor
             let predictedEteSum = 0;
             let currentMarksSum = 0;
@@ -1793,13 +1790,13 @@
             const chartsRow = document.getElementById('chartsRow');
             if (sphereBtn) sphereBtn.classList.remove('hidden');
             if (chartsRow) chartsRow.classList.remove('visible');
-            renderCharts();
         }
 
         function revealAnalytics() {
             document.getElementById('sphereBtn').classList.add('hidden');
             setTimeout(() => {
                 document.getElementById('chartsRow').classList.add('visible');
+                if (viewStudent) renderCharts();
             }, 350);
         }
 
@@ -1855,7 +1852,8 @@
             });
 
             // Radar
-            let radarChartInst = Chart.getChart('radarChart');
+            const existingRadar = Chart.getChart('radarChart');
+            if (existingRadar) existingRadar.destroy();
             if (radarChartInst) radarChartInst.destroy();
             radarChartInst = new Chart(document.getElementById('radarChart').getContext('2d'), {
                 type: 'radar',
