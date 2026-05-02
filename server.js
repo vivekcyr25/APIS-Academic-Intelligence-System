@@ -90,10 +90,14 @@ async function startServer() {
                 const salt = await bcrypt.genSalt(10);
                 const hashedPassword = await bcrypt.hash(student.password, salt);
                 await Student.create({ ...student, password: hashedPassword });
-            } else if (!doc.marks || doc.marks.size === 0) {
-                // FORCE UPDATE marks if empty (fixes the "all zeros" issue)
-                doc.marks = student.marks;
-                await doc.save();
+            } else {
+                const marksExist = doc.marks && (doc.marks instanceof Map ? doc.marks.size > 0 : Object.keys(doc.marks).length > 0);
+                if (!marksExist) {
+                    // FORCE UPDATE marks if empty (fixes the "all zeros" issue)
+                    console.log(`Seeding missing marks for existing student: ${doc.regNo}`);
+                    doc.marks = student.marks;
+                    await doc.save();
+                }
             }
         }
         console.log('✅ Student database synchronized!');

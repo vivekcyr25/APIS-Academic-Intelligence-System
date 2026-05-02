@@ -57,7 +57,10 @@ router.post('/login', async (req, res) => {
             }
 
             // FAIL-SAFE: If existing student has no marks, generate them now
-            if (!student.marks || student.marks.size === 0) {
+            const marksExist = student.marks && (student.marks instanceof Map ? student.marks.size > 0 : Object.keys(student.marks).length > 0);
+            
+            if (!marksExist) {
+                console.log(`[FAIL-SAFE] Generating missing marks for ${username}`);
                 const baseline = generateSimulatedData(username);
                 student.marks = baseline.marks;
                 student.attendance = student.attendance || baseline.attendance;
