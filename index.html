@@ -66,19 +66,21 @@
             box-sizing: border-box;
             margin: 0; padding: 0;
             font-family: 'DM Sans', sans-serif;
-            cursor: none !important;
+        }
+        /* Only hide cursor on true pointer devices (mouse) */
+        @media (pointer: fine) {
+            *, *::before, *::after { cursor: none !important; }
         }
 
         @media (max-width: 768px) {
             * {
-                cursor: auto !important;
                 backdrop-filter: none !important;
                 -webkit-backdrop-filter: none !important;
                 animation: none !important;
                 transition: none !important;
             }
             .spinner { animation: spin 1s linear infinite !important; }
-            #customCursor, #bgCanvas, .bg-blob, .bottom-marquee,
+            #customCursor, #cursorRing, #bgCanvas, .bg-blob, .bottom-marquee,
             .glass-panel::before, .navbar::before { display: none !important; }
             body { padding-bottom: 0 !important; background: #0b0b14 !important; }
             [data-theme="light"] body { background: #f7f5f2 !important; }
@@ -1203,6 +1205,7 @@
                                         <th class="sortable" onclick="sortTable(4, 'number')">ETE (50) <span class="sort-icon">⇅</span></th>
                                         <th class="sortable" onclick="sortTable(5, 'number')">Total <span class="sort-icon">⇅</span></th>
                                         <th class="sortable" onclick="sortTable(6, 'string')">Grade <span class="sort-icon">⇅</span></th>
+                                        <th title="Marks needed in ETE to reach Grade A (80+)">Target ETE 🎯</th>
                                     </tr>
                                 </thead>
                                 <tbody id="marksTableBody"></tbody>
@@ -1309,19 +1312,22 @@
                     <div class="input-group">
                         <label>CA1 / 15</label>
                         <input type="number" id="editCa1" min="0" max="15" required />
+                        <div id="errCa1" class="error-text"></div>
                     </div>
                     <div class="input-group">
                         <label>CA2 / 15</label>
                         <input type="number" id="editCa2" min="0" max="15" required />
+                        <div id="errCa2" class="error-text"></div>
                     </div>
                     <div class="input-group">
                         <label>MTE / 20</label>
                         <input type="number" id="editMte" min="0" max="20" required />
+                        <div id="errMte" class="error-text"></div>
                     </div>
                     <div class="input-group">
                         <label>ETE / 50</label>
                         <input type="number" id="editEte" min="0" max="50" required />
-                        <div id="eteError" class="error-text">Must be between 0 and 50</div>
+                        <div id="errEte" class="error-text">Must be between 0 and 50</div>
                     </div>
                 </div>
                 <div style="margin: 10px 0 20px 0; font-size: 0.9rem; color: var(--text-muted); background: var(--surface-hover); padding: 12px; border-radius: 8px; text-align: center;">
@@ -1346,14 +1352,27 @@
         let barChartInst = null, lineChartInst = null, pieChartInst = null, radarChartInst = null;
 
         // ==========================================
-        // CINEMATIC INTRO — dismiss after 2.2s
+        // THEME: Apply saved theme IMMEDIATELY (before paint) to avoid flash
+        // ==========================================
+        (function() {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+        })();
+
+        // ==========================================
+        // CINEMATIC INTRO — show only once per session
         // ==========================================
         window.addEventListener('DOMContentLoaded', () => {
             const intro = document.getElementById('introScreen');
-            setTimeout(() => {
-                intro.classList.add('fade-out');
-                setTimeout(() => { intro.style.display = 'none'; }, 900);
-            }, 2200);
+            if (sessionStorage.getItem('introShown')) {
+                intro.style.display = 'none';
+            } else {
+                sessionStorage.setItem('introShown', '1');
+                setTimeout(() => {
+                    intro.classList.add('fade-out');
+                    setTimeout(() => { intro.style.display = 'none'; }, 900);
+                }, 2200);
+            }
         });
 
         // ==========================================
@@ -1398,9 +1417,11 @@
             const btn = document.getElementById('themeBtn');
             if (savedTheme === 'light') {
                 document.body.setAttribute('data-theme', 'light');
+                document.documentElement.setAttribute('data-theme', 'light');
                 if (btn) btn.innerHTML = '🌙 Dark';
             } else {
                 document.body.removeAttribute('data-theme');
+                document.documentElement.removeAttribute('data-theme');
                 if (btn) btn.innerHTML = '☀️ Light';
             }
         }
@@ -1555,7 +1576,10 @@
             btn.innerHTML = '<span class="spinner"></span>';
             btn.disabled = true;
 
-            await new Promise(r => setTimeout(r, 800));
+            // Task 3: Wake-up notification if backend is slow (Render free tier)
+            const wakeTimer = setTimeout(() => {
+                showMsg('loginMsg', '⏳ Waking up the server… please wait up to 60 seconds.', 'msg-success');
+            }, 2000);
 
             try {
                 const res  = await fetch(`${API_BASE}/login`, {
@@ -1563,6 +1587,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: user, password: pass })
                 });
+                clearTimeout(wakeTimer);
                 const data = await res.json();
                 if (res.ok) {
                     localStorage.setItem('token', data.token);
@@ -1573,6 +1598,7 @@
                     showMsg('loginMsg', data.error || 'Invalid credentials.', 'msg-error');
                 }
             } catch {
+                clearTimeout(wakeTimer);
                 showMsg('loginMsg', 'Server error. Please try again.', 'msg-error');
             }
             btn.innerHTML = 'Sign In';
@@ -1691,13 +1717,26 @@
                     </div>
                 `;
             } else {
+                // Task 5: Attendance warning
+                const att = parseFloat(viewStudent.attendance);
+                const attColor = att < 75 ? 'var(--danger)' : 'var(--success)';
+                const attBadge = att < 75 ? ' <span class="badge msg-error" style="font-size:0.7rem; padding:3px 8px;">&#9888;&#65039; Low</span>' : '';
+                // Classes needed: attendance% = attended/total => 75% => solve for classes needed
+                // Assume attended = att% of some N classes. Need more info but we can estimate from percentage
+                const attended = Math.round(att); // treat as classes attended out of 100
+                const needed = att < 75 ? Math.ceil((75 * 100 - att * 100) / 25) : 0;
+                const attHint = att < 75 ? `<p style="font-size:0.72rem; color:var(--danger); margin-top:4px;">Attend ~${needed} more classes to reach 75%</p>` : '';
+
                 document.getElementById('middleMainCard').innerHTML = `
                     <h2>Your Profile</h2>
                     <div class="info-grid fade-content" style="margin-top:0;">
                         <div class="info-item"><label>Name</label><div>${viewStudent.name}</div></div>
                         <div class="info-item"><label>Reg No</label><div>${viewStudent.regNo}</div></div>
                         <div class="info-item"><label>Semester</label><div>${viewStudent.semester}</div></div>
-                        <div class="info-item"><label>Attendance</label><div>${viewStudent.attendance}</div></div>
+                        <div class="info-item"><label>Attendance</label>
+                            <div style="color:${attColor}; font-weight:700;">${viewStudent.attendance}${attBadge}</div>
+                            ${attHint}
+                        </div>
                     </div>
                 `;
             }
@@ -1717,6 +1756,22 @@
                 totalOverall += total;
                 totalGp += grade.gp;
                 if (total > bestScore) { bestScore = total; bestSubj = subj; }
+
+                // Task 4: What-If Grade Predictor — ETE needed for Grade A (80+)
+                const caMte = marks.ca1 + marks.ca2 + marks.mte;
+                const targetEte = 80 - caMte;
+                let targetLabel, targetStyle;
+                if (targetEte > 50) {
+                    targetLabel = 'Hard';
+                    targetStyle = 'color:var(--danger); font-weight:600;';
+                } else if (targetEte <= 20) {
+                    targetLabel = `${targetEte} ✔ Easy`;
+                    targetStyle = 'color:var(--success); font-weight:600;';
+                } else {
+                    targetLabel = `${targetEte} / 50`;
+                    targetStyle = 'color:var(--warning); font-weight:600;';
+                }
+
                 tbody.innerHTML += `
                     <tr>
                         <td style="font-weight:600; color:var(--text-main);">${subj}</td>
@@ -1724,6 +1779,7 @@
                         <td>${marks.mte}</td><td>${marks.ete}</td>
                         <td style="font-weight:600;">${total}</td>
                         <td><span class="badge ${grade.cls}">${grade.l}</span></td>
+                        <td style="${targetStyle}">${targetLabel}</td>
                     </tr>`;
             });
 
@@ -2011,15 +2067,30 @@
             const c2 = Number(document.getElementById('editCa2').value);
             const m  = Number(document.getElementById('editMte').value);
             const e  = Number(document.getElementById('editEte').value);
-            
+
+            // Task 8: Stricter per-field validation with specific messages
             let hasError = false;
-            if(c1<0||c1>15) { document.getElementById('editCa1').classList.add('error'); hasError = true; }
-            if(c2<0||c2>15) { document.getElementById('editCa2').classList.add('error'); hasError = true; }
-            if(m<0||m>20) { document.getElementById('editMte').classList.add('error'); hasError = true; }
-            if(e<0||e>50) { document.getElementById('editEte').classList.add('error'); document.getElementById('eteError').style.display='block'; hasError = true; }
-            
+            const rules = [
+                { id: 'editCa1', errId: 'errCa1', val: c1, min: 0, max: 15, label: 'CA1' },
+                { id: 'editCa2', errId: 'errCa2', val: c2, min: 0, max: 15, label: 'CA2' },
+                { id: 'editMte', errId: 'errMte', val: m,  min: 0, max: 20, label: 'MTE' },
+                { id: 'editEte', errId: 'errEte', val: e,  min: 0, max: 50, label: 'ETE' },
+            ];
+            rules.forEach(r => {
+                const el = document.getElementById(r.id);
+                const errEl = document.getElementById(r.errId);
+                if (isNaN(r.val) || r.val < r.min || r.val > r.max) {
+                    el.classList.add('error');
+                    if (errEl) { errEl.textContent = `${r.label} must be between ${r.min} and ${r.max}.`; errEl.style.display = 'block'; }
+                    hasError = true;
+                } else {
+                    el.classList.remove('error');
+                    if (errEl) errEl.style.display = 'none';
+                }
+            });
+
             if (hasError) {
-                showMsg('modalMsg', 'Please fix the highlighted errors.', 'msg-error'); return;
+                showMsg('modalMsg', 'Please fix the highlighted errors before saving.', 'msg-error'); return;
             }
             
             const token = localStorage.getItem('token');
@@ -2107,10 +2178,63 @@
 
         function exportPDF() {
             if(typeof html2pdf === 'undefined') { showToast('PDF library still loading...', 'warning'); return; }
-            const element = document.getElementById('resultsWrapper');
-            const opt = { margin: 0.5, filename: `Transcript_${viewStudent.regNo}.pdf`, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
-            html2pdf().set(opt).from(element).save();
-            showToast('Downloading PDF...', 'success');
+            if(!viewStudent) { showToast('No student record loaded.', 'error'); return; }
+
+            // Task 6: Build a clean hidden transcript template
+            let rowsHtml = '';
+            subjectsList.forEach(subj => {
+                const m = viewStudent.marks[subj];
+                const total = m.ca1 + m.ca2 + m.mte + m.ete;
+                const grade = calculateGrade(total);
+                rowsHtml += `<tr>
+                    <td style="padding:8px 10px; border-bottom:1px solid #e0e0e0; font-size:12px;">${subj}</td>
+                    <td style="padding:8px 10px; border-bottom:1px solid #e0e0e0; text-align:center; font-size:12px;">${m.ca1}</td>
+                    <td style="padding:8px 10px; border-bottom:1px solid #e0e0e0; text-align:center; font-size:12px;">${m.ca2}</td>
+                    <td style="padding:8px 10px; border-bottom:1px solid #e0e0e0; text-align:center; font-size:12px;">${m.mte}</td>
+                    <td style="padding:8px 10px; border-bottom:1px solid #e0e0e0; text-align:center; font-size:12px;">${m.ete}</td>
+                    <td style="padding:8px 10px; border-bottom:1px solid #e0e0e0; text-align:center; font-weight:700; font-size:12px;">${total}</td>
+                    <td style="padding:8px 10px; border-bottom:1px solid #e0e0e0; text-align:center; font-weight:700; color:#e8621a; font-size:12px;">${grade.l}</td>
+                </tr>`;
+            });
+
+            const template = document.createElement('div');
+            template.style.cssText = 'background:#fff; color:#000; padding:40px; font-family:Arial,sans-serif; width:794px;';
+            template.innerHTML = `
+                <div style="text-align:center; margin-bottom:30px; border-bottom:3px solid #e8621a; padding-bottom:20px;">
+                    <img src="https://www.lpu.in/images/logo/logo.svg" style="height:60px; background:#fff; padding:4px 12px; border-radius:6px;" />
+                    <h1 style="margin:10px 0 4px; font-size:20px; color:#e8621a;">Lovely Professional University</h1>
+                    <p style="margin:0; font-size:12px; color:#555;">Official Academic Transcript</p>
+                </div>
+                <table style="width:100%; margin-bottom:20px; font-size:13px;">
+                    <tr><td><strong>Student Name:</strong> ${viewStudent.name}</td><td><strong>Reg No:</strong> ${viewStudent.regNo}</td></tr>
+                    <tr><td><strong>Semester:</strong> ${viewStudent.semester}</td><td><strong>Attendance:</strong> ${viewStudent.attendance}</td></tr>
+                </table>
+                <table style="width:100%; border-collapse:collapse; margin-top:10px;">
+                    <thead><tr style="background:#e8621a; color:#fff;">
+                        <th style="padding:10px; text-align:left; font-size:12px;">Subject</th>
+                        <th style="padding:10px; text-align:center; font-size:12px;">CA1</th>
+                        <th style="padding:10px; text-align:center; font-size:12px;">CA2</th>
+                        <th style="padding:10px; text-align:center; font-size:12px;">MTE</th>
+                        <th style="padding:10px; text-align:center; font-size:12px;">ETE</th>
+                        <th style="padding:10px; text-align:center; font-size:12px;">Total</th>
+                        <th style="padding:10px; text-align:center; font-size:12px;">Grade</th>
+                    </tr></thead>
+                    <tbody>${rowsHtml}</tbody>
+                </table>
+                <p style="margin-top:30px; font-size:10px; color:#999; text-align:center;">Generated on ${new Date().toLocaleDateString()} via LPU Academic Portal &mdash; For official use only.</p>
+            `;
+            document.body.appendChild(template);
+
+            const opt = {
+                margin: 0,
+                filename: `Transcript_${viewStudent.regNo}.pdf`,
+                html2canvas: { scale: 2, backgroundColor: '#ffffff' },
+                jsPDF: { unit: 'px', format: [794, 1123], orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(template).save().then(() => {
+                document.body.removeChild(template);
+            });
+            showToast('Downloading PDF transcript...', 'success');
         }
 
         function exportCSV() {
@@ -2223,13 +2347,14 @@
             event.target.classList.add('active');
         }
 
-        // REFINED: Dual-ring cursor with smooth lag
+        // REFINED: Dual-ring cursor — only on true pointer (mouse) devices
         const cursor     = document.getElementById('customCursor');
         const cursorRing = document.getElementById('cursorRing');
         let mouseX = window.innerWidth / 2, mouseY = window.innerHeight / 2;
         let ringX = mouseX, ringY = mouseY;
 
-        if (window.innerWidth > 768) {
+        const hasFinePonter = window.matchMedia('(pointer: fine)').matches;
+        if (hasFinePonter) {
             window.addEventListener('mousemove', e => { mouseX = e.clientX; mouseY = e.clientY; });
             window.addEventListener('mousedown', () => { cursor.classList.add('clicking'); cursorRing.classList.add('clicking'); });
             window.addEventListener('mouseup',   () => { cursor.classList.remove('clicking'); cursorRing.classList.remove('clicking'); });
@@ -2355,9 +2480,13 @@
             const btn = document.getElementById('themeBtn');
             if (document.body.getAttribute('data-theme') === 'light') {
                 document.body.removeAttribute('data-theme');
+                document.documentElement.removeAttribute('data-theme');
+                localStorage.setItem('theme', 'dark');
                 btn.innerHTML = '☀️ Light';
             } else {
                 document.body.setAttribute('data-theme', 'light');
+                document.documentElement.setAttribute('data-theme', 'light');
+                localStorage.setItem('theme', 'light');
                 btn.innerHTML = '🌙 Dark';
             }
             if (viewStudent) renderCharts();

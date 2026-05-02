@@ -38,16 +38,39 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// Auto-start DB and Server
+// ==========================================
+// TASK 7: MONGODB ATLAS SETUP (PERMANENT DATA)
+// ==========================================
+// For data to persist across Render server restarts, set MONGO_URI in your environment.
+//
+// Step 1: Go to https://cloud.mongodb.com and create a FREE cluster.
+// Step 2: Create a database user with a password.
+// Step 3: Click "Connect" → "Drivers" → copy the connection string.
+//         It looks like: mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/lpu_portal
+// Step 4: In Render dashboard → Your Service → "Environment" tab → Add:
+//         Key:   MONGO_URI
+//         Value: (your connection string from Step 3)
+// Step 5: Redeploy. Data will now persist permanently in Atlas!
+//
+// For local development, create a .env file in this directory with:
+//   MONGO_URI=mongodb+srv://<user>:<password>@cluster0.xxxxx.mongodb.net/lpu_portal
+//   GEMINI_API_KEY=your_gemini_api_key_here
+//   JWT_SECRET=your_jwt_secret_here
+// ==========================================
+
 async function startServer() {
     try {
         let mongoUri = process.env.MONGO_URI;
 
-        // If no MongoDB URI is provided, use an in-memory Mongo server automatically
+        // MONGO_URI from environment is always prioritized (Atlas / persistent DB).
+        // Falls back to in-memory MongoDB only when no URI is provided (local dev / Render cold start).
         if (!mongoUri) {
-            console.log('No MONGO_URI found, starting local in-memory MongoDB...');
+            console.log('⚠️  No MONGO_URI set. Using temporary in-memory MongoDB (data lost on restart).');
+            console.log('   See server.js Task 7 comments to configure MongoDB Atlas for permanent storage.');
             const mongoServer = await MongoMemoryServer.create();
             mongoUri = mongoServer.getUri();
+        } else {
+            console.log('✅ Using persistent MongoDB Atlas connection.');
         }
 
         await mongoose.connect(mongoUri);
