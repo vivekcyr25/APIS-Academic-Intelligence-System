@@ -23,14 +23,25 @@ router.post('/login', async (req, res) => {
         }
 
         // Student DB Check
-        const student = await Student.findOne({ regNo: username });
+        let student = await Student.findOne({ regNo: username });
+        
         if (!student) {
-            return res.status(401).json({ error: "Invalid credentials! Access denied." });
-        }
-
-        const isMatch = await bcrypt.compare(password, student.password);
-        if (!isMatch) {
-            return res.status(401).json({ error: "Invalid credentials! Access denied." });
+            // NEW USER LOGIC: Create student on the fly if not exists
+            // This allows anyone to "Sign Up" just by logging in
+            const hashedPassword = await bcrypt.hash(password, 10);
+            student = new Student({
+                regNo: username,
+                password: hashedPassword,
+                name: `Student ${username}`, // Placeholder, will be updated by sync
+                semester: '1'
+            });
+            await student.save();
+        } else {
+            // Existing user check
+            const isMatch = await bcrypt.compare(password, student.password);
+            if (!isMatch) {
+                return res.status(401).json({ error: "Invalid credentials! Access denied." });
+            }
         }
 
         const token = jwt.sign(
@@ -39,12 +50,12 @@ router.post('/login', async (req, res) => {
             { expiresIn: '1d' }
         );
         
-        // Don't send password back to frontend
         const studentData = student.toObject();
         delete studentData.password;
 
         res.json({ token, user: studentData });
     } catch (error) {
+        console.error("Login Error:", error);
         res.status(500).json({ error: "Server error during login." });
     }
 });
@@ -62,6 +73,20 @@ router.get('/student/me', protect, async (req, res) => {
         res.json(student);
     } catch (e) {
         res.status(500).json({ error: 'Server error.' });
+    }
+});
+
+// DELETE /api/admin/purge — System Maintenance (Admin Only)
+router.delete('/admin/purge', protect, async (req, res) => {
+    if (req.user.role !== 'admin') return res.status(403).json({ error: 'Unauthorized.' });
+
+    try {
+        // Delete all students except the admin account
+        const result = await Student.deleteMany({ regNo: { $ne: '12510200' } });
+        console.log(`[ADMIN] System Purge complete. Deleted ${result.deletedCount} records.`);
+        res.json({ message: `System reset successful. Deleted ${result.deletedCount} student records.` });
+    } catch (e) {
+        res.status(500).json({ error: 'Purge failed.' });
     }
 });
 

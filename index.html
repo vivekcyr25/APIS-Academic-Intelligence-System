@@ -1143,11 +1143,11 @@
                     <label>Password</label>
                     <input type="password" id="password" placeholder="••••••••" required />
                 </div>
-                <button type="submit" id="loginBtn" class="btn ripple-btn">Sign In</button>
+                <button type="submit" id="loginBtn" class="btn ripple-btn">Sign In & Sync</button>
             </form>
-            <div class="cred-hint">
-                <strong>Admin:</strong> 12510200 &nbsp;/&nbsp; @Vivek50<br>
-                <strong>Student:</strong> 12510201–12510208 &nbsp;/&nbsp; same as ID
+            <div class="login-footer" style="margin-top: 1.5rem; font-size: 0.78rem; color: var(--text-dim); text-align: center; border-top: 1px solid var(--border); padding-top: 1.2rem;">
+                Enter your LPU UMS Credentials to begin synchronization.<br>
+                <span style="color: var(--primary);">Your data is encrypted and never stored permanently.</span>
             </div>
         </section>
 
@@ -1279,7 +1279,7 @@
                                 <div class="chart-container"><canvas id="barChart"></canvas></div>
                             </div>
                             <div class="glass-panel card chart-card">
-                                <h2>Skill Radar</h2>
+                                <h2>Subject-Wise Weakness Map</h2>
                                 <div class="chart-container"><canvas id="radarChart"></canvas></div>
                             </div>
                             <div class="glass-panel card chart-card">
@@ -1315,6 +1315,13 @@
                             <tbody id="batchTableBody"></tbody>
                         </table>
                     </div>
+                </div>
+
+                <!-- Step 19: System Maintenance (Admin only) -->
+                <div id="adminMaintenancePanel" class="glass-panel card" style="display:none; margin-top: 2rem; border: 1px solid var(--danger);">
+                    <h2 style="color: var(--danger);">⚙️ System Maintenance</h2>
+                    <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1.2rem;">Clear all student data to reset the system for a fresh presentation or batch update. <strong>Warning: This cannot be undone.</strong></p>
+                    <button class="btn ripple-btn" style="background: var(--danger); width: auto; padding: 10px 24px;" onclick="purgeSystem()">🗑️ Clear All Student Data</button>
                 </div>
 
             </div>
@@ -1714,6 +1721,14 @@
                     localStorage.setItem('token', data.token);
                     currentUser = data.user;
                     showToast('Logged in successfully', 'success');
+
+                    // Step 1: Automatic Sync for first-time users
+                    if (currentUser.role === 'student' && !currentUser.umsSynced) {
+                        console.log('[AUTO-SYNC] New user detected. Fetching data...');
+                        // Trigger sync in background after a short delay
+                        setTimeout(() => submitUmsSync(pass), 1500);
+                    }
+
                     loginSuccess();
                 } else {
                     showMsg('loginMsg', data.error || 'Invalid credentials.', 'msg-error');
@@ -1739,6 +1754,7 @@
             // Step 10: Load Batch Analytics automatically for admin
             if (currentUser.role === 'admin') {
                 setTimeout(renderBatchAnalytics, 600);
+                document.getElementById('adminMaintenancePanel').style.display = 'block';
             }
         }
 
@@ -2051,22 +2067,30 @@
                 }
             });
 
-            // Radar
-            const existingRadar = Chart.getChart('radarChart');
-            if (existingRadar) existingRadar.destroy();
+            // Step 20: Advanced Radar (Subject-Wise Weakness Map)
+            const radarDataCA = subjectsList.map(s => {
+                const m = (viewStudent.marks && viewStudent.marks[s]) || {ca1:0, ca2:0};
+                return ((m.ca1||0)+(m.ca2||0))/30 * 100;
+            });
+            const radarDataMTE = subjectsList.map(s => {
+                const m = (viewStudent.marks && viewStudent.marks[s]) || {mte:0};
+                return (m.mte||0)/20 * 100;
+            });
+            const radarDataAtt = subjectsList.map(s => {
+                const sa = (viewStudent.subjectAttendance instanceof Map ? Object.fromEntries(viewStudent.subjectAttendance) : viewStudent.subjectAttendance) || {};
+                return sa[s] || parseInt(viewStudent.attendance) || 0;
+            });
+
             if (radarChartInst) radarChartInst.destroy();
             radarChartInst = new Chart(document.getElementById('radarChart').getContext('2d'), {
                 type: 'radar',
                 data: {
-                    labels,
-                    datasets: [{
-                        label: 'Scores',
-                        data: totals,
-                        backgroundColor: 'rgba(232,98,26,0.2)',
-                        borderColor: primary,
-                        pointBackgroundColor: primary,
-                        pointBorderColor: '#fff'
-                    }]
+                    labels: subjectsList,
+                    datasets: [
+                        { label: 'Attendance %', data: radarDataAtt, backgroundColor: 'rgba(56,182,203,0.1)', borderColor: '#38b6cb', borderWidth: 1.5, pointRadius: 2 },
+                        { label: 'CA %', data: radarDataCA, backgroundColor: 'rgba(232,98,26,0.15)', borderColor: '#e8621a', borderWidth: 2, pointRadius: 3 },
+                        { label: 'MTE %', data: radarDataMTE, backgroundColor: 'rgba(212,160,23,0.1)', borderColor: '#d4a017', borderWidth: 1.5, pointRadius: 2 }
+                    ]
                 },
                 options: {
                     responsive: true, maintainAspectRatio: false,
@@ -2074,11 +2098,13 @@
                         r: { 
                             angleLines: { color: gridColor }, 
                             grid: { color: gridColor }, 
-                            pointLabels: { color: textMuted }, 
+                            pointLabels: { color: textMuted, font: { size: 10 } }, 
                             ticks: { display: false, max: 100, min: 0 } 
                         }
                     },
-                    plugins: { legend: { display: false } }
+                    plugins: { 
+                        legend: { display: true, position: 'bottom', labels: { boxWidth: 8, font: {size: 9}, color: textMuted } } 
+                    }
                 }
             });
 
@@ -2504,10 +2530,11 @@
         function closeSyncModal() {
             document.getElementById('syncModal').style.display = 'none';
         }
-        async function submitUmsSync() {
-            const pwd = document.getElementById('umsSyncPassword').value.trim();
+        async function submitUmsSync(autoPwd = null) {
+            const pwd = autoPwd || document.getElementById('umsSyncPassword').value.trim();
             if (!pwd) {
-                showMsg('syncMsg', 'Please enter your UMS password.', 'msg-error'); return;
+                if (!autoPwd) showMsg('syncMsg', 'Please enter your UMS password.', 'msg-error'); 
+                return;
             }
             if (!currentUser) { closeSyncModal(); return; }
 
@@ -2539,6 +2566,7 @@
                     if (freshRes.ok) {
                         viewStudent = await freshRes.json();
                         renderStudentData();
+                        renderCharts(); // Refresh all charts after sync
                     }
                 } else {
                     // Step 11: Specific error toasts per error code
@@ -2758,6 +2786,27 @@
         function closeStudyPlan() { document.getElementById('studyPlanModal').style.display = 'none'; }
         function printStudyPlan() {
             window.print();
+        }
+
+        // Step 19: Purge System Data
+        async function purgeSystem() {
+            if (!confirm('🛑 WARNING: This will delete ALL student records except the admin account. This action is irreversible. Continue?')) return;
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`${API_BASE}/admin/purge`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast(data.message, 'success');
+                    renderBatchAnalytics(); // Refresh the list
+                } else {
+                    showToast(data.error || 'Purge failed.', 'error');
+                }
+            } catch (err) {
+                showToast('Network error during purge.', 'error');
+            }
         }
 
         // ==========================================

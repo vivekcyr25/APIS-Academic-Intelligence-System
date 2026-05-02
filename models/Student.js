@@ -41,6 +41,7 @@ const studentSchema = new mongoose.Schema({
     role:        { type: String, enum: ['student', 'admin'], default: 'student' },
     semester:    { type: String, default: 'Semester 4' },
     attendance:  { type: String, default: '0%' },
+    subjectAttendance: { type: Map, of: Number, default: {} },
     phoneNumber: { type: String, default: '' },       // for WhatsApp identification
     umsSynced:   { type: Boolean, default: false },
     lastSyncDate:{ type: Date },

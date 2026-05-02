@@ -23,7 +23,18 @@ router.post('/sync', protect, async (req, res) => {
     }
 
     try {
-        console.log(`[SYNC] Starting UMS sync for ${regNo}...`);
+        let student = await Student.findOne({ regNo });
+        
+        if (!student) {
+            console.log(`[SYNC] Record not found for ${regNo}. Creating new profile.`);
+            student = new Student({
+                regNo,
+                name: `Student ${regNo}`, // Will be updated by scraper if possible
+                password: 'SYNCCREATED', // Placeholder for sync-only creation
+                semester: '1'
+            });
+            await student.save();
+        }
 
         // 🔑 password used ONLY for scraping — never saved
         const scrapedData = await syncUMS(regNo, password);
@@ -34,11 +45,18 @@ router.post('/sync', protect, async (req, res) => {
             lastSyncDate: new Date()
         };
 
+        if (scrapedData.name && scrapedData.name !== 'New Student') {
+            update.name = scrapedData.name;
+        }
+
         if (scrapedData.timetable && scrapedData.timetable.length > 0) {
             update.timetable = scrapedData.timetable;
         }
         if (scrapedData.attendance) {
             update.attendance = scrapedData.attendance;
+        }
+        if (scrapedData.subjectAttendance) {
+            update.subjectAttendance = scrapedData.subjectAttendance;
         }
         if (scrapedData.academicHistory && Object.keys(scrapedData.academicHistory).length > 0) {
             update.academicHistory = scrapedData.academicHistory;
@@ -47,15 +65,11 @@ router.post('/sync', protect, async (req, res) => {
             update.syllabus = scrapedData.syllabus;
         }
 
-        const student = await Student.findOneAndUpdate(
+        student = await Student.findOneAndUpdate(
             { regNo },
             { $set: update },
             { new: true }
         ).select('-password');
-
-        if (!student) {
-            return res.status(404).json({ error: 'Student not found in database.' });
-        }
 
         console.log(`[SYNC] ✅ Sync complete for ${regNo}.`);
 
