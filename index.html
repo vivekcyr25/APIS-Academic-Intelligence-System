@@ -1623,6 +1623,7 @@
                     <button id="fetchBtn" class="btn ripple-btn" onclick="fetchStudent()">Fetch Record</button>
                     <button id="compareBtn" class="btn-ghost ripple-btn" onclick="openCompareModal()" style="margin-top: 10px;">Compare Students</button>
                     <div id="searchMsg" class="msg-box"></div>
+                    <div id="adminSearchResult"></div>
                 `;
                 fetchAllStudents();
                 fetchActivityLogs();
@@ -1645,7 +1646,9 @@
             document.getElementById('emptyState').style.display = 'none';
             document.getElementById('resultsWrapper').style.display = 'block';
             document.getElementById('statsRow').style.display = 'grid';
-            document.getElementById('middleMainCard').innerHTML = '<div class="skeleton-box" style="height: 120px;"></div>';
+            if(currentUser.role === 'admin') {
+                document.getElementById('adminSearchResult').innerHTML = '<div class="skeleton-box" style="height: 80px; margin-top: 20px;"></div>';
+            }
             document.getElementById('marksTableBody').innerHTML = Array(5).fill('<tr>' + '<td class="skeleton-box" style="height:20px; margin:5px;"></td>'.repeat(7) + '</tr>').join('');
             document.getElementById('statAvg').textContent = '--';
             document.getElementById('statBest').textContent = '--';
@@ -1682,16 +1685,11 @@
         function renderStudentData() {
             // REFINED: Fade content in on render
             if (currentUser.role === 'admin') {
-                const card = document.getElementById('middleMainCard');
-                if (!document.getElementById('stdInfoGrid')) {
-                    const grid = document.createElement('div');
-                    grid.id = 'stdInfoGrid';
-                    grid.className = 'info-grid fade-content';
-                    card.appendChild(grid);
-                }
-                document.getElementById('stdInfoGrid').innerHTML = `
-                    <div class="info-item"><label>Name</label><div>${viewStudent.name}</div></div>
-                    <div class="info-item"><label>Semester</label><div>${viewStudent.semester}</div></div>
+                document.getElementById('adminSearchResult').innerHTML = `
+                    <div class="info-grid fade-content" style="margin-top: 20px;">
+                        <div class="info-item"><label>Name</label><div>${viewStudent.name}</div></div>
+                        <div class="info-item"><label>Semester</label><div>${viewStudent.semester}</div></div>
+                    </div>
                 `;
             } else {
                 document.getElementById('middleMainCard').innerHTML = `
