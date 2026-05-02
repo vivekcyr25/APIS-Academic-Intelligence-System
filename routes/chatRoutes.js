@@ -4,7 +4,7 @@ const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const GEMINI_API = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent';
+const GEMINI_API = 'https://generativelanguage.googleapis.com/v1/models/gemini-1.5-flash:generateContent';
 
 function getTodayName() { return DAYS[new Date().getDay()]; }
 
@@ -145,6 +145,7 @@ router.post('/', protect, async (req, res) => {
 
         if (apiKey) {
             try {
+                console.log("Using Gemini model: gemini-1.5-flash");
                 const context = buildStudentContext(student);
                 reply = await askGemini(context, message, apiKey);
                 if (!reply) throw new Error('Empty response from Gemini');
