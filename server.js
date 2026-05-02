@@ -82,17 +82,17 @@ async function startServer() {
         await mongoose.connect(mongoUri);
         console.log('✅ MongoDB Connected successfully!');
 
-        // Auto-seed if empty
-        const count = await Student.countDocuments();
-        if (count === 0) {
-            console.log('Database is empty. Seeding with default student records...');
-            for (let student of studentsDb) {
+        // Auto-seed and Sync Students
+        console.log('Synchronizing student database...');
+        for (let student of studentsDb) {
+            const exists = await Student.findOne({ regNo: student.regNo });
+            if (!exists) {
                 const salt = await bcrypt.genSalt(10);
-                student.password = await bcrypt.hash(student.password, salt);
-                await Student.create(student);
+                const hashedPassword = await bcrypt.hash(student.password, salt);
+                await Student.create({ ...student, password: hashedPassword });
             }
-            console.log('✅ Database seeded with authentic hashed passwords!');
         }
+        console.log('✅ Student database synchronized!');
 
         // ALWAYS ensure Admin exists and has correct credentials
         const salt = await bcrypt.genSalt(10);
