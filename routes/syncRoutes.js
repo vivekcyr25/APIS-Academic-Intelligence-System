@@ -1,7 +1,7 @@
 const express = require('express');
 const Student = require('../models/Student');
 const { protect } = require('../middleware/authMiddleware');
-const { syncUMS } = require('../umsService');
+const { syncUMS, UMSError } = require('../umsService');
 const router = express.Router();
 
 /**
@@ -69,10 +69,15 @@ router.post('/sync', protect, async (req, res) => {
 
     } catch (err) {
         console.error(`[SYNC] ❌ Sync failed for ${regNo}:`, err.message);
-        res.status(500).json({
-            error: 'UMS sync failed.',
-            detail: err.message
-        });
+
+        // Step 11: Return specific status codes for known error conditions
+        if (err.name === 'UMSError') {
+            const statusMap = { WRONG_PASSWORD: 401, CAPTCHA_DETECTED: 423, TIMEOUT: 408 };
+            const status = statusMap[err.code] || 500;
+            return res.status(status).json({ error: err.message, code: err.code });
+        }
+
+        res.status(500).json({ error: 'UMS sync failed.', detail: err.message });
     }
 });
 

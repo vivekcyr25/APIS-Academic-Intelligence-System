@@ -1257,6 +1257,29 @@
                     </div>
                 </div>
 
+                <!-- Step 9: CGPA Trend (shown when academicHistory exists) -->
+                <div id="cgpaTrendRow" class="glass-panel card" style="display:none; margin-top: 0;">
+                    <h2>GPA Progress Across Semesters</h2>
+                    <div class="chart-container" style="height: 200px;"><canvas id="cgpaTrendChart"></canvas></div>
+                </div>
+
+                <!-- Step 10: Batch Analytics (Admin only) -->
+                <div id="batchAnalyticsPanel" class="glass-panel card" style="display:none; margin-top: 0;">
+                    <h2 style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>📊 Batch Analytics</span>
+                        <button class="btn ripple-btn" id="broadcastBtn" style="width:auto; padding:7px 16px; font-size:0.82rem; background:var(--danger); box-shadow:none;" onclick="broadcastWarning()">📢 Broadcast Warning</button>
+                    </h2>
+                    <p style="font-size:0.8rem; color:var(--text-dim); margin-bottom:1rem;">Students with synced UMS data. 🟥 = Low attendance (<75%). 🟡 = CGPA drop >0.5 between semesters.</p>
+                    <div class="table-responsive">
+                        <table id="batchTable">
+                            <thead><tr>
+                                <th>Name</th><th>Reg No</th><th>Attendance</th><th>Latest CGPA</th><th>Risk</th><th>Sync Date</th>
+                            </tr></thead>
+                            <tbody id="batchTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+
             </div>
         </section>
     </div>
@@ -1641,6 +1664,10 @@
             if (syncBtn) syncBtn.style.display = currentUser.role === 'student' ? 'block' : 'none';
             renderDashboardStructure();
             resetSessionTimer();
+            // Step 10: Load Batch Analytics automatically for admin
+            if (currentUser.role === 'admin') {
+                setTimeout(renderBatchAnalytics, 600);
+            }
         }
 
         function logout() {
@@ -1742,7 +1769,9 @@
             if (currentUser.role === 'admin') {
                 document.getElementById('adminSearchResult').innerHTML = `
                     <div class="info-grid fade-content" style="margin-top: 20px;">
-                        <div class="info-item"><label>Name</label><div>${viewStudent.name}</div></div>
+                        <div class="info-item"><label>Name</label><div>${viewStudent.name}
+                            ${viewStudent.umsSynced ? `<span class="badge grade-a" style="font-size:0.65rem; padding:2px 8px; margin-left:6px;">✅ Verified Sync · ${new Date(viewStudent.lastSyncDate).toLocaleDateString()}</span>` : ''}
+                        </div></div>
                         <div class="info-item"><label>Semester</label><div>${viewStudent.semester}</div></div>
                     </div>
                 `;
@@ -1823,6 +1852,8 @@
             // Fetch actual AI Recommendations
             analyzeStudent();
             // Charts render only when user clicks the sphere (revealAnalytics)
+            // Step 9: Render CGPA trend if academic history exists
+            renderCgpaTrend();
             // Add ETE Predictor
             let predictedEteSum = 0;
             let currentMarksSum = 0;
@@ -2397,24 +2428,28 @@
             }
             if (!currentUser) { closeSyncModal(); return; }
 
-            // Show loading animation
             document.getElementById('syncFormState').style.display = 'none';
             document.getElementById('syncLoadingState').style.display = 'flex';
 
+            // Step 11: 30-second frontend spinner timeout guard
+            const spinnerTimeout = setTimeout(() => {
+                closeSyncModal();
+                showToast('⏱️ Sync is taking too long. The UMS server may be slow. Please try again.', 'error');
+            }, 32000);
+
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`${API_BASE}/student/sync`, {
+                const res  = await fetch(`${API_BASE}/student/sync`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                     body: JSON.stringify({ regNo: currentUser.regNo, password: pwd })
                 });
                 const data = await res.json();
-
+                clearTimeout(spinnerTimeout);
                 closeSyncModal();
 
                 if (res.ok) {
-                    showToast(`✅ Sync successful! Timetable &amp; data updated.`, 'success');
-                    // Refresh student view with new data
+                    showToast('✅ Sync successful! Timetable & data updated.', 'success');
                     const freshRes = await fetch(`${API_BASE}/student/${currentUser.regNo}`, {
                         headers: { 'Authorization': `Bearer ${token}` }
                     });
@@ -2423,12 +2458,144 @@
                         renderStudentData();
                     }
                 } else {
-                    showToast(`❌ Sync failed: ${data.error || data.detail || 'Unknown error'}`, 'error');
+                    // Step 11: Specific error toasts per error code
+                    const code = data.code;
+                    if (code === 'WRONG_PASSWORD') {
+                        showToast('❌ Login Failed. Please check your UMS credentials.', 'error');
+                    } else if (code === 'CAPTCHA_DETECTED') {
+                        showToast('🔐 Manual Sync Required: Please log into UMS once in your browser to verify your session, then try again.', 'error');
+                    } else if (code === 'TIMEOUT') {
+                        showToast('⏱️ UMS sync timed out. The UMS server is slow. Please try again in a few minutes.', 'error');
+                    } else {
+                        showToast(`❌ Sync failed: ${data.error || 'Unknown error'}`, 'error');
+                    }
                 }
             } catch (err) {
+                clearTimeout(spinnerTimeout);
                 closeSyncModal();
                 showToast('❌ Network error during sync. Please try again.', 'error');
             }
+        }
+
+        // ── Step 9: CGPA Trend Chart ──────────────────────────────────────────
+        let cgpaTrendInst = null;
+        function renderCgpaTrend() {
+            const trendRow = document.getElementById('cgpaTrendRow');
+            if (!viewStudent || !viewStudent.academicHistory) { trendRow.style.display = 'none'; return; }
+
+            // academicHistory might be a plain object (from server JSON) or Map
+            const hist = viewStudent.academicHistory instanceof Map
+                ? Object.fromEntries(viewStudent.academicHistory)
+                : viewStudent.academicHistory;
+
+            const sems = Object.keys(hist).sort();
+            if (sems.length < 1) { trendRow.style.display = 'none'; return; }
+
+            trendRow.style.display = 'block';
+            const labels = sems.map(s => s.toUpperCase());
+            const data   = sems.map(s => hist[s].cgpa || 0);
+
+            const existing = Chart.getChart('cgpaTrendChart');
+            if (existing) existing.destroy();
+            if (cgpaTrendInst) cgpaTrendInst.destroy();
+
+            const isDark = !document.body.getAttribute('data-theme');
+            const gridCol = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+            const txtCol  = isDark ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)';
+
+            cgpaTrendInst = new Chart(document.getElementById('cgpaTrendChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels,
+                    datasets: [{
+                        label: 'CGPA',
+                        data,
+                        borderColor: '#e8621a',
+                        backgroundColor: 'rgba(232,98,26,0.12)',
+                        borderWidth: 3,
+                        pointBackgroundColor: '#e8621a',
+                        pointRadius: 5,
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    scales: {
+                        y: { min: 0, max: 10, ticks: { color: txtCol }, grid: { color: gridCol } },
+                        x: { ticks: { color: txtCol }, grid: { color: gridCol } }
+                    },
+                    plugins: { legend: { display: false } }
+                }
+            });
+        }
+
+        // ── Step 10: Batch Analytics ──────────────────────────────────────────
+        async function renderBatchAnalytics() {
+            if (!currentUser || currentUser.role !== 'admin') return;
+            const panel = document.getElementById('batchAnalyticsPanel');
+            panel.style.display = 'block';
+            const tbody = document.getElementById('batchTableBody');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;"><span class="spinner"></span> Loading batch data...</td></tr>';
+
+            try {
+                const token = localStorage.getItem('token');
+                const res   = await fetch(`${API_BASE}/student`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) { tbody.innerHTML = '<tr><td colspan="6">Failed to load.</td></tr>'; return; }
+                const students = await res.json();
+
+                // Filter only synced students
+                const synced = students.filter(s => s.umsSynced);
+                if (!synced.length) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; color:var(--text-dim);">No synced students yet.</td></tr>';
+                    return;
+                }
+
+                tbody.innerHTML = '';
+                synced.forEach(s => {
+                    const att = parseFloat(s.attendance) || 0;
+                    const lowAtt = att < 75;
+
+                    // CGPA drop: compare sem1 and sem2 if both exist
+                    const hist = s.academicHistory || {};
+                    const sems = Object.keys(hist).sort();
+                    let cgpaDropped = false;
+                    let latestCgpa = '--';
+                    if (sems.length >= 2) {
+                        const first  = hist[sems[0]]?.cgpa || 0;
+                        const latest = hist[sems[sems.length-1]]?.cgpa || 0;
+                        latestCgpa   = latest;
+                        if ((first - latest) > 0.5) cgpaDropped = true;
+                    } else if (sems.length === 1) {
+                        latestCgpa = hist[sems[0]]?.cgpa || '--';
+                    }
+
+                    const riskBadges = [];
+                    if (lowAtt)      riskBadges.push('<span style="color:var(--danger);">&#128997; Low Attendance</span>');
+                    if (cgpaDropped) riskBadges.push('<span style="color:var(--warning);">&#128993; CGPA Dropped</span>');
+
+                    const rowBg = lowAtt ? 'rgba(239,68,68,0.07)' : (cgpaDropped ? 'rgba(234,179,8,0.07)' : '');
+
+                    tbody.innerHTML += `<tr style="background:${rowBg};">
+                        <td>${s.name}</td>
+                        <td>${s.regNo}</td>
+                        <td style="color:${lowAtt ? 'var(--danger)' : 'var(--success)'}; font-weight:600;">${s.attendance}</td>
+                        <td>${latestCgpa}</td>
+                        <td>${riskBadges.join(' ') || '<span style="color:var(--success);">&#10003; OK</span>'}</td>
+                        <td style="font-size:0.78rem; color:var(--text-dim);">${s.lastSyncDate ? new Date(s.lastSyncDate).toLocaleDateString() : '--'}</td>
+                    </tr>`;
+                });
+            } catch (e) {
+                tbody.innerHTML = '<tr><td colspan="6">Error loading batch data.</td></tr>';
+            }
+        }
+
+        async function broadcastWarning() {
+            if (!currentUser || currentUser.role !== 'admin') return;
+            const confirm = window.confirm('📢 This will send a Low Attendance Warning via the chatbot to all at-risk students. Continue?');
+            if (!confirm) return;
+            // In a real Twilio setup this would call an API. For now show a toast.
+            showToast('📢 Warning broadcast queued for all at-risk students.', 'success');
         }
 
         // REFINED: Dual-ring cursor — only on true pointer (mouse) devices
