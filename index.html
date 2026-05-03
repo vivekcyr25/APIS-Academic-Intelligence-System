@@ -1,13 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>APIS — Academic Performance Intelligence System</title>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
-        rel="stylesheet">
+    <meta name="description" content="Smart academic dashboard with AI-driven performance insights, marks management, and analytics.">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -15,7 +13,6 @@
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
     <link rel="stylesheet" href="style.css">
 </head>
-
 <body>
 
     <!-- ==================== NAVBAR ==================== -->
@@ -42,28 +39,59 @@
     <!-- ==================== TOAST CONTAINER ==================== -->
     <div class="toast-container" id="toastContainer"></div>
 
+    <!-- ==================== AI CHATBOT ==================== -->
+    <div class="chatbot-fab" id="chatbotFab" onclick="toggleChatbot()" title="AI Academic Assistant">
+        <span class="chatbot-icon">🤖</span>
+        <span class="chatbot-pulse"></span>
+    </div>
+    <div class="chatbot-panel" id="chatbotPanel" hidden>
+        <div class="chatbot-header">
+            <div class="chatbot-title">
+                <span>🤖</span>
+                <div>
+                    <div style="font-weight:600;font-size:0.9rem;">Academic AI Assistant</div>
+                    <div style="font-size:0.7rem;color:var(--success);display:flex;align-items:center;gap:4px;"><span style="width:6px;height:6px;background:var(--success);border-radius:50%;display:inline-block;"></span> Online</div>
+                </div>
+            </div>
+            <button class="chatbot-close" onclick="toggleChatbot()">✕</button>
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <div class="chat-msg ai">
+                <div class="chat-bubble">👋 Hi! I'm your academic AI assistant. Ask me about your performance, weak subjects, or how to improve your scores!</div>
+            </div>
+        </div>
+        <div class="chatbot-quick-btns" id="chatQuickBtns">
+            <button onclick="sendQuickChat('What are my weakest subjects?')">📉 Weak Subjects</button>
+            <button onclick="sendQuickChat('What is my strongest subject?')">🏆 Best Subject</button>
+            <button onclick="sendQuickChat('How can I improve my overall GPA?')">📈 Improve GPA</button>
+            <button onclick="sendQuickChat('Give me a full performance analysis')">🔬 Full Analysis</button>
+        </div>
+        <form class="chatbot-input-row" onsubmit="handleChatSubmit(event)">
+            <input type="text" id="chatInput" class="chatbot-input" placeholder="Ask about your performance..." autocomplete="off">
+            <button type="submit" class="chatbot-send" id="chatSendBtn">➤</button>
+        </form>
+    </div>
+
     <!-- ==================== MAIN CONTENT ==================== -->
     <div class="main-content" id="mainContent">
 
         <!-- LOGIN PAGE -->
         <section class="page-section" id="page-login">
             <div class="glass-card auth-card">
+                <div class="auth-logo">◆</div>
                 <h2>Welcome Back</h2>
                 <p class="subtitle">Sign in to your APIS account</p>
                 <form id="loginForm" onsubmit="handleLogin(event)">
                     <div class="form-group">
                         <label for="loginRegNo">Registration Number</label>
-                        <input type="text" id="loginRegNo" class="form-input" placeholder="e.g. CS2024001" required
-                            autocomplete="username">
+                        <input type="text" id="loginRegNo" class="form-input" placeholder="e.g. CS2024001" required autocomplete="username">
                     </div>
                     <div class="form-group">
                         <label for="loginPassword">Password</label>
-                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required
-                            autocomplete="current-password">
+                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required autocomplete="current-password">
                     </div>
                     <div class="error-text" id="loginError"></div>
-                    <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;"
-                        id="loginBtn">
+                    <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" id="loginBtn">
                         🔐 Sign In
                     </button>
                 </form>
@@ -74,6 +102,7 @@
         <!-- REGISTER PAGE -->
         <section class="page-section" id="page-register">
             <div class="glass-card auth-card">
+                <div class="auth-logo">◆</div>
                 <h2>Create Account</h2>
                 <p class="subtitle">Join the Academic Performance Intelligence System</p>
                 <form id="registerForm" onsubmit="handleRegister(event)">
@@ -87,13 +116,10 @@
                     </div>
                     <div class="form-group">
                         <label for="regPassword">Password</label>
-                        <input type="password" id="regPassword" class="form-input"
-                            placeholder="Min. 8 chars, upper + lower + number" required minlength="8"
-                            autocomplete="new-password">
+                        <input type="password" id="regPassword" class="form-input" placeholder="Min. 8 chars, upper + lower + number" required minlength="8" autocomplete="new-password">
                     </div>
                     <div class="error-text" id="registerError"></div>
-                    <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;"
-                        id="registerBtn">
+                    <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;" id="registerBtn">
                         ✨ Create Account
                     </button>
                 </form>
@@ -121,17 +147,17 @@
                 <div class="stat-card success">
                     <div class="stat-icon">📈</div>
                     <div class="stat-value" id="statAverage">—</div>
-                    <div class="stat-label">Overall Average %</div>
+                    <div class="stat-label">Average %</div>
                 </div>
                 <div class="stat-card success">
                     <div class="stat-icon">✅</div>
                     <div class="stat-value" id="statPass">—</div>
-                    <div class="stat-label">Passed Subjects</div>
+                    <div class="stat-label">Passed</div>
                 </div>
                 <div class="stat-card danger">
                     <div class="stat-icon">⚠️</div>
                     <div class="stat-value" id="statFail">—</div>
-                    <div class="stat-label">Failed Subjects</div>
+                    <div class="stat-label">Failed</div>
                 </div>
                 <div class="stat-card accent">
                     <div class="stat-icon">🏆</div>
@@ -144,20 +170,22 @@
                     <div class="stat-label">Needs Focus</div>
                 </div>
             </div>
+            <!-- Mini chart on dashboard -->
+            <div class="glass-card compact" id="dashboardChartCard" hidden>
+                <h3 style="margin-bottom:12px;font-size:0.95rem;">📊 Quick Overview</h3>
+                <div class="chart-wrapper" style="max-height:220px;"><canvas id="dashboardBarChart"></canvas></div>
+            </div>
             <div class="glass-card compact" style="text-align:center;" id="dashboardEmpty" hidden>
-                <p style="color:var(--text-muted);">📭 No marks data yet. <a
-                        style="color:var(--accent-orange-light);cursor:pointer;" onclick="navigateTo('marks')">Add your
-                        first marks →</a></p>
+                <p style="color:var(--text-muted);">📭 No marks data yet. <a style="color:var(--accent-orange-light);cursor:pointer;" onclick="navigateTo('marks')">Add your first marks →</a></p>
             </div>
         </section>
 
         <!-- MARKS PAGE -->
         <section class="page-section" id="page-marks">
-            <div class="page-header"
-                style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+            <div class="page-header" style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
                 <div>
                     <h1>📝 Marks Management</h1>
-                    <p>Add, edit, and manage your academic records</p>
+                    <p>Add, edit, and manage your academic records · Press <kbd>E</kbd> to quick-edit selected row</p>
                 </div>
                 <button class="btn-primary" onclick="openAddMarkModal()">＋ Add Marks</button>
             </div>
@@ -165,17 +193,16 @@
                 <div class="empty-state" id="marksEmpty">
                     <div class="empty-icon">📭</div>
                     <p>No marks recorded yet</p>
-                    <button class="btn-primary" style="margin-top:12px;" onclick="openAddMarkModal()">＋ Add Your First
-                        Marks</button>
+                    <button class="btn-primary" style="margin-top:12px;" onclick="openAddMarkModal()">＋ Add Your First Marks</button>
                 </div>
                 <table id="marksTable" hidden>
                     <thead>
                         <tr>
                             <th>Subject</th>
-                            <th>CA1</th>
-                            <th>CA2</th>
-                            <th>MTE</th>
-                            <th>ETE</th>
+                            <th>CA1 /10</th>
+                            <th>CA2 /10</th>
+                            <th>MTE /30</th>
+                            <th>ETE /50</th>
                             <th>Total</th>
                             <th>Grade</th>
                             <th>Actions</th>
@@ -195,9 +222,12 @@
                 <h1>📈 Analytics</h1>
                 <p>Visual breakdown of your academic performance</p>
             </div>
+            <!-- KPI Row -->
+            <div class="analytics-kpi-row" id="analyticsKPI"></div>
+            <!-- Charts Grid -->
             <div class="charts-grid">
                 <div class="glass-card compact">
-                    <h3 style="margin-bottom:12px;font-size:0.95rem;">📊 Subject Performance</h3>
+                    <h3 style="margin-bottom:12px;font-size:0.95rem;">📊 Subject Scores (Total /100)</h3>
                     <div class="chart-wrapper"><canvas id="barChart"></canvas></div>
                 </div>
                 <div class="glass-card compact">
@@ -205,25 +235,17 @@
                     <div class="chart-wrapper"><canvas id="pieChart"></canvas></div>
                 </div>
             </div>
+            <div class="glass-card compact" style="margin-bottom:20px;">
+                <h3 style="margin-bottom:12px;font-size:0.95rem;">🕸️ Component Radar (Normalized %)</h3>
+                <div class="chart-wrapper" style="max-height:300px;"><canvas id="radarChart"></canvas></div>
+            </div>
             <div class="glass-card compact">
                 <h3 style="margin-bottom:12px;font-size:0.95rem;">🔬 Average Component Breakdown</h3>
                 <div class="component-breakdown" id="componentBreakdown">
-                    <div class="component-item">
-                        <div class="comp-value">—</div>
-                        <div class="comp-label">Avg CA1</div>
-                    </div>
-                    <div class="component-item">
-                        <div class="comp-value">—</div>
-                        <div class="comp-label">Avg CA2</div>
-                    </div>
-                    <div class="component-item">
-                        <div class="comp-value">—</div>
-                        <div class="comp-label">Avg MTE</div>
-                    </div>
-                    <div class="component-item">
-                        <div class="comp-value">—</div>
-                        <div class="comp-label">Avg ETE</div>
-                    </div>
+                    <div class="component-item"><div class="comp-value">—</div><div class="comp-label">Avg CA1</div></div>
+                    <div class="component-item"><div class="comp-value">—</div><div class="comp-label">Avg CA2</div></div>
+                    <div class="component-item"><div class="comp-value">—</div><div class="comp-label">Avg MTE</div></div>
+                    <div class="component-item"><div class="comp-value">—</div><div class="comp-label">Avg ETE</div></div>
                 </div>
             </div>
             <div class="empty-state" id="analyticsEmpty" hidden>
@@ -261,15 +283,12 @@
                     </div>
                 </div>
                 <hr style="border-color:var(--border);margin:16px 0;">
-                <p style="color:var(--text-muted);font-size:0.85rem;">📅 Member since: <span id="profileSince">—</span>
-                </p>
+                <p style="color:var(--text-muted);font-size:0.85rem;">📅 Member since: <span id="profileSince">—</span></p>
             </div>
             <div class="glass-card compact" style="margin-top:16px;">
                 <h3 style="margin-bottom:8px;font-size:0.95rem;">Update Name</h3>
-                <form id="profileUpdateForm" onsubmit="handleProfileUpdate(event)"
-                    style="display:flex;gap:10px;flex-wrap:wrap;">
-                    <input type="text" id="profileNameInput" class="form-input" placeholder="New name"
-                        style="flex:1;min-width:200px;" required>
+                <form id="profileUpdateForm" onsubmit="handleProfileUpdate(event)" style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <input type="text" id="profileNameInput" class="form-input" placeholder="New name" style="flex:1;min-width:200px;" required>
                     <button type="submit" class="btn-primary btn-sm">💾 Save</button>
                 </form>
             </div>
@@ -280,22 +299,19 @@
     <div class="modal-overlay" id="markModal" hidden>
         <div class="modal-dialog">
             <h3 id="markModalTitle">➕ Add New Marks</h3>
+            <p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:16px;" id="modalDupeNote"></p>
             <form id="markForm" onsubmit="handleMarkSubmit(event)">
                 <input type="hidden" id="markEditId">
                 <div class="form-group">
                     <label for="markSubject">Subject Name</label>
-                    <input type="text" id="markSubject" class="form-input" placeholder="e.g. Mathematics" required
-                        maxlength="100">
+                    <input type="text" id="markSubject" class="form-input" placeholder="e.g. Mathematics" required maxlength="100" oninput="checkDuplicate(this.value)">
+                    <div class="dupe-warning" id="dupeWarning" hidden>⚠️ Subject already exists — saving will update it.</div>
                 </div>
                 <div class="form-row-4">
-                    <div class="form-group"><label for="markCA1">CA1 (0–10)</label><input type="number" id="markCA1"
-                            class="form-input" min="0" max="10" step="0.5" required></div>
-                    <div class="form-group"><label for="markCA2">CA2 (0–10)</label><input type="number" id="markCA2"
-                            class="form-input" min="0" max="10" step="0.5" required></div>
-                    <div class="form-group"><label for="markMTE">MTE (0–30)</label><input type="number" id="markMTE"
-                            class="form-input" min="0" max="30" step="0.5" required></div>
-                    <div class="form-group"><label for="markETE">ETE (0–50)</label><input type="number" id="markETE"
-                            class="form-input" min="0" max="50" step="0.5" required></div>
+                    <div class="form-group"><label for="markCA1">CA1 (0–10)</label><input type="number" id="markCA1" class="form-input" min="0" max="10" step="0.5" required></div>
+                    <div class="form-group"><label for="markCA2">CA2 (0–10)</label><input type="number" id="markCA2" class="form-input" min="0" max="10" step="0.5" required></div>
+                    <div class="form-group"><label for="markMTE">MTE (0–30)</label><input type="number" id="markMTE" class="form-input" min="0" max="30" step="0.5" required></div>
+                    <div class="form-group"><label for="markETE">ETE (0–50)</label><input type="number" id="markETE" class="form-input" min="0" max="50" step="0.5" required></div>
                 </div>
                 <div class="error-text" id="markFormError"></div>
                 <div class="modal-actions">
@@ -308,11 +324,10 @@
 
     <!-- ==================== FOOTER ==================== -->
     <footer class="app-footer">
-        APIS v2.0 · Academic Performance Intelligence System · AES-256-GCM Secured · © 2026
+        APIS v3.0 · Academic Performance Intelligence System · AI-Powered · © 2026
     </footer>
 
     <!-- ==================== SCRIPTS ==================== -->
     <script src="main.js"></script>
 </body>
-
 </html>
