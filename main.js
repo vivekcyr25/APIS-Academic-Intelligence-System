@@ -323,10 +323,10 @@
         const btn = $('#markSubmitBtn');
         const values = {
             subject: $('#markSubject').value.trim(),
-            ca1: parseFloat($('#markCA1').value),
-            ca2: parseFloat($('#markCA2').value),
-            mte: parseFloat($('#markMTE').value),
-            ete: parseFloat($('#markETE').value),
+            ca1: parseFloat($('#markCA1').value) || 0,
+            ca2: parseFloat($('#markCA2').value) || 0,
+            mte: parseFloat($('#markMTE').value) || 0,
+            ete: parseFloat($('#markETE').value) || 0,
         };
 
         const total = values.ca1 + values.ca2 + values.mte + values.ete;
@@ -539,6 +539,9 @@
 
     // ============ INIT ============
     const init = () => {
+        if (window._apisInitialized) return;
+        window._apisInitialized = true;
+        
         const storedUser = localStorage.getItem('user');
         if (storedUser) {
             try { currentUser = JSON.parse(storedUser); } catch { localStorage.clear(); }

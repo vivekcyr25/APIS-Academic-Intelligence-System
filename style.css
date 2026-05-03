@@ -661,6 +661,10 @@ table tbody tr:last-child td {
     padding: 20px;
 }
 
+.modal-overlay[hidden] {
+    display: none !important;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
