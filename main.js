@@ -12,7 +12,7 @@
     const auth = firebase.auth();
 
     // ── GEMINI KEY (paste yours here) ──────────────────────────────────────
-    const GEMINI_KEY = 'REDACTED_FIREBASE_KEY';
+    const GEMINI_KEY = 'REDACTED_GEMINI_KEY';
     const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
 
     let currentUser = null, marksData = [], editingMarkId = null;
