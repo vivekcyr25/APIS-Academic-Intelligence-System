@@ -383,25 +383,38 @@
                 headers: { 'Content-Type':'application/json' },
                 body: JSON.stringify({ prompt: prompt })
             });
-            if (!res.ok) throw new Error(`API error ${res.status}`);
-            const data = await res.json();
+            let data;
+            try { data = await res.json(); } catch(e) { data = {}; }
+            if (!res.ok) {
+                if (res.status === 429) return '⚠️ AI is currently busy due to high demand. Please try again in a few moments.';
+                return `⚠️ ${data.message || 'An error occurred while connecting to the AI.'}`;
+            }
             return data.success ? data.text : (data.message || 'No response received.');
         } catch (ex) {
             return `⚠️ Could not connect to AI: ${ex.message}`;
         }
     };
 
+    let isChatting = false;
+
     window.handleChatSubmit = async (e) => {
         e.preventDefault();
+        if (isChatting) return;
         const input = $('#chatInput'), btn = $('#chatSendBtn');
         const q = input.value.trim(); if (!q) return;
+        
+        isChatting = true;
+        btn.disabled = true;
         appendMsg(q, 'user');
-        input.value = ''; btn.disabled = true;
+        input.value = '';
         appendMsg('⏳ Thinking...', 'ai');
+        
         const reply = await askGemini(q);
+        
         $('#chatbotMessages').lastChild.remove();
         appendMsg(reply, 'ai');
         btn.disabled = false;
+        isChatting = false;
         $('#chatQuickBtns').style.display = 'none';
     };
 
