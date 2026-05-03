@@ -11,9 +11,8 @@
     const db = firebase.firestore();
     const auth = firebase.auth();
 
-    // ── GEMINI KEY (paste yours here) ──────────────────────────────────────
-    const GEMINI_KEY = 'REDACTED_GEMINI_KEY';
-    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_KEY}`;
+    // ── VERCEL API PROXY ───────────────────────────────────────────────────
+    const GEMINI_URL = 'https://apis-academic-intelligence-system.vercel.app/api/chat';
 
     let currentUser = null, marksData = [], editingMarkId = null;
     let barChart = null, pieChart = null, radarChart = null, dashboardChart = null;
@@ -382,11 +381,11 @@
             const res = await fetch(GEMINI_URL, {
                 method: 'POST',
                 headers: { 'Content-Type':'application/json' },
-                body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] })
+                body: JSON.stringify({ prompt: prompt })
             });
             if (!res.ok) throw new Error(`API error ${res.status}`);
             const data = await res.json();
-            return data.candidates?.[0]?.content?.parts?.[0]?.text || 'No response received.';
+            return data.success ? data.text : (data.message || 'No response received.');
         } catch (ex) {
             return `⚠️ Could not connect to AI: ${ex.message}`;
         }
