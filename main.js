@@ -1,6 +1,6 @@
 (function () {
     const firebaseConfig = {
-        apiKey: "REDACTED_FIREBASE_KEY",
+        apiKey: "AIzaSyBzXiQuUXNdaJb_Bg6Kk3VrfEfADc5JBRo",
         authDomain: "gen-lang-client-0107179257.firebaseapp.com",
         projectId: "gen-lang-client-0107179257",
         storageBucket: "gen-lang-client-0107179257.firebasestorage.app",
