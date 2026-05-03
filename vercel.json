@@ -1,9 +1,18 @@
 {
     "version": 2,
-    "builds": [
-        { "src": "api/chat.js", "use": "@vercel/node" }
-    ],
-    "routes": [
-        { "src": "/api/chat", "dest": "/api/chat.js" }
+    "functions": {
+        "api/chat.js": {
+            "runtime": "nodejs20.x"
+        }
+    },
+    "headers": [
+        {
+            "source": "/api/(.*)",
+            "headers": [
+                { "key": "Access-Control-Allow-Origin", "value": "https://vivekcyr25.github.io" },
+                { "key": "Access-Control-Allow-Methods", "value": "POST, OPTIONS" },
+                { "key": "Access-Control-Allow-Headers", "value": "Content-Type" }
+            ]
+        }
     ]
 }
