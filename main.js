@@ -5,9 +5,9 @@
         authDomain: "gen-lang-client-0107179257.firebaseapp.com",
         projectId: "gen-lang-client-0107179257",
         storageBucket: "gen-lang-client-0107179257.firebasestorage.app",
-        messagingSenderId: "515714777174",
-        appId: "1:515714777174:web:866292364c676df479c45d",
-        measurementId: "G-FKEB3JNV6Y"
+        messagingSenderId: "913521921132",
+        appId: "1:913521921132:web:c7cd2fbc77c7ab8957dc49",
+        measurementId: "G-JSWQSRRDXD"
     };
 
     // Initialize Firebase
