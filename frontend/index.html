@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>APIS — Academic Performance Intelligence System</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <!-- ==================== NAVBAR ==================== -->
+    <nav class="navbar" id="navbar">
+        <a class="navbar-brand" href="#" onclick="navigateTo('dashboard')">
+            <span class="logo-icon">◆</span> APIS
+        </a>
+        <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileMenu()" aria-label="Menu">☰</button>
+        <ul class="nav-links" id="navLinks">
+            <li><a onclick="navigateTo('dashboard')" data-page="dashboard" class="active">📊 Dashboard</a></li>
+            <li><a onclick="navigateTo('marks')" data-page="marks">📝 Marks</a></li>
+            <li><a onclick="navigateTo('analytics')" data-page="analytics">📈 Analytics</a></li>
+            <li><a onclick="navigateTo('recommendations')" data-page="recommendations">💡 Tips</a></li>
+            <li><a onclick="navigateTo('profile')" data-page="profile">👤 Profile</a></li>
+        </ul>
+        <div style="display:flex;align-items:center;gap:8px;">
+            <span class="nav-user-badge" id="navUserBadge" onclick="navigateTo('profile')">
+                <span class="avatar-dot"></span><span id="navUserName">User</span>
+            </span>
+            <button class="btn-logout" onclick="handleLogout()" title="Logout">⏻</button>
+        </div>
+    </nav>
+
+    <!-- ==================== TOAST CONTAINER ==================== -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- ==================== MAIN CONTENT ==================== -->
+    <div class="main-content" id="mainContent">
+
+        <!-- LOGIN PAGE -->
+        <section class="page-section" id="page-login">
+            <div class="glass-card auth-card">
+                <h2>Welcome Back</h2>
+                <p class="subtitle">Sign in to your APIS account</p>
+                <form id="loginForm" onsubmit="handleLogin(event)">
+                    <div class="form-group">
+                        <label for="loginRegNo">Registration Number</label>
+                        <input type="text" id="loginRegNo" class="form-input" placeholder="e.g. CS2024001" required
+                            autocomplete="username">
+                    </div>
+                    <div class="form-group">
+                        <label for="loginPassword">Password</label>
+                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••" required
+                            autocomplete="current-password">
+                    </div>
+                    <div class="error-text" id="loginError"></div>
+                    <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;"
+                        id="loginBtn">
+                        🔐 Sign In
+                    </button>
+                </form>
+                <p class="auth-link">Don't have an account? <a onclick="navigateTo('register')">Register here</a></p>
+            </div>
+        </section>
+
+        <!-- REGISTER PAGE -->
+        <section class="page-section" id="page-register">
+            <div class="glass-card auth-card">
+                <h2>Create Account</h2>
+                <p class="subtitle">Join the Academic Performance Intelligence System</p>
+                <form id="registerForm" onsubmit="handleRegister(event)">
+                    <div class="form-group">
+                        <label for="regName">Full Name</label>
+                        <input type="text" id="regName" class="form-input" placeholder="Your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regRegNo">Registration Number</label>
+                        <input type="text" id="regRegNo" class="form-input" placeholder="e.g. CS2024001" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="regPassword">Password</label>
+                        <input type="password" id="regPassword" class="form-input"
+                            placeholder="Min. 8 chars, upper + lower + number" required minlength="8"
+                            autocomplete="new-password">
+                    </div>
+                    <div class="error-text" id="registerError"></div>
+                    <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:8px;"
+                        id="registerBtn">
+                        ✨ Create Account
+                    </button>
+                </form>
+                <p class="auth-link">Already have an account? <a onclick="navigateTo('login')">Sign in</a></p>
+            </div>
+        </section>
+
+        <!-- DASHBOARD PAGE -->
+        <section class="page-section" id="page-dashboard">
+            <div class="page-header">
+                <h1>📊 Dashboard</h1>
+                <p>Your academic performance at a glance</p>
+            </div>
+            <div class="stats-grid" id="dashboardStats">
+                <div class="stat-card accent">
+                    <div class="stat-icon">📚</div>
+                    <div class="stat-value" id="statSubjects">—</div>
+                    <div class="stat-label">Total Subjects</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">🎯</div>
+                    <div class="stat-value" id="statGPA">—</div>
+                    <div class="stat-label">GPA</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-icon">📈</div>
+                    <div class="stat-value" id="statAverage">—</div>
+                    <div class="stat-label">Overall Average %</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="stat-icon">✅</div>
+                    <div class="stat-value" id="statPass">—</div>
+                    <div class="stat-label">Passed Subjects</div>
+                </div>
+                <div class="stat-card danger">
+                    <div class="stat-icon">⚠️</div>
+                    <div class="stat-value" id="statFail">—</div>
+                    <div class="stat-label">Failed Subjects</div>
+                </div>
+                <div class="stat-card accent">
+                    <div class="stat-icon">🏆</div>
+                    <div class="stat-value" id="statBest">—</div>
+                    <div class="stat-label">Best Subject</div>
+                </div>
+                <div class="stat-card warning">
+                    <div class="stat-icon">💪</div>
+                    <div class="stat-value" id="statWeak">—</div>
+                    <div class="stat-label">Needs Focus</div>
+                </div>
+            </div>
+            <div class="glass-card compact" style="text-align:center;" id="dashboardEmpty" hidden>
+                <p style="color:var(--text-muted);">📭 No marks data yet. <a
+                        style="color:var(--accent-orange-light);cursor:pointer;" onclick="navigateTo('marks')">Add your
+                        first marks →</a></p>
+            </div>
+        </section>
+
+        <!-- MARKS PAGE -->
+        <section class="page-section" id="page-marks">
+            <div class="page-header"
+                style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;">
+                <div>
+                    <h1>📝 Marks Management</h1>
+                    <p>Add, edit, and manage your academic records</p>
+                </div>
+                <button class="btn-primary" onclick="openAddMarkModal()">＋ Add Marks</button>
+            </div>
+            <div class="table-container" id="marksTableContainer">
+                <div class="empty-state" id="marksEmpty">
+                    <div class="empty-icon">📭</div>
+                    <p>No marks recorded yet</p>
+                    <button class="btn-primary" style="margin-top:12px;" onclick="openAddMarkModal()">＋ Add Your First
+                        Marks</button>
+                </div>
+                <table id="marksTable" hidden>
+                    <thead>
+                        <tr>
+                            <th>Subject</th>
+                            <th>CA1</th>
+                            <th>CA2</th>
+                            <th>MTE</th>
+                            <th>ETE</th>
+                            <th>Total</th>
+                            <th>Grade</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="marksTableBody"></tbody>
+                </table>
+            </div>
+            <div style="margin-top:16px;text-align:right;">
+                <button class="btn-secondary" onclick="exportCSV()">📥 Export CSV</button>
+            </div>
+        </section>
+
+        <!-- ANALYTICS PAGE -->
+        <section class="page-section" id="page-analytics">
+            <div class="page-header">
+                <h1>📈 Analytics</h1>
+                <p>Visual breakdown of your academic performance</p>
+            </div>
+            <div class="charts-grid">
+                <div class="glass-card compact">
+                    <h3 style="margin-bottom:12px;font-size:0.95rem;">📊 Subject Performance</h3>
+                    <div class="chart-wrapper"><canvas id="barChart"></canvas></div>
+                </div>
+                <div class="glass-card compact">
+                    <h3 style="margin-bottom:12px;font-size:0.95rem;">🥧 Grade Distribution</h3>
+                    <div class="chart-wrapper"><canvas id="pieChart"></canvas></div>
+                </div>
+            </div>
+            <div class="glass-card compact">
+                <h3 style="margin-bottom:12px;font-size:0.95rem;">🔬 Average Component Breakdown</h3>
+                <div class="component-breakdown" id="componentBreakdown">
+                    <div class="component-item">
+                        <div class="comp-value">—</div>
+                        <div class="comp-label">Avg CA1</div>
+                    </div>
+                    <div class="component-item">
+                        <div class="comp-value">—</div>
+                        <div class="comp-label">Avg CA2</div>
+                    </div>
+                    <div class="component-item">
+                        <div class="comp-value">—</div>
+                        <div class="comp-label">Avg MTE</div>
+                    </div>
+                    <div class="component-item">
+                        <div class="comp-value">—</div>
+                        <div class="comp-label">Avg ETE</div>
+                    </div>
+                </div>
+            </div>
+            <div class="empty-state" id="analyticsEmpty" hidden>
+                <div class="empty-icon">📭</div>
+                <p>No data to analyze yet. Add marks to see analytics.</p>
+            </div>
+        </section>
+
+        <!-- RECOMMENDATIONS PAGE -->
+        <section class="page-section" id="page-recommendations">
+            <div class="page-header">
+                <h1>💡 Improvement Recommendations</h1>
+                <p>AI-driven suggestions based on your performance</p>
+            </div>
+            <div id="overallStatusContainer"></div>
+            <div id="recommendationsList"></div>
+            <div class="empty-state" id="recEmpty" hidden>
+                <div class="empty-icon">🎉</div>
+                <p>Excellent! You're performing well in all subjects.</p>
+            </div>
+        </section>
+
+        <!-- PROFILE PAGE -->
+        <section class="page-section" id="page-profile">
+            <div class="page-header">
+                <h1>👤 Profile</h1>
+                <p>Your account information</p>
+            </div>
+            <div class="glass-card">
+                <div class="profile-header">
+                    <div class="profile-avatar" id="profileAvatar">?</div>
+                    <div class="profile-info">
+                        <h2 id="profileName">—</h2>
+                        <span class="reg-badge" id="profileRegNo">—</span>
+                    </div>
+                </div>
+                <hr style="border-color:var(--border);margin:16px 0;">
+                <p style="color:var(--text-muted);font-size:0.85rem;">📅 Member since: <span id="profileSince">—</span>
+                </p>
+            </div>
+            <div class="glass-card compact" style="margin-top:16px;">
+                <h3 style="margin-bottom:8px;font-size:0.95rem;">Update Name</h3>
+                <form id="profileUpdateForm" onsubmit="handleProfileUpdate(event)"
+                    style="display:flex;gap:10px;flex-wrap:wrap;">
+                    <input type="text" id="profileNameInput" class="form-input" placeholder="New name"
+                        style="flex:1;min-width:200px;" required>
+                    <button type="submit" class="btn-primary btn-sm">💾 Save</button>
+                </form>
+            </div>
+        </section>
+    </div>
+
+    <!-- ==================== ADD/EDIT MARK MODAL ==================== -->
+    <div class="modal-overlay" id="markModal" hidden>
+        <div class="modal-dialog">
+            <h3 id="markModalTitle">➕ Add New Marks</h3>
+            <form id="markForm" onsubmit="handleMarkSubmit(event)">
+                <input type="hidden" id="markEditId">
+                <div class="form-group">
+                    <label for="markSubject">Subject Name</label>
+                    <input type="text" id="markSubject" class="form-input" placeholder="e.g. Mathematics" required
+                        maxlength="100">
+                </div>
+                <div class="form-row-4">
+                    <div class="form-group"><label for="markCA1">CA1 (0–10)</label><input type="number" id="markCA1"
+                            class="form-input" min="0" max="10" step="0.5" required></div>
+                    <div class="form-group"><label for="markCA2">CA2 (0–10)</label><input type="number" id="markCA2"
+                            class="form-input" min="0" max="10" step="0.5" required></div>
+                    <div class="form-group"><label for="markMTE">MTE (0–30)</label><input type="number" id="markMTE"
+                            class="form-input" min="0" max="30" step="0.5" required></div>
+                    <div class="form-group"><label for="markETE">ETE (0–50)</label><input type="number" id="markETE"
+                            class="form-input" min="0" max="50" step="0.5" required></div>
+                </div>
+                <div class="error-text" id="markFormError"></div>
+                <div class="modal-actions">
+                    <button type="button" class="btn-secondary" onclick="closeMarkModal()">Cancel</button>
+                    <button type="submit" class="btn-primary" id="markSubmitBtn">💾 Save Marks</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- ==================== FOOTER ==================== -->
+    <footer class="app-footer">
+        APIS v2.0 · Academic Performance Intelligence System · AES-256-GCM Secured · © 2026
+    </footer>
+
+    <!-- ==================== SCRIPTS ==================== -->
+    <script src="main.js"></script>
+</body>
+
+</html>

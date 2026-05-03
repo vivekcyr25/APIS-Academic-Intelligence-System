@@ -1,0 +1,13 @@
+{
+  "name": "apis-backend",
+  "version": "1.0.0",
+  "description": "Backend for APIS using Firebase Cloud Functions",
+  "main": "index.js",
+  "dependencies": {
+    "firebase-functions": "^6.0.1",
+    "firebase-admin": "^12.6.0",
+    "express": "^4.21.0",
+    "cors": "^2.8.5"
+  },
+  "private": true
+}
