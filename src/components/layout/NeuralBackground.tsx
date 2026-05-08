@@ -26,8 +26,9 @@ const ParticleCanvas = memo(() => {
       pulseSpeed: number; pulsePhase: number;
     };
 
-    const isMobile = W < 768;
-    const PARTICLE_COUNT = isMobile ? 25 : 55;
+    const isLowEnd = W < 1024;
+    const isMobile = W < 480;
+    const PARTICLE_COUNT = isMobile ? 15 : isLowEnd ? 30 : 55;
     
     const particles: Particle[] = Array.from({ length: PARTICLE_COUNT }, () => ({
       x: Math.random() * W,
@@ -282,9 +283,9 @@ export const NeuralBackground = memo(() => {
         <PulseRing delay={3.6} size={700} />
       </div>
 
-      {/* LAYER 7 — Rotating gradient disc */}
+      {/* LAYER 7 — Rotating gradient disc (Desktop Only) */}
       <motion.div
-        className="absolute"
+        className="absolute hidden md:block"
         style={{
           width: '80vw', height: '80vw',
           top: '50%', left: '50%',

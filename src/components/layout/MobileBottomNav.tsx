@@ -15,7 +15,11 @@ export const MobileBottomNav = ({ onMenuClick }: { onMenuClick: () => void }) =>
 
   return (
     <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 px-4 pb-4">
-      <div className="bg-[#0a0a0a]/90 backdrop-blur-xl border border-white/10 rounded-3xl p-2 flex items-center justify-between shadow-[0_0_40px_rgba(0,0,0,0.8)]">
+      <div className="bg-[#0a0a0a]/90 border border-white/10 rounded-3xl p-2 flex items-center justify-between shadow-[0_0_40px_rgba(0,0,0,0.8)] gpu-accelerated"
+           style={{
+             backdropFilter: 'blur(var(--blur-md))',
+             WebkitBackdropFilter: 'blur(var(--blur-md))'
+           }}>
         {navItems.map((item) => {
           const isActive = location.pathname === item.path;
           const Icon = item.icon;

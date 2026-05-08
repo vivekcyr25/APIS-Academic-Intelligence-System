@@ -25,6 +25,41 @@
     --border: 240 3.7% 15.9%;
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
+
+    /* PERFORMANCE ENGINE VARIABLES (HIGH MODE DEFAULT) */
+    --blur-xl: 40px;
+    --blur-lg: 24px;
+    --blur-md: 12px;
+    --blur-sm: 4px;
+    --glow-opacity: 1;
+    --anim-scale: 1;
+    --glass-opacity: 0.6;
+  }
+
+  /* LIGHT MODE (MOBILE / EDGE / LOW-END) */
+  @media (max-width: 1024px) {
+    :root {
+      --blur-xl: 16px;
+      --blur-lg: 10px;
+      --blur-md: 6px;
+      --blur-sm: 2px;
+      --glow-opacity: 0.3;
+      --anim-scale: 0.8;
+      --glass-opacity: 0.85;
+    }
+  }
+
+  /* ULTRA LIGHT MODE (SMALL PHONES) */
+  @media (max-width: 480px) {
+    :root {
+      --blur-xl: 8px;
+      --blur-lg: 4px;
+      --blur-md: 2px;
+      --blur-sm: 0px;
+      --glow-opacity: 0.1;
+      --anim-scale: 0;
+      --glass-opacity: 0.95;
+    }
   }
 
   * {
@@ -60,13 +95,13 @@
     will-change: transform, opacity;
   }
 
-  /* Safari Support for Tailwind Utilities */
-  .backdrop-blur-sm { -webkit-backdrop-filter: blur(4px); }
-  .backdrop-blur-md { -webkit-backdrop-filter: blur(12px); }
-  .backdrop-blur-lg { -webkit-backdrop-filter: blur(16px); }
-  .backdrop-blur-xl { -webkit-backdrop-filter: blur(24px); }
-  .backdrop-blur-2xl { -webkit-backdrop-filter: blur(40px); }
-  .backdrop-blur-3xl { -webkit-backdrop-filter: blur(64px); }
+  /* Safari Support for Adaptive Blur */
+  .backdrop-blur-sm { -webkit-backdrop-filter: blur(var(--blur-sm)); backdrop-filter: blur(var(--blur-sm)); }
+  .backdrop-blur-md { -webkit-backdrop-filter: blur(var(--blur-md)); backdrop-filter: blur(var(--blur-md)); }
+  .backdrop-blur-lg { -webkit-backdrop-filter: blur(var(--blur-lg)); backdrop-filter: blur(var(--blur-lg)); }
+  .backdrop-blur-xl { -webkit-backdrop-filter: blur(var(--blur-xl)); backdrop-filter: blur(var(--blur-xl)); }
+  .backdrop-blur-2xl { -webkit-backdrop-filter: blur(calc(var(--blur-xl) * 1.5)); backdrop-filter: blur(calc(var(--blur-xl) * 1.5)); }
+  .backdrop-blur-3xl { -webkit-backdrop-filter: blur(calc(var(--blur-xl) * 2)); backdrop-filter: blur(calc(var(--blur-xl) * 2)); }
 
   /* Prevent zoom on input focus for iOS */
   @media screen and (max-width: 768px) {
@@ -90,25 +125,19 @@
   }
 }
 
-/* Glassmorphism Utilities Optimized for Safari/Mobile */
+/* Glassmorphism Utilities Optimized with Adaptive Variables */
 .glass-panel {
-  @apply bg-card/60 border border-white/10 shadow-2xl;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  @apply border border-white/10 shadow-2xl;
+  background-color: hsla(var(--card), var(--glass-opacity));
+  backdrop-filter: blur(var(--blur-md));
+  -webkit-backdrop-filter: blur(var(--blur-md));
 }
 
 .glass-card {
-  @apply bg-white/5 border border-white/10 transition-all duration-500 ease-out;
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-}
-
-@media (max-width: 768px) {
-  .glass-panel, .glass-card {
-    /* Reduce blur on mobile for GPU relief */
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-  }
+  @apply border border-white/10 transition-all duration-500 ease-out;
+  background-color: rgba(255, 255, 255, calc(var(--glass-opacity) * 0.1));
+  backdrop-filter: blur(var(--blur-sm));
+  -webkit-backdrop-filter: blur(var(--blur-sm));
 }
 
 .neural-glow {
@@ -119,9 +148,10 @@
   content: '';
   position: absolute;
   inset: -20px;
-  background: radial-gradient(circle, hsla(263, 70%, 50%, 0.2) 0%, transparent 70%);
+  background: radial-gradient(circle, hsla(263, 70%, 50%, calc(0.2 * var(--glow-opacity))) 0%, transparent 70%);
   z-index: -1;
   pointer-events: none;
+  opacity: var(--glow-opacity);
 }
 
 /* Custom Scrollbar */
@@ -277,15 +307,14 @@
 }
 
 .glass-panel-unified {
-  @apply bg-white/[0.02] border border-white/[0.05] rounded-[40px] shadow-2xl;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  @apply border border-white/[0.05] rounded-[40px] shadow-2xl;
+  background-color: rgba(255, 255, 255, calc(var(--glass-opacity) * 0.04));
+  backdrop-filter: blur(var(--blur-xl));
+  -webkit-backdrop-filter: blur(var(--blur-xl));
 }
 
 @media (max-width: 768px) {
   .glass-panel-unified {
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
     border-radius: 32px;
   }
 }

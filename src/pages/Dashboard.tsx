@@ -306,7 +306,7 @@ const Dashboard = () => {
 
           {/* AI Synopsis */}
           <Card className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20">
-            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none" style={{ opacity: 'calc(0.1 * var(--glow-opacity))' }}>
               <Sparkles className="w-32 h-32 text-primary animate-pulse" />
             </div>
             
@@ -410,7 +410,8 @@ const Dashboard = () => {
                           backgroundColor: 'rgba(0,0,0,0.8)', 
                           border: '1px solid rgba(255,255,255,0.1)',
                           borderRadius: '12px',
-                          backdropFilter: 'blur(10px)'
+                          backdropFilter: 'blur(var(--blur-md))',
+                          WebkitBackdropFilter: 'blur(var(--blur-md))'
                         }}
                         itemStyle={{ color: '#fff', fontWeight: 'bold' }}
                       />

@@ -193,8 +193,8 @@ export const AboutVivek = () => {
           className="relative rounded-[48px] border border-white/[0.06] overflow-hidden gpu-accelerated"
           style={{
             background: 'rgba(8, 6, 18, 0.7)',
-            backdropFilter: 'blur(32px) saturate(180%)',
-            WebkitBackdropFilter: 'blur(32px) saturate(180%)',
+            backdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
+            WebkitBackdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
             boxShadow: '0 40px 100px -20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05)',
           }}
         >

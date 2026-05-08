@@ -47,10 +47,10 @@ const NavLink = memo(({ item }: { item: NavItem }) => {
       {isActive && (
         <motion.div
           layoutId="active-pill"
-          className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/[0.12]"
+          className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/[0.12] gpu-accelerated"
           style={{ 
-            backdropFilter: 'blur(12px)',
-            WebkitBackdropFilter: 'blur(12px)'
+            backdropFilter: 'blur(var(--blur-md))',
+            WebkitBackdropFilter: 'blur(var(--blur-md))'
           }}
           transition={{ type: 'spring', stiffness: 380, damping: 38 }}
         />
@@ -101,10 +101,10 @@ const MoreMenu = () => {
         {(isActive || open) && (
           <motion.div
             layoutId="active-pill"
-            className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/[0.12]"
+            className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/[0.12] gpu-accelerated"
             style={{ 
-              backdropFilter: 'blur(12px)',
-              WebkitBackdropFilter: 'blur(12px)'
+              backdropFilter: 'blur(var(--blur-md))',
+              WebkitBackdropFilter: 'blur(var(--blur-md))'
             }}
             transition={{ type: 'spring', stiffness: 380, damping: 38 }}
           />
@@ -125,11 +125,11 @@ const MoreMenu = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-            className="absolute top-full right-0 mt-3 w-52 rounded-3xl overflow-hidden border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.6)]"
+            className="absolute top-full right-0 mt-3 w-52 rounded-3xl overflow-hidden border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.6)] gpu-accelerated"
             style={{
               background: 'rgba(10,10,18,0.85)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              backdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
+              WebkitBackdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
             }}
           >
             {/* Glass sheen */}
@@ -195,8 +195,8 @@ const ProfileCapsule = memo(() => {
       className="flex items-center gap-3 px-3 py-1.5 rounded-full border border-white/10 cursor-default"
       style={{
         background: 'rgba(255,255,255,0.04)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
+        backdropFilter: 'blur(var(--blur-lg))',
+        WebkitBackdropFilter: 'blur(var(--blur-lg))',
       }}
     >
       {/* Online pulse */}
@@ -275,8 +275,8 @@ const TopNav = () => {
               background: scrolled
                 ? 'rgba(6,6,15,0.88)'
                 : 'rgba(8,8,20,0.72)',
-              backdropFilter: 'blur(40px) saturate(180%)',
-              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
+              backdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
+              WebkitBackdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
               boxShadow: scrolled
                 ? '0 8px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)'
                 : '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
