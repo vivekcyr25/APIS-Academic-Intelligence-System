@@ -85,6 +85,31 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     -webkit-tap-highlight-color: transparent;
+    
+    /* Performance Optimizations */
+    text-rendering: optimizeLegibility;
+    overflow-x: hidden;
+  }
+
+  /* EDGE / ANDROID / LOW-END CSS ENGINE OVERRIDES */
+  [data-perf-tier="low_end"] {
+    --blur-xl: 6px;
+    --blur-lg: 4px;
+    --blur-md: 2px;
+    --blur-sm: 0px;
+    --glow-opacity: 0;
+    --anim-scale: 0;
+    --glass-opacity: 0.98;
+  }
+
+  [data-perf-tier="balanced"] {
+    --blur-xl: 12px;
+    --blur-lg: 8px;
+    --blur-md: 4px;
+    --blur-sm: 2px;
+    --glow-opacity: 0.2;
+    --anim-scale: 0.5;
+    --glass-opacity: 0.88;
   }
   
   /* Optimize rendering for Safari/Mobile */
@@ -131,6 +156,7 @@
   background-color: hsla(var(--card), var(--glass-opacity));
   backdrop-filter: blur(var(--blur-md));
   -webkit-backdrop-filter: blur(var(--blur-md));
+  contain: paint;
 }
 
 .glass-card {
@@ -138,6 +164,14 @@
   background-color: rgba(255, 255, 255, calc(var(--glass-opacity) * 0.1));
   backdrop-filter: blur(var(--blur-sm));
   -webkit-backdrop-filter: blur(var(--blur-sm));
+  contain: layout style;
+}
+
+[data-perf-tier="low_end"] .glass-panel,
+[data-perf-tier="low_end"] .glass-card {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
 }
 
 .neural-glow {

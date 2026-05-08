@@ -273,9 +273,11 @@ const Dashboard = () => {
     );
   }
 
+  const { isLowEnd } = usePerformanceMode();
+
   // 3. Main Dashboard with Cinematic Scroll Reveal
   return (
-    <div className="relative">
+    <div className="relative gpu-accelerated" style={{ contain: 'paint' }}>
       {/* Scrollable Container */}
       <div className="space-y-10 relative z-10 pb-32">
         
@@ -320,9 +322,11 @@ const Dashboard = () => {
                 </p>
               </div>
 
-              <Button onClick={() => navigate('/ai')} className="shrink-0 h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-                Ask AI Assistant <ArrowRight className="w-5 h-5 ml-2" />
-              </Button>
+              {!isLowEnd && (
+                <Button onClick={() => navigate('/ai')} className="shrink-0 h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+                  Ask AI Assistant <ArrowRight className="w-5 h-5 ml-2" />
+                </Button>
+              )}
             </div>
           </Card>
 
@@ -415,6 +419,7 @@ const Dashboard = () => {
                         strokeWidth={3}
                         fillOpacity={1} 
                         fill="url(#colorGpa)" 
+                        isAnimationActive={!isLowEnd}
                         animationDuration={1500}
                       />
                     </AreaChart>

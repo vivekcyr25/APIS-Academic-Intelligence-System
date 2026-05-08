@@ -38,9 +38,8 @@ import { cn } from '../lib/utils';
 import { SemesterTimeline } from '../components/academic/SemesterTimeline';
 import { MigrationTool } from '../components/settings/MigrationTool';
 import { SemesterCelebration } from '../components/academic/SemesterCelebration';
-import { StatusLabel } from '../components/ui/StatusLabel';
-import { FeedbackModal } from '../components/ui/FeedbackModal';
 import { MessageSquare } from 'lucide-react';
+import { usePerformanceMode } from '../hooks/usePerformanceMode';
 
 const SubjectCard = memo(({ subject }: { subject: Subject }) => (
   <div className="p-4 rounded-xl bg-card border border-white/5 hover:border-white/10 transition-colors group">
@@ -96,8 +95,8 @@ const SemesterVault = () => {
   const [celebratingSem, setCelebratingSem] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'success' | 'sync' | 'waiting' | null>(null);
-  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const navigate = useNavigate();
+  const { isLowEnd } = usePerformanceMode();
 
   // Initialize data
   useEffect(() => {
@@ -186,7 +185,7 @@ const SemesterVault = () => {
   }
 
   return (
-    <div className="space-y-10 relative z-10 pb-32">
+    <div className="space-y-10 relative z-10 pb-32 gpu-accelerated" style={{ contain: 'paint' }}>
       
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10">
         <div>
@@ -227,9 +226,9 @@ const SemesterVault = () => {
           return (
             <motion.div
               key={sem.id}
-              initial={{ opacity: 0, y: 20 }}
+              initial={!isLowEnd ? { opacity: 0, y: 20 } : false}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.1 }}
+              transition={{ delay: isLowEnd ? 0 : idx * 0.1 }}
             >
               <Card className={cn(
                 "overflow-hidden transition-all duration-300",
@@ -332,9 +331,9 @@ const SemesterVault = () => {
                 <AnimatePresence>
                   {isExpanded && (
                     <motion.div
-                      initial={{ height: 0, opacity: 0 }}
+                      initial={!isLowEnd ? { height: 0, opacity: 0 } : { height: 'auto', opacity: 1 }}
                       animate={{ height: "auto", opacity: 1 }}
-                      exit={{ height: 0, opacity: 0 }}
+                      exit={!isLowEnd ? { height: 0, opacity: 0 } : { height: 0, opacity: 0 }}
                       className="border-t border-white/5 bg-black/20"
                     >
                       <div className="p-6 space-y-6">
