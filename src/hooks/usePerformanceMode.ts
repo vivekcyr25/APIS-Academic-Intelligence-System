@@ -7,17 +7,18 @@ export const usePerformanceMode = () => {
 
   useEffect(() => {
     const detectPerformance = () => {
+      if (typeof navigator === 'undefined') return 'BALANCED';
       const ua = navigator.userAgent.toLowerCase();
       
       // 1. Browser Detection
-      const isEdge = ua.includes('edg/');
-      const isAndroid = ua.includes('android');
-      const isMobile = /iphone|ipad|ipod|android|blackberry|mini|windows\sphone/i.test(ua);
+      const isEdge = typeof navigator !== 'undefined' && ua.includes('edg/');
+      const isAndroid = typeof navigator !== 'undefined' && ua.includes('android');
+      const isMobile = typeof navigator !== 'undefined' && /iphone|ipad|ipod|android|blackberry|mini|windows\sphone/i.test(ua);
       
       // 2. Hardware Capability (where supported)
-      const cores = navigator.hardwareConcurrency || 4;
+      const cores = typeof navigator !== 'undefined' ? (navigator.hardwareConcurrency || 4) : 4;
       // @ts-ignore - deviceMemory is not in standard lib yet
-      const memory = navigator.deviceMemory || 4;
+      const memory = typeof navigator !== 'undefined' ? (navigator.deviceMemory || 4) : 4;
       
       // 3. Logic:
       // PREMIUM: Desktop Chrome/Firefox with good specs

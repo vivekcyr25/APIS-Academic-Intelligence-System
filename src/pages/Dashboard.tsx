@@ -45,6 +45,7 @@ import { usePerformanceMode } from '../hooks/usePerformanceMode';
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { isLowEnd } = usePerformanceMode();
   const [profile, setProfile] = useState<AcademicProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [showSetup, setShowSetup] = useState(false);
@@ -273,8 +274,6 @@ const Dashboard = () => {
       </div>
     );
   }
-
-  const { isLowEnd } = usePerformanceMode();
 
   // 3. Main Dashboard with Cinematic Scroll Reveal
   return (
