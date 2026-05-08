@@ -31,17 +31,16 @@ const DataOwnership = lazy(() => import('./pages/legal/DataOwnership.tsx'));
 import { Toaster } from 'react-hot-toast';
 import { MotionConfig } from 'framer-motion';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
-import { registerSW } from 'virtual:pwa-register';
+// import { registerSW } from 'virtual:pwa-register';
 
-// Register service worker with auto-update awareness
-registerSW({
-  onNeedRefresh() {
-    // Refresh handled by autoUpdate
-  },
-  onOfflineReady() {
-    // Ready for offline use
-  },
-});
+// registerSW({
+//   onNeedRefresh() {
+//     // Refresh handled by autoUpdate
+//   },
+//   onOfflineReady() {
+//     // Ready for offline use
+//   },
+// });
 
 function App() {
   return (
