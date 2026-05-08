@@ -282,14 +282,7 @@ const Dashboard = () => {
         {/* Cinematic Hero */}
         <HeroSection />
 
-        {/* Dashboard Content (Reveals on Scroll) */}
-        <motion.div
-          initial={{ opacity: 0, y: 100 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="space-y-10 px-4 md:px-0"
-        >
+        <div className="space-y-10 px-4 md:px-0">
           {/* Legacy Empty State Hook / Quick Start */}
           {marks.length === 0 && (
             <Card className="p-8 border-primary/20 bg-primary/5 text-center">
@@ -488,7 +481,7 @@ const Dashboard = () => {
               <AcademicHealthSnapshot />
             </div>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

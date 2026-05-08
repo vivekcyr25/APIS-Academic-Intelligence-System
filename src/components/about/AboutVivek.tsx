@@ -121,27 +121,24 @@ const CinematicPortrait = () => {
         </div>
       </div>
 
-      {/* Floating Animation */}
-      <motion.div
-        className="absolute inset-0"
-        animate={{ y: [-4, 4, -4] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-      />
+      {/* Floating Animation (Desktop Only) */}
+      <div className="hidden md:block absolute inset-0">
+        <motion.div
+          className="w-full h-full"
+          animate={{ y: [-4, 4, -4] }}
+          transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      </div>
     </motion.div>
   );
 };
 
 /* ─── Social Link Button ───────────────────────────────── */
-const SocialLink = ({ name, icon, url, delay }: { name: string; icon: React.ReactNode; url: string; delay: number }) => (
-  <motion.a
+const SocialLink = ({ name, icon, url }: { name: string; icon: React.ReactNode; url: string; delay: number }) => (
+  <a
     href={url}
     target="_blank"
     rel="noopener noreferrer"
-    initial={{ opacity: 0, y: 20 }}
-    animate={{ opacity: 1, y: 0 }}
-    transition={{ delay, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-    whileHover={{ y: -4, scale: 1.03 }}
-    whileTap={{ scale: 0.97 }}
     className={cn(
       "flex items-center gap-3 px-6 py-4 rounded-2xl",
       "bg-white/[0.03] border border-white/[0.06] backdrop-blur-xl",
@@ -155,7 +152,7 @@ const SocialLink = ({ name, icon, url, delay }: { name: string; icon: React.Reac
     <span className="text-[10px] font-black uppercase tracking-[0.25em]">
       {name}
     </span>
-  </motion.a>
+  </a>
 );
 
 /* ─── Main Component ───────────────────────────────────── */
@@ -170,10 +167,12 @@ export const AboutVivek = () => {
   return (
     <div className="relative min-h-[calc(100vh-120px)] flex items-center justify-center px-6 py-20 overflow-hidden">
       
-      {/* ── Background Layers ── */}
-      <GridTexture />
-      <NeuralParticles />
-      <AmbientFog />
+      {/* ── Background Layers (Desktop Only) ── */}
+      <div className="hidden md:block">
+        <GridTexture />
+        <NeuralParticles />
+        <AmbientFog />
+      </div>
 
       {/* ── Orbital Light ── */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-violet-600/[0.04] rounded-full blur-[150px] pointer-events-none" />

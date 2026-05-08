@@ -26,35 +26,35 @@
     --input: 240 3.7% 15.9%;
     --ring: 240 4.9% 83.9%;
 
-    /* PERFORMANCE ENGINE VARIABLES (HIGH MODE DEFAULT) */
-    --blur-xl: 40px;
-    --blur-lg: 24px;
-    --blur-md: 12px;
+    /* PERFORMANCE ENGINE VARIABLES (ADAPTIVE QUALITY CAPS) */
+    --blur-xl: 24px;
+    --blur-lg: 16px;
+    --blur-md: 10px;
     --blur-sm: 4px;
     --glow-opacity: 1;
     --anim-scale: 1;
     --glass-opacity: 0.6;
   }
 
-  /* LIGHT MODE (MOBILE / EDGE / LOW-END) */
+  /* LIGHT MODE (TABLET / EDGE / LOW-END) */
   @media (max-width: 1024px) {
     :root {
-      --blur-xl: 16px;
-      --blur-lg: 10px;
+      --blur-xl: 12px;
+      --blur-lg: 8px;
       --blur-md: 6px;
       --blur-sm: 2px;
-      --glow-opacity: 0.3;
+      --glow-opacity: 0.35;
       --anim-scale: 0.8;
       --glass-opacity: 0.85;
     }
   }
 
-  /* ULTRA LIGHT MODE (SMALL PHONES) */
-  @media (max-width: 480px) {
+  /* ULTRA LIGHT MODE (MOBILE / iOS SAFARI) */
+  @media (max-width: 768px) {
     :root {
       --blur-xl: 8px;
-      --blur-lg: 4px;
-      --blur-md: 2px;
+      --blur-lg: 6px;
+      --blur-md: 4px;
       --blur-sm: 0px;
       --glow-opacity: 0.1;
       --anim-scale: 0;
@@ -125,16 +125,16 @@
   }
 }
 
-/* Glassmorphism Utilities Optimized with Adaptive Variables */
+/* Glassmorphism Utilities Optimized with Adaptive Variables & Safari GPU Acceleration */
 .glass-panel {
-  @apply border border-white/10 shadow-2xl;
+  @apply border border-white/10 shadow-2xl gpu-accelerated;
   background-color: hsla(var(--card), var(--glass-opacity));
   backdrop-filter: blur(var(--blur-md));
   -webkit-backdrop-filter: blur(var(--blur-md));
 }
 
 .glass-card {
-  @apply border border-white/10 transition-all duration-500 ease-out;
+  @apply border border-white/10 transition-all duration-500 ease-out gpu-accelerated;
   background-color: rgba(255, 255, 255, calc(var(--glass-opacity) * 0.1));
   backdrop-filter: blur(var(--blur-sm));
   -webkit-backdrop-filter: blur(var(--blur-sm));
@@ -307,7 +307,7 @@
 }
 
 .glass-panel-unified {
-  @apply border border-white/[0.05] rounded-[40px] shadow-2xl;
+  @apply border border-white/[0.05] rounded-[40px] shadow-2xl gpu-accelerated;
   background-color: rgba(255, 255, 255, calc(var(--glass-opacity) * 0.04));
   backdrop-filter: blur(var(--blur-xl));
   -webkit-backdrop-filter: blur(var(--blur-xl));

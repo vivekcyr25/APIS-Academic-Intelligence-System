@@ -273,8 +273,10 @@ export const NeuralBackground = memo(() => {
         }}
       />
 
-      {/* LAYER 5 — Particles with glow halos */}
-      <ParticleCanvas />
+      {/* LAYER 5 — Particles (Desktop & Tablet Only) */}
+      <div className="hidden md:block">
+        <ParticleCanvas />
+      </div>
 
       {/* LAYER 6 — Neural pulse rings (Desktop Only) */}
       <div className="hidden md:block">
