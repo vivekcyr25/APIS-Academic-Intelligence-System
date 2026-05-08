@@ -152,7 +152,7 @@ const Register = () => {
               className="w-full h-14 text-lg mt-4"
               isLoading={loading}
             >
-              Establish Identity <ArrowRight className="ml-2 w-5 h-5" />
+              Explore the Creator Portfolio <ArrowRight className="ml-2 w-5 h-5" />
             </Button>
           </form>
 

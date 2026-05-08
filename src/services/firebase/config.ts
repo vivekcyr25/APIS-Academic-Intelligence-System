@@ -19,6 +19,16 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
+// VALIDATE CONFIG
+const missingKeys = Object.entries(firebaseConfig)
+  .filter(([_, value]) => !value || value === 'undefined')
+  .map(([key]) => key);
+
+if (missingKeys.length > 0) {
+  console.error(`[Firebase Config] Missing environment variables: ${missingKeys.join(', ')}`);
+  console.warn('[Firebase Config] Ensure VITE_FIREBASE_* variables are set in your deployment environment.');
+}
+
 // SAFE INITIALIZATION GUARD
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 

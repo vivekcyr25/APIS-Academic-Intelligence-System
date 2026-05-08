@@ -1,18 +1,21 @@
-import { defineConfig } from 'vite'
+import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // https://vite.dev/config/
-export default defineConfig({
-  plugins: [
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  return {
+    base: env.VITE_BASE_PATH || '/',
+    plugins: [
     react(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
-        name: 'APIS AI — Academic Intelligence System',
-        short_name: 'APIS AI',
-        description: 'Your calm adaptive academic operating system.',
+        name: 'Vivek Sharma — Independent Systems Architect',
+        short_name: 'Vivek Sharma',
+        description: 'Premium full-stack solutions, cloud architecture, and AI-powered innovations.',
         theme_color: '#030014',
         background_color: '#030014',
         display: 'standalone',
@@ -81,5 +84,6 @@ export default defineConfig({
       }
     }
   }
-})
+};
+});
 

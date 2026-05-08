@@ -104,7 +104,7 @@ const CinematicPortrait = () => {
       <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full p-[2px] bg-gradient-to-tr from-violet-500 via-purple-400 to-indigo-500 shadow-[0_0_40px_rgba(139,92,246,0.4)] group-hover:shadow-[0_0_60px_rgba(139,92,246,0.6)] transition-shadow duration-700">
         <div className="w-full h-full rounded-full overflow-hidden bg-background relative">
           <img
-            src="/vivek-portrait.jpg"
+            src="vivek-portrait.jpg"
             alt="Vivek Sharma — Systems Architect"
             className={cn(
               "w-full h-full object-cover object-top scale-110 transition-all duration-1000",
