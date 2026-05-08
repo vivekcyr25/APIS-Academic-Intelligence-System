@@ -48,7 +48,10 @@ const NavLink = memo(({ item }: { item: NavItem }) => {
         <motion.div
           layoutId="active-pill"
           className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/[0.12]"
-          style={{ backdropFilter: 'blur(12px)' }}
+          style={{ 
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)'
+          }}
           transition={{ type: 'spring', stiffness: 380, damping: 38 }}
         />
       )}
@@ -99,7 +102,10 @@ const MoreMenu = () => {
           <motion.div
             layoutId="active-pill"
             className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/[0.12]"
-            style={{ backdropFilter: 'blur(12px)' }}
+            style={{ 
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)'
+            }}
             transition={{ type: 'spring', stiffness: 380, damping: 38 }}
           />
         )}
@@ -123,6 +129,7 @@ const MoreMenu = () => {
             style={{
               background: 'rgba(10,10,18,0.85)',
               backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
             }}
           >
             {/* Glass sheen */}
@@ -189,6 +196,7 @@ const ProfileCapsule = memo(() => {
       style={{
         background: 'rgba(255,255,255,0.04)',
         backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
       }}
     >
       {/* Online pulse */}
@@ -268,6 +276,7 @@ const TopNav = () => {
                 ? 'rgba(6,6,15,0.88)'
                 : 'rgba(8,8,20,0.72)',
               backdropFilter: 'blur(40px) saturate(180%)',
+              WebkitBackdropFilter: 'blur(40px) saturate(180%)',
               boxShadow: scrolled
                 ? '0 8px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)'
                 : '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',

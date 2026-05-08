@@ -26,13 +26,15 @@ const ParticleCanvas = memo(() => {
       pulseSpeed: number; pulsePhase: number;
     };
 
-    const PARTICLE_COUNT = 55;
+    const isMobile = W < 768;
+    const PARTICLE_COUNT = isMobile ? 25 : 55;
+    
     const particles: Particle[] = Array.from({ length: PARTICLE_COUNT }, () => ({
       x: Math.random() * W,
       y: Math.random() * H,
-      vx: (Math.random() - 0.5) * 0.45,
-      vy: (Math.random() - 0.5) * 0.45,
-      r: Math.random() * 2.0 + 0.5,
+      vx: (Math.random() - 0.5) * (isMobile ? 0.3 : 0.45),
+      vy: (Math.random() - 0.5) * (isMobile ? 0.3 : 0.45),
+      r: Math.random() * (isMobile ? 1.5 : 2.0) + 0.5,
       o: Math.random() * 0.4 + 0.1,
       maxO: Math.random() * 0.5 + 0.15,
       pulseSpeed: Math.random() * 0.02 + 0.008,
@@ -223,11 +225,13 @@ export const NeuralBackground = memo(() => {
         transition={{ duration: 16, repeat: Infinity, ease: 'linear' }}
       />
 
-      {/* LAYER 2 — Orbiting light blooms */}
-      <OrbitingBloom delay={0}  size={600} color="rgba(109,40,217,0.16)"  orbitRadius={280} speed={12} />
-      <OrbitingBloom delay={4}  size={500} color="rgba(139,92,246,0.13)"  orbitRadius={220} speed={15} />
-      <OrbitingBloom delay={8}  size={400} color="rgba(76,29,149,0.14)"   orbitRadius={200} speed={10} />
-      <OrbitingBloom delay={2}  size={350} color="rgba(167,139,250,0.09)" orbitRadius={320} speed={18} />
+      {/* LAYER 2 — Orbiting light blooms (Optimized for desktop) */}
+      <div className="hidden md:block">
+        <OrbitingBloom delay={0}  size={600} color="rgba(109,40,217,0.16)"  orbitRadius={280} speed={12} />
+        <OrbitingBloom delay={4}  size={500} color="rgba(139,92,246,0.13)"  orbitRadius={220} speed={15} />
+        <OrbitingBloom delay={8}  size={400} color="rgba(76,29,149,0.14)"   orbitRadius={200} speed={10} />
+        <OrbitingBloom delay={2}  size={350} color="rgba(167,139,250,0.09)" orbitRadius={320} speed={18} />
+      </div>
 
       {/* LAYER 2b — Static corner anchors */}
       <motion.div
@@ -271,10 +275,12 @@ export const NeuralBackground = memo(() => {
       {/* LAYER 5 — Particles with glow halos */}
       <ParticleCanvas />
 
-      {/* LAYER 6 — Neural pulse rings */}
-      <PulseRing delay={0} size={300} />
-      <PulseRing delay={1.8} size={500} />
-      <PulseRing delay={3.6} size={700} />
+      {/* LAYER 6 — Neural pulse rings (Desktop Only) */}
+      <div className="hidden md:block">
+        <PulseRing delay={0} size={300} />
+        <PulseRing delay={1.8} size={500} />
+        <PulseRing delay={3.6} size={700} />
+      </div>
 
       {/* LAYER 7 — Rotating gradient disc */}
       <motion.div

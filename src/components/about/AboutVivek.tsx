@@ -146,7 +146,7 @@ const SocialLink = ({ name, icon, url, delay }: { name: string; icon: React.Reac
       "flex items-center gap-3 px-6 py-4 rounded-2xl",
       "bg-white/[0.03] border border-white/[0.06] backdrop-blur-xl",
       "text-white/50 hover:text-white hover:bg-white/[0.06] hover:border-white/[0.12]",
-      "transition-all duration-500 group/link magnetic-hover"
+      "transition-all duration-500 group/link magnetic-hover gpu-accelerated"
     )}
   >
     <span className="opacity-50 group-hover/link:opacity-100 transition-opacity duration-500">
@@ -190,10 +190,11 @@ export const AboutVivek = () => {
         <div className="absolute -inset-px rounded-[48px] bg-gradient-to-b from-white/[0.08] via-transparent to-transparent pointer-events-none" />
         
         <div
-          className="relative rounded-[48px] border border-white/[0.06] overflow-hidden"
+          className="relative rounded-[48px] border border-white/[0.06] overflow-hidden gpu-accelerated"
           style={{
             background: 'rgba(8, 6, 18, 0.7)',
-            backdropFilter: 'blur(60px) saturate(180%)',
+            backdropFilter: 'blur(32px) saturate(180%)',
+            WebkitBackdropFilter: 'blur(32px) saturate(180%)',
             boxShadow: '0 40px 100px -20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05)',
           }}
         >
