@@ -1,0 +1,288 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 6%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 263.4 70% 50.4%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply text-foreground font-sans antialiased selection:bg-primary/30 min-h-screen;
+    background: #06030f;
+    /* Safe Area Support for Modern Devices */
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  /* Prevent zoom on input focus for iOS */
+  @media screen and (max-width: 768px) {
+    input, textarea, select {
+      font-size: 16px !important;
+    }
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading tracking-tight;
+    /* Prevent text overflow on small screens */
+    overflow-wrap: break-word;
+    hyphens: auto;
+  }
+  
+  /* High Confidence Focus Indicators */
+  :focus-visible {
+    @apply outline-none ring-2 ring-primary/60 ring-offset-2 ring-offset-background transition-shadow;
+  }
+
+  /* Smooth interactions for screen readers */
+  .sr-only {
+    @apply absolute w-1 h-1 p-0 -m-1 overflow-hidden clip-path-[inset(50%)] border-0 whitespace-nowrap;
+  }
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+  @apply bg-card/60 backdrop-blur-xl border border-white/10 shadow-2xl;
+}
+
+.glass-card {
+  @apply bg-white/5 backdrop-blur-md border border-white/10 hover:border-white/20 transition-all duration-300;
+}
+
+.neural-glow {
+  position: relative;
+}
+
+.neural-glow::after {
+  content: '';
+  position: absolute;
+  inset: -20px;
+  background: radial-gradient(circle, hsla(263, 70%, 50%, 0.2) 0%, transparent 70%);
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-muted rounded-full;
+}
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground;
+}
+
+#root {
+  @apply min-h-screen flex flex-col;
+}
+
+@media print {
+  header, nav, button, .no-print {
+    display: none !important;
+  }
+  .glass-panel, .glass-card {
+    background: white !important;
+    color: black !important;
+    border: 1px solid #eee !important;
+    box-shadow: none !important;
+  }
+  body {
+    background: white !important;
+    color: black !important;
+    background-image: none !important;
+  }
+}
+
+/* ==================================================
+   PREMIUM TYPOGRAPHY & INTERACTION ENGINE (v2.0)
+   ================================================== */
+
+:root {
+  --hover-primary: linear-gradient(135deg, #fff 10%, #a78bfa 50%, #818cf8 90%);
+  --hover-success: linear-gradient(135deg, #fff 10%, #34d399 50%, #22d3ee 90%);
+  --hover-warning: linear-gradient(135deg, #fff 10%, #fbbf24 50%, #f472b6 90%);
+  --hover-muted: linear-gradient(135deg, #fff 10%, #cbd5e1 50%, #94a3b8 90%);
+  
+  --underline-primary: linear-gradient(to right, rgba(139, 92, 246, 0.5), rgba(99, 102, 241, 0.5));
+  --underline-success: linear-gradient(to right, rgba(16, 185, 129, 0.5), rgba(6, 182, 212, 0.5));
+  
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-bg: rgba(255, 255, 255, 0.03);
+}
+
+/* 1. Base Premium Hover Class */
+.text-hover-premium {
+  @apply relative transition-all duration-700 ease-out cursor-pointer;
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.text-hover-premium:hover {
+  @apply text-transparent scale-[1.01];
+  background-position: right center;
+  text-shadow: 0 0 30px rgba(139, 92, 246, 0.1);
+}
+
+/* 2. Semantic Mapping */
+.hover-active:hover { background-image: var(--hover-primary); }
+.hover-success:hover { background-image: var(--hover-success); }
+.hover-warning:hover { background-image: var(--hover-warning); }
+.hover-muted:hover { background-image: var(--hover-muted); }
+
+/* 3. Refined Underline Engine */
+.underline-reveal {
+  @apply relative inline-block;
+}
+
+.underline-reveal::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  width: 0;
+  height: 1.5px;
+  transform: translateX(-50%);
+  border-radius: 9999px;
+  opacity: 0;
+  filter: blur(1px);
+  transition: width 0.7s cubic-bezier(0.23, 1, 0.32, 1), opacity 0.7s ease;
+  background: var(--underline-primary);
+}
+
+.underline-reveal:hover::after {
+  width: 110%;
+  opacity: 1;
+}
+
+.underline-reveal-success::after { background: var(--underline-success); }
+
+/* 4. Magnetic Hover Energy */
+.magnetic-hover {
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.5s ease;
+}
+
+.magnetic-hover:hover {
+  @apply scale-[1.02] -translate-y-0.5;
+  box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
+}
+
+/* 5. Softer Liquid Glass */
+.liquid-glass {
+  @apply relative overflow-hidden;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-bg);
+}
+
+.liquid-glass::before {
+  content: '';
+  @apply absolute inset-0 -translate-x-full bg-gradient-to-r from-transparent via-white/[0.03] to-transparent;
+  transition: transform 1.5s ease-in-out;
+}
+
+.liquid-glass:hover::before {
+  @apply translate-x-full;
+}
+
+/* Animation Keyframes Refined */
+@keyframes text-drift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+.animate-text-drift:hover {
+  animation: text-drift 6s linear infinite;
+}
+
+@keyframes float-calm {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-10px) scale(1.02); }
+}
+
+.animate-float-calm {
+  animation: float-calm 8s ease-in-out infinite;
+}
+
+.font-signature {
+  font-family: 'Inter', sans-serif;
+  font-weight: 200;
+  letter-spacing: 0.1em;
+  opacity: 0.5;
+}
+
+.glass-panel-unified {
+  @apply bg-white/[0.02] border border-white/[0.05] backdrop-blur-3xl rounded-[40px] shadow-2xl;
+}
+
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 6. Accessibility & Reduced Motion */
+@media (prefers-reduced-motion: reduce) {
+  .text-hover-premium {
+    transition: none !important;
+  }
+  .text-hover-premium:hover {
+    transform: none !important;
+    scale: 1 !important;
+  }
+  .underline-reveal::after {
+    transition: none !important;
+  }
+  .magnetic-hover:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .animate-float-calm,
+  .animate-text-drift:hover {
+    animation: none !important;
+  }
+}
+
+/* 7. Mobile Interaction Polish (no-hover devices) */
+@media (hover: none) {
+  .text-hover-premium:hover {
+    color: inherit !important;
+    -webkit-text-fill-color: initial !important;
+    background-image: none !important;
+    transform: none !important;
+  }
+  .underline-reveal:active::after {
+    width: 110%;
+    opacity: 0.8;
+  }
+  .magnetic-hover:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}

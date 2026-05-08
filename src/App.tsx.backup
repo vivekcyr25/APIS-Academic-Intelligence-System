@@ -1,0 +1,50 @@
+import { Routes, Route, Navigate } from 'react-router-dom';
+import { AuthGuard } from './components/layout/AuthGuard.tsx';
+import { AppLayout } from './components/layout/AppLayout.tsx';
+import Login from './pages/Login.tsx';
+import Register from './pages/Register.tsx';
+import Dashboard from './pages/Dashboard.tsx';
+import Marks from './pages/Marks.tsx';
+import Analytics from './pages/Analytics.tsx';
+import Profile from './pages/Profile.tsx';
+import Recommendations from './pages/Recommendations.tsx';
+import { AnimatePresence } from 'framer-motion';
+
+function App() {
+  return (
+    <AnimatePresence mode="wait">
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/login" element={
+          <AuthGuard requireAuth={false}>
+            <Login />
+          </AuthGuard>
+        } />
+        <Route path="/register" element={
+          <AuthGuard requireAuth={false}>
+            <Register />
+          </AuthGuard>
+        } />
+
+        {/* Protected Dashboard Routes */}
+        <Route path="/" element={
+          <AuthGuard requireAuth={true}>
+            <AppLayout />
+          </AuthGuard>
+        }>
+          <Route index element={<Dashboard />} />
+          <Route path="dashboard" element={<Dashboard />} />
+          <Route path="marks" element={<Marks />} />
+          <Route path="analytics" element={<Analytics />} />
+          <Route path="recommendations" element={<Recommendations />} />
+          <Route path="profile" element={<Profile />} />
+        </Route>
+
+        {/* Fallback */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
+export default App;
