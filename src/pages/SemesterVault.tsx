@@ -38,6 +38,8 @@ import { cn } from '../lib/utils';
 import { SemesterTimeline } from '../components/academic/SemesterTimeline';
 import { MigrationTool } from '../components/settings/MigrationTool';
 import { SemesterCelebration } from '../components/academic/SemesterCelebration';
+import { StatusLabel } from '../components/ui/StatusLabel';
+import { FeedbackModal } from '../components/ui/FeedbackModal';
 import { MessageSquare } from 'lucide-react';
 import { usePerformanceMode } from '../hooks/usePerformanceMode';
 
