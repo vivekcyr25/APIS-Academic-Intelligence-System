@@ -5,6 +5,7 @@ import { NeuralBackground } from './NeuralBackground.tsx';
 import { MobileBottomNav } from './MobileBottomNav.tsx';
 import { MobileDrawer } from './MobileDrawer.tsx';
 import { SyncStatusIndicator } from './SyncStatusIndicator.tsx';
+import { usePerformanceMode } from '../../hooks/usePerformanceMode';
 
 const Footer = () => (
   <footer className="mt-20 pb-12 border-t border-white/5 pt-12 flex flex-col md:flex-row items-center justify-between gap-8">
@@ -35,6 +36,7 @@ const Footer = () => (
 
 export const AppLayout = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  usePerformanceMode(); // Initialize performance engine
 
   return (
     <div className="flex flex-col min-h-screen text-foreground relative overflow-hidden" style={{ background: '#06030f' }}>

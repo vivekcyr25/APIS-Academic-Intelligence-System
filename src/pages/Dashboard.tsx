@@ -41,6 +41,7 @@ import { db } from '../services/firebase/config.ts';
 import { collection, query, onSnapshot, limit } from 'firebase/firestore';
 import type { AttendanceRecord, AssignmentRecord } from '../types/academic';
 import type { AcademicProfile } from '../types/academic-v2';
+import { usePerformanceMode } from '../hooks/usePerformanceMode';
 
 const Dashboard = () => {
   const { user } = useAuth();
