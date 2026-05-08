@@ -97,6 +97,7 @@ const SemesterVault = () => {
   const [celebratingSem, setCelebratingSem] = useState<string | null>(null);
   const [showArchived, setShowArchived] = useState(false);
   const [syncStatus, setSyncStatus] = useState<'success' | 'sync' | 'waiting' | null>(null);
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
   const navigate = useNavigate();
   const { isLowEnd } = usePerformanceMode();
 
