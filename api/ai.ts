@@ -18,9 +18,9 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   // 3. Secret Verification
-  const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-  if (!GEMINI_API_KEY) {
-    console.error('[api/ai] CRITICAL: Missing GEMINI_API_KEY in environment');
+  const GROQ_API_KEY = process.env.GROQ_API_KEY;
+  if (!GROQ_API_KEY) {
+    console.error('[api/ai] CRITICAL: Missing GROQ_API_KEY in environment');
     return res.status(500).json({ 
       success: false, 
       error: 'AI infrastructure misconfigured. Backend key missing.',
@@ -38,21 +38,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return res.status(400).json({ success: false, error: 'Missing content payload' });
     }
 
-    const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const prompt = contents[0]?.parts?.[0]?.text || '';
+    const temp = generationConfig?.temperature || 0.7;
+    const maxTokens = generationConfig?.maxOutputTokens || 1024;
 
     // 5. Proxy request to Google Gemini with Timeout Handling
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout for serverless safety
 
-    const response = await fetch(GEMINI_URL, {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Authorization': `Bearer ${GROQ_API_KEY}`,
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify({
-        contents,
-        generationConfig: generationConfig || {
-          temperature: 0.7,
-          maxOutputTokens: 1024,
-        },
+        model: 'llama-3.3-70b-versatile',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: temp,
+        max_tokens: maxTokens
       }),
       signal: controller.signal
     });
@@ -62,16 +66,26 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('[api/ai] Gemini API Error Response:', JSON.stringify(data));
+      console.error('[api/ai] Groq API Error Response:', JSON.stringify(data));
       return res.status(response.status).json({
         success: false,
-        error: data?.error?.message || 'Gemini AI synthesis failed',
+        error: data?.error?.message || 'Groq AI synthesis failed',
         code: response.status
       });
     }
 
-    // 6. Return secure response
-    return res.status(200).json(data);
+    const aiText = data.choices[0]?.message?.content || '';
+
+    // Return Gemini-style response for frontend compatibility
+    return res.status(200).json({
+        candidates: [
+            {
+                content: {
+                    parts: [{ text: aiText }]
+                }
+            }
+        ]
+    });
   } catch (error) {
     console.error('[api/ai] Fatal Proxy Exception:', error);
     const isTimeout = error instanceof Error && error.name === 'AbortError';

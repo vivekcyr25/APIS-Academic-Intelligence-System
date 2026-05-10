@@ -36,7 +36,8 @@ Guidelines:
 5. Always reference the student's actual data when available.`;
 
   try {
-    const response = await fetch('/api/ai', {
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const response = await fetch(`${baseUrl}/api/ai`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
@@ -149,7 +150,8 @@ export const processAcademicImage = async (imageFile: File, type: string) => {
       Return ONLY valid JSON.
     `;
 
-    const response = await fetch('/api/ai', {
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const response = await fetch(`${baseUrl}/api/ai`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -188,7 +190,8 @@ Synthesize this into a beautifully phrased, emotionally intelligent, and encoura
 It should feel like Apple Health or a calm AI. Do NOT use emojis. Keep it extremely premium and calm.`;
 
   try {
-    const response = await fetch('/api/ai', {
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const response = await fetch(`${baseUrl}/api/ai`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({

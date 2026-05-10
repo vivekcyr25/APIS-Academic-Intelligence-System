@@ -46,7 +46,7 @@ export const AppLayout = () => {
 
       <TopNav />
       
-      <main className="flex-1 flex flex-col relative z-10 pt-[104px] px-6 pb-24 md:pb-12 w-full">
+      <main className="flex-1 flex flex-col relative z-10 pt-[88px] sm:pt-[104px] px-3 sm:px-6 pb-28 md:pb-12 w-full">
         <div className="flex-1 w-full max-w-7xl mx-auto flex flex-col">
           <div className="flex-1">
             <Outlet />

@@ -298,12 +298,17 @@ const TopNav = () => {
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <div className={cn(
                     "w-1.5 h-1.5 rounded-full",
-                    health?.firebase
-                      ? "bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.6)]"
-                      : "bg-rose-400 shadow-[0_0_6px_rgba(248,113,113,0.6)]"
+                    health?.ai
+                      ? "bg-green-400 shadow-[0_0_6px_rgba(74,222,128,0.6)] animate-pulse"
+                      : health === null
+                        ? "bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.6)] animate-pulse"
+                        : "bg-rose-400 shadow-[0_0_6px_rgba(248,113,113,0.6)]"
                   )} />
-                  <span className="text-[8px] font-black uppercase tracking-widest text-white/30">
-                    {health?.firebase ? 'Online' : 'Offline'}
+                  <span className={cn(
+                    "text-[8px] font-black uppercase tracking-widest",
+                    health?.ai ? "text-green-400/70" : health === null ? "text-amber-400/70" : "text-white/30"
+                  )}>
+                    {health === null ? 'Checking...' : health?.ai ? 'Online' : 'Offline'}
                   </span>
                 </div>
               </div>

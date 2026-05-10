@@ -42,6 +42,7 @@ import { collection, query, onSnapshot, limit } from 'firebase/firestore';
 import type { AttendanceRecord, AssignmentRecord } from '../types/academic';
 import type { AcademicProfile } from '../types/academic-v2';
 import { usePerformanceMode } from '../hooks/usePerformanceMode';
+import NeuralConsole from '../components/ai/NeuralConsole.tsx';
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -54,6 +55,7 @@ const Dashboard = () => {
   const [marks, setMarks] = useState<MarkRecord[]>([]);
   const [aiTip, setAiTip] = useState<string>('');
   const [tipLoading, setTipLoading] = useState(false);
+  const [showConsole, setShowConsole] = useState(false);
   const navigate = useNavigate();
 
   // Legacy state
@@ -322,13 +324,17 @@ const Dashboard = () => {
                 </p>
               </div>
 
-              {!isLowEnd && (
-                <Button onClick={() => navigate('/ai')} className="shrink-0 h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+              {!isLowEnd && !showConsole && (
+                <Button onClick={() => setShowConsole(true)} className="shrink-0 h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]">
                   Ask AI Assistant <ArrowRight className="w-5 h-5 ml-2" />
                 </Button>
               )}
             </div>
           </Card>
+
+          {showConsole && (
+            <NeuralConsole isOpen={showConsole} onClose={() => setShowConsole(false)} />
+          )}
 
           {/* KPI Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">

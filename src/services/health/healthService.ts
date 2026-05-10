@@ -1,34 +1,42 @@
-import { db, auth } from '../firebase/config.ts';
+import { db } from '../firebase/config.ts';
 import { doc, getDoc } from 'firebase/firestore';
 
 export interface SystemStatus {
   firebase: boolean;
-  gemini: boolean;
+  ai: boolean;
   timestamp: number;
 }
 
 export const checkSystemHealth = async (): Promise<SystemStatus> => {
   const status: SystemStatus = {
     firebase: false,
-    gemini: false,
+    ai: false,
     timestamp: Date.now(),
   };
 
-  // Check Firebase (Firestore)
+  // Check Firebase (Firestore reachability)
   try {
-    // Try to read a dummy doc or just check if db is initialized
     await getDoc(doc(db, '_health_', 'check'));
     status.firebase = true;
   } catch (err) {
-    status.firebase = false;
+    // Firestore throws on missing doc but that's still "online"
+    const msg = (err as any)?.code || '';
+    status.firebase = msg !== 'unavailable';
   }
 
-  // Check Gemini (Verify API Key existence)
+  // Check Groq AI backend health endpoint
   try {
-    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
-    status.gemini = !!apiKey && apiKey.length > 10;
-  } catch (err) {
-    status.gemini = false;
+    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const res = await fetch(`${baseUrl}/api/health`, {
+      method: 'GET',
+      signal: AbortSignal.timeout(5000), // 5s timeout
+    });
+    if (res.ok) {
+      const data = await res.json();
+      status.ai = data?.online === true;
+    }
+  } catch (_) {
+    status.ai = false;
   }
 
   return status;

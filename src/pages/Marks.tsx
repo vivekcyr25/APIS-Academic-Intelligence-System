@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { subscribeToMarks, addMark, deleteMark, type MarkRecord } from '../services/marks/marksService.ts';
@@ -25,6 +25,21 @@ import {
 import { cn } from '../lib/utils.ts';
 import { exportToCSV, triggerPrint } from '../lib/exportUtils.ts';
 import { calculateGPA, getGradeFromTotal } from '../utils/academicUtils.ts';
+
+// ── Syncfusion Grid ──────────────────────────────────────────────────────────
+import {
+  GridComponent,
+  ColumnsDirective,
+  ColumnDirective,
+  Inject,
+  Sort,
+  Search as SfSearch,
+  Toolbar,
+  ExcelExport,
+  PdfExport,
+  Page,
+  Filter as SfFilter,
+} from '@syncfusion/ej2-react-grids';
 
 const Marks = () => {
   const { user } = useAuth();
@@ -104,6 +119,8 @@ const Marks = () => {
     setSortConfig({ key, direction });
   };
 
+  const gridRef = useRef<GridComponent | null>(null);
+
   const handleExportCSV = () => {
     const dataToExport = filteredAndSortedMarks.map(m => ({
       Subject: m.subject,
@@ -117,6 +134,46 @@ const Marks = () => {
     exportToCSV(dataToExport, `marks_report_${new Date().toLocaleDateString()}`);
     addToast('CSV Exported!', 'success');
   };
+
+  const toolbarClick = (args: any) => {
+    if (!gridRef.current) return;
+    if (args.item.id?.includes('excelexport')) gridRef.current.excelExport();
+    if (args.item.id?.includes('pdfexport'))   gridRef.current.pdfExport();
+    if (args.item.id?.includes('print'))       gridRef.current.print();
+  };
+
+  // Custom cell templates for Syncfusion Grid
+  const gradeTemplate = (m: MarkRecord) => (
+    <span className={cn(
+      "inline-flex items-center justify-center w-10 h-10 rounded-xl font-black text-xs",
+      m.total >= 80 ? "bg-green-400/10 text-green-400" :
+      m.total >= 60 ? "bg-amber-400/10 text-amber-400" :
+      "bg-rose-400/10 text-rose-400"
+    )}>
+      {m.grade}
+    </span>
+  );
+
+  const actionsTemplate = (m: MarkRecord) => (
+    <div className="flex items-center gap-2">
+      <button className="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors">
+        <Edit3 className="w-4 h-4" />
+      </button>
+      <button
+        onClick={async () => {
+          if (m.id && user) {
+            try {
+              await deleteMark(m.id, user.id);
+              addToast('Record deleted', 'info');
+            } catch { addToast('Failed to delete record', 'error'); }
+          }
+        }}
+        className="p-2 hover:bg-rose-400/10 text-rose-400 rounded-lg transition-colors"
+      >
+        <Trash2 className="w-4 h-4" />
+      </button>
+    </div>
+  );
 
   const gpa = calculateGPA(marks);
   const animatedGPA = useCountUp(gpa * 100) / 100;
@@ -167,154 +224,41 @@ const Marks = () => {
         </Card>
       </div>
 
-      {/* Main Content Card */}
+      {/* Main Content — Syncfusion Grid */}
       <Card className="p-0 border-white/5 bg-white/2 backdrop-blur-3xl overflow-hidden">
-        {/* Table Toolbar */}
-        <div className="p-6 border-b border-white/5 flex flex-col md:flex-row items-center justify-between gap-4">
-          <div className="relative w-full md:w-96">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search subjects..."
-              className="w-full bg-white/5 border border-white/5 rounded-xl pl-11 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              onKeyDown={(e) => e.key === 'Escape' && setSearchTerm('')}
-            />
-          </div>
-          <div className="flex items-center gap-2">
-            <Button 
-              variant={showFailingOnly ? "primary" : "ghost"} 
-              size="sm" 
-              className="rounded-xl"
-              onClick={() => setShowFailingOnly(!showFailingOnly)}
-            >
-              <Filter className="w-4 h-4 mr-2" /> {showFailingOnly ? "Showing Failing" : "Filter Failing"}
-            </Button>
-            <Button 
-              variant={sortConfig ? "primary" : "ghost"} 
-              size="sm" 
-              className="rounded-xl"
-              onClick={() => setSortConfig(null)}
-            >
-              <ArrowUpDown className="w-4 h-4 mr-2" /> Reset Sort
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="rounded-xl border-white/10 hover:bg-white/5"
-              onClick={handleExportCSV}
-              disabled={filteredAndSortedMarks.length === 0}
-            >
-              <Download className="w-4 h-4 mr-2" /> Export
-            </Button>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="rounded-xl border-white/10 hover:bg-white/5"
-              onClick={triggerPrint}
-            >
-              <Printer className="w-4 h-4 mr-2" /> Print
-            </Button>
-          </div>
-        </div>
-
-        {/* Data Table */}
-        <div className="overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="bg-white/5">
-                <th 
-                  className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground cursor-pointer hover:text-primary transition-colors"
-                  onClick={() => handleSort('subject')}
-                >
-                  Subject {sortConfig?.key === 'subject' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                </th>
-                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">CA1</th>
-                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">CA2</th>
-                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">MTE</th>
-                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground">ETE</th>
-                <th 
-                  className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-center cursor-pointer hover:text-primary transition-colors"
-                  onClick={() => handleSort('total')}
-                >
-                  Total {sortConfig?.key === 'total' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                </th>
-                <th 
-                  className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-center cursor-pointer hover:text-primary transition-colors"
-                  onClick={() => handleSort('grade')}
-                >
-                  Grade {sortConfig?.key === 'grade' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                </th>
-                <th className="px-6 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-white/5">
-              <AnimatePresence>
-                {filteredAndSortedMarks.map((m) => (
-                  <motion.tr
-                    key={m.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    className="group hover:bg-white/5 transition-colors"
-                  >
-                    <td className="px-6 py-4 font-bold text-sm">{m.subject}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{m.ca1}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{m.ca2}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{m.mte}</td>
-                    <td className="px-6 py-4 text-sm text-muted-foreground">{m.ete}</td>
-                    <td className="px-6 py-4 text-sm font-black text-center text-primary">{m.total}</td>
-                    <td className="px-6 py-4 text-center">
-                      <span className={cn(
-                        "inline-flex items-center justify-center w-10 h-10 rounded-xl font-black text-xs",
-                        m.total >= 80 ? "bg-green-400/10 text-green-400" : 
-                        m.total >= 60 ? "bg-amber-400/10 text-amber-400" : 
-                        "bg-rose-400/10 text-rose-400"
-                      )}>
-                        {m.grade}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-right">
-                      <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button className="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors">
-                          <Edit3 className="w-4 h-4" />
-                        </button>
-                        <button 
-                          onClick={async () => {
-                            if (m.id && user) {
-                              try {
-                                await deleteMark(m.id, user.id);
-                                addToast('Record deleted', 'info');
-                              } catch (err: any) {
-                                addToast('Failed to delete record', 'error');
-                              }
-                            }
-                          }}
-                          className="p-2 hover:bg-rose-400/10 text-rose-400 rounded-lg transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-            </tbody>
-          </table>
-          {filteredAndSortedMarks.length === 0 && (
-            <div className="p-20 text-center space-y-4 opacity-50">
-              <div className="w-20 h-20 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-6">
-                <FileText className="w-10 h-10" />
-              </div>
-              <h3 className="text-xl font-bold">No Records Detected</h3>
-              <p className="text-sm max-w-[280px] mx-auto">Start by recording your academic performance data to unlock intelligence features.</p>
-            </div>
-          )}
+        <div className="sf-marks-grid-wrapper">
+          <GridComponent
+            ref={gridRef}
+            dataSource={filteredAndSortedMarks}
+            allowSorting
+            allowFiltering
+            allowPaging
+            pageSettings={{ pageSize: 10 }}
+            toolbar={['Search', 'ExcelExport', 'PdfExport', 'Print']}
+            toolbarClick={toolbarClick}
+            allowExcelExport
+            allowPdfExport
+            filterSettings={{ type: 'Menu' }}
+            gridLines="Horizontal"
+            rowHeight={56}
+            cssClass="sf-neural-grid"
+            height="auto"
+            width="100%"
+          >
+            <ColumnsDirective>
+              <ColumnDirective field="subject"  headerText="Subject" minWidth="140" textAlign="Left"  isPrimaryKey />
+              <ColumnDirective field="ca1"      headerText="CA 1"   width="80"   textAlign="Center" />
+              <ColumnDirective field="ca2"      headerText="CA 2"   width="80"   textAlign="Center" />
+              <ColumnDirective field="mte"      headerText="MTE"    width="80"   textAlign="Center" />
+              <ColumnDirective field="ete"      headerText="ETE"    width="80"   textAlign="Center" />
+              <ColumnDirective field="total"    headerText="Total"  width="90"   textAlign="Center" />
+              <ColumnDirective field="grade"    headerText="Grade"  width="90"   textAlign="Center" template={gradeTemplate} />
+              <ColumnDirective headerText="Actions" width="100" textAlign="Center" template={actionsTemplate} allowSorting={false} allowFiltering={false} />
+            </ColumnsDirective>
+            <Inject services={[Sort, SfSearch, Toolbar, ExcelExport, PdfExport, Page, SfFilter]} />
+          </GridComponent>
         </div>
       </Card>
-
-      {/* Add Mark Modal */}
       <Modal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 

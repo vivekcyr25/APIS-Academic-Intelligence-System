@@ -3,6 +3,7 @@ import { Input } from '../ui/Input';
 import { Button } from '../ui/Button';
 import { AlertTriangle, CheckCircle2, TrendingUp, Calendar, BookOpen, Clock } from 'lucide-react';
 import { cn } from '../../lib/utils';
+import { calculateDynamicTotal } from '../../services/marks/marksService.ts';
 
 export type FormType = 'attendance' | 'marks' | 'assignment' | 'timetable';
 
@@ -97,6 +98,7 @@ const MarksForm = ({ onChange }: { onChange: (data: any) => void }) => {
     faculty: '',
     ca1: '',
     ca2: '',
+    assignments: '',
     mte: '',
     ete: '',
     labMarks: '',
@@ -104,20 +106,34 @@ const MarksForm = ({ onChange }: { onChange: (data: any) => void }) => {
   });
 
   useEffect(() => {
-    const ca1 = parseFloat(formData.ca1) || 0;
-    const ca2 = parseFloat(formData.ca2) || 0;
-    const mte = parseFloat(formData.mte) || 0;
-    const ete = parseFloat(formData.ete) || 0;
-    const labMarks = parseFloat(formData.labMarks) || 0;
+    // Elegant inline validation boundaries
+    const safeMax = (val: string, max: number) => {
+      const num = parseFloat(val);
+      if (isNaN(num)) return 0;
+      return Math.min(Math.max(num, 0), max);
+    };
+
+    const ca1 = safeMax(formData.ca1, 30);
+    const ca2 = safeMax(formData.ca2, 30);
+    const assignments = safeMax(formData.assignments, 100);
+    const mte = safeMax(formData.mte, 40);
+    const ete = safeMax(formData.ete, 100);
+    const labMarks = safeMax(formData.labMarks, 50);
     const credits = parseFloat(formData.credits) || 3;
-    const total = ca1 + ca2 + mte + ete + labMarks;
+
+    // Use shared engine for identical frontend/backend logic
+    const { total, percentage, grade } = calculateDynamicTotal({
+      ca1, ca2, assignments, mte, lab: labMarks, ete
+    });
 
     onChange({
       type: 'marks',
       ...formData,
-      ca1, ca2, mte, ete, labMarks,
+      ca1, ca2, assignments, mte, ete, labMarks,
       credits,
       total,
+      percentage,
+      grade,
       name: formData.subject,
       code: formData.code,
       subjectType: formData.subjectType,
@@ -174,7 +190,7 @@ const MarksForm = ({ onChange }: { onChange: (data: any) => void }) => {
         />
       </div>
       
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <Input 
           label="CA 1" type="number" placeholder="/ 30" 
           value={formData.ca1} onChange={(e) => setFormData(prev => ({ ...prev, ca1: e.target.value }))}
@@ -182,6 +198,10 @@ const MarksForm = ({ onChange }: { onChange: (data: any) => void }) => {
         <Input 
           label="CA 2" type="number" placeholder="/ 30" 
           value={formData.ca2} onChange={(e) => setFormData(prev => ({ ...prev, ca2: e.target.value }))}
+        />
+        <Input 
+          label="Assignments" type="number" placeholder="/ 100" 
+          value={formData.assignments} onChange={(e) => setFormData(prev => ({ ...prev, assignments: e.target.value }))}
         />
         <Input 
           label="Midterm" type="number" placeholder="/ 40" 
