@@ -177,7 +177,17 @@ const Marks = () => {
 
   const actionsTemplate = (m: MarkRecord) => (
     <div className="flex items-center gap-2">
-      <button className="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors">
+      <button 
+        onClick={() => {
+          // Select the row first then start edit
+          const index = gridRef.current?.getRowIndexByPrimaryKey(m.subject);
+          if (index !== undefined && index !== -1) {
+            gridRef.current?.selectRow(index);
+            gridRef.current?.startEdit();
+          }
+        }}
+        className="p-2 hover:bg-primary/10 text-primary rounded-lg transition-colors"
+      >
         <Edit3 className="w-4 h-4" />
       </button>
       <button
@@ -255,7 +265,7 @@ const Marks = () => {
             allowFiltering
             allowPaging
             pageSettings={{ pageSize: 10 }}
-            toolbar={['Search', 'ExcelExport', 'PdfExport', 'Print']}
+            toolbar={['Search', 'Edit', 'Update', 'Cancel', 'ExcelExport', 'PdfExport', 'Print']}
             toolbarClick={toolbarClick}
             allowExcelExport
             allowPdfExport
