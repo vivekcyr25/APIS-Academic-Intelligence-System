@@ -14,14 +14,36 @@ import { Card, StatsCard } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../services/firebase/config';
-import { collection, query, onSnapshot, orderBy } from 'firebase/firestore';
-import type { AssignmentRecord } from '../types/academic';
 import { cn } from '../lib/utils';
+import { 
+  collection, 
+  query, 
+  onSnapshot, 
+  orderBy, 
+  addDoc, 
+  updateDoc, 
+  doc, 
+  Timestamp,
+  deleteDoc
+} from 'firebase/firestore';
+import { Modal } from '../components/ui/Modal';
+import { Input } from '../components/ui/Input';
+import { toast } from 'react-hot-toast';
+import { Trash2 } from 'lucide-react';
 
 const Assignments = () => {
   const { user } = useAuth();
   const [assignments, setAssignments] = useState<AssignmentRecord[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [formData, setFormData] = useState({
+    title: '',
+    subject: '',
+    deadline: '',
+    priority: 'medium' as AssignmentRecord['priority'],
+    faculty: ''
+  });
 
   useEffect(() => {
     if (!user) return;
@@ -42,6 +64,49 @@ const Assignments = () => {
     return () => unsubscribe();
   }, [user]);
 
+  const handleAddAssignment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+    try {
+      await addDoc(collection(db, 'users', user.id, 'assignment'), {
+        ...formData,
+        userId: user.id,
+        status: 'pending',
+        deadline: Timestamp.fromDate(new Date(formData.deadline)),
+        marks: 0,
+        maxMarks: 100
+      });
+      setIsAddModalOpen(false);
+      setFormData({ title: '', subject: '', deadline: '', priority: 'medium', faculty: '' });
+      toast.success('Assignment added to queue');
+    } catch (err) {
+      toast.error('Failed to add assignment');
+    }
+  };
+
+  const toggleStatus = async (id: string, currentStatus: string) => {
+    if (!user) return;
+    const newStatus = currentStatus === 'pending' ? 'submitted' : 'pending';
+    try {
+      await updateDoc(doc(db, 'users', user.id, 'assignment', id), {
+        status: newStatus
+      });
+      toast.success(newStatus === 'submitted' ? 'Task completed!' : 'Task reopened');
+    } catch (err) {
+      toast.error('Update failed');
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!user) return;
+    try {
+      await deleteDoc(doc(db, 'users', user.id, 'assignment', id));
+      toast.success('Task removed');
+    } catch (err) {
+      toast.error('Delete failed');
+    }
+  };
+
   const pending = assignments.filter(a => a.status === 'pending');
   const critical = pending.filter(a => a.priority === 'high');
 
@@ -52,7 +117,10 @@ const Assignments = () => {
           <h1 className="text-4xl font-black font-heading tracking-tight mb-2">Assignment Intelligence</h1>
           <p className="text-muted-foreground font-medium">Priority-ranked task management and deadline vectors</p>
         </div>
-        <Button className="rounded-2xl h-12 px-6 shadow-[0_0_20px_rgba(139,92,246,0.3)]">
+        <Button 
+          onClick={() => setIsAddModalOpen(true)}
+          className="rounded-2xl h-12 px-6 shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+        >
           <Plus className="w-4 h-4 mr-2" /> Add Assignment
         </Button>
       </header>
@@ -120,23 +188,37 @@ const Assignments = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-6">
+                    <div className="flex items-center gap-4">
                       <div className="text-right">
                         <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Deadline</p>
                         <p className={cn(
                           "text-sm font-bold",
-                          assignment.priority === 'high' ? "text-rose-400" : "text-foreground"
+                          assignment.priority === 'high' ? "text-rose-400" : "text-foreground",
+                          assignment.status === 'submitted' && "line-through opacity-50"
                         )}>
                           {assignment.deadline?.toDate?.().toLocaleDateString() || 'No Date'}
                         </p>
                       </div>
-                      <div className={cn(
-                        "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-widest",
-                        assignment.priority === 'high' ? "bg-rose-500/10 text-rose-400" :
-                        assignment.priority === 'medium' ? "bg-amber-500/10 text-amber-400" :
-                        "bg-green-500/10 text-green-400"
-                      )}>
-                        {assignment.priority}
+                      
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => toggleStatus(assignment.id, assignment.status)}
+                          className={cn(
+                            "w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
+                            assignment.status === 'submitted' 
+                              ? "bg-green-500 border-green-500 text-white" 
+                              : "border-white/20 hover:border-primary text-transparent"
+                          )}
+                        >
+                          <CheckCircle2 className="w-4 h-4 text-inherit" />
+                        </button>
+                        
+                        <button 
+                          onClick={() => handleDelete(assignment.id)}
+                          className="p-2 text-muted-foreground hover:text-rose-400 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -203,6 +285,62 @@ const Assignments = () => {
           </Card>
         </div>
       </div>
+      </div>
+
+      <Modal 
+        isOpen={isAddModalOpen} 
+        onClose={() => setIsAddModalOpen(false)}
+        title="Add New Assignment"
+      >
+        <form onSubmit={handleAddAssignment} className="space-y-4 pt-4">
+          <Input 
+            label="Title"
+            placeholder="e.g., Quantum Mechanics Report"
+            value={formData.title}
+            onChange={e => setFormData({...formData, title: e.target.value})}
+            required
+          />
+          <div className="grid grid-cols-2 gap-4">
+            <Input 
+              label="Subject"
+              placeholder="PHY101"
+              value={formData.subject}
+              onChange={e => setFormData({...formData, subject: e.target.value})}
+              required
+            />
+            <Input 
+              label="Faculty"
+              placeholder="Dr. Smith"
+              value={formData.faculty}
+              onChange={e => setFormData({...formData, faculty: e.target.value})}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <Input 
+              label="Deadline"
+              type="date"
+              value={formData.deadline}
+              onChange={e => setFormData({...formData, deadline: e.target.value})}
+              required
+            />
+            <div className="space-y-1.5">
+              <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Priority</label>
+              <select 
+                value={formData.priority}
+                onChange={e => setFormData({...formData, priority: e.target.value as any})}
+                className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm outline-none focus:border-primary/50 transition-all"
+              >
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+              </select>
+            </div>
+          </div>
+          <Button type="submit" className="w-full h-12 rounded-xl mt-4 neural-glow">
+            Save Assignment
+          </Button>
+        </form>
+      </Modal>
     </div>
   );
 };

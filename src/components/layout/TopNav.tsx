@@ -285,7 +285,7 @@ const TopNav = () => {
             <NeuralGradient />
 
             {/* ── Left: Logo ── */}
-            <div className="flex items-center gap-3 pl-2 flex-shrink-0">
+            <div className="flex items-center gap-3 pl-2 flex-shrink-0 flex-1 justify-start">
               <motion.div
                 whileHover={{ scale: 1.08, rotate: 5 }}
                 whileTap={{ scale: 0.95 }}
@@ -315,12 +315,13 @@ const TopNav = () => {
             </div>
 
             {/* ── Center: Primary Nav (desktop) ── */}
-            <nav className="hidden md:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+            <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
               {primaryNav.map((item) => <NavLink key={item.path} item={item} />)}
               <MoreMenu />
             </nav>
+
             {/* ── Right: Profile + Logout ── */}
-            <div className="flex items-center gap-2 pr-1 flex-shrink-0">
+            <div className="flex items-center gap-2 pr-1 flex-shrink-0 flex-1 justify-end">
               <ProfileCapsule />
               <div className="flex items-center gap-1">
                 <motion.button
