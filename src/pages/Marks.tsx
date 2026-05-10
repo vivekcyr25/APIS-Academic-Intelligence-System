@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext.tsx';
-import { subscribeToMarks, addMark, deleteMark, type MarkRecord } from '../services/marks/marksService.ts';
+import { subscribeToMarks, addMark, updateMark, deleteMark, type MarkRecord } from '../services/marks/marksService.ts';
 import { useCountUp } from '../hooks/useCountUp.ts';
 import { useToastStore } from '../store/useToastStore.ts';
 import { Button } from '../components/ui/Button.tsx';
@@ -39,6 +39,7 @@ import {
   PdfExport,
   Page,
   Filter as SfFilter,
+  Edit,
 } from '@syncfusion/ej2-react-grids';
 
 const Marks = () => {
@@ -142,6 +143,26 @@ const Marks = () => {
     if (args.item.id?.includes('print'))       gridRef.current.print();
   };
 
+  const handleActionComplete = async (args: any) => {
+    if (args.requestType === 'save') {
+      const data = args.data as MarkRecord;
+      if (data.id) {
+        try {
+          await updateMark(data.id, {
+            ...data,
+            ca1: Number(data.ca1),
+            ca2: Number(data.ca2),
+            mte: Number(data.mte),
+            ete: Number(data.ete)
+          });
+          addToast(`${data.subject} updated successfully!`, 'success');
+        } catch (err: any) {
+          addToast(err.message || 'Failed to update record', 'error');
+        }
+      }
+    }
+  };
+
   // Custom cell templates for Syncfusion Grid
   const gradeTemplate = (m: MarkRecord) => (
     <span className={cn(
@@ -238,6 +259,8 @@ const Marks = () => {
             toolbarClick={toolbarClick}
             allowExcelExport
             allowPdfExport
+            editSettings={{ allowEditing: true, allowAdding: true, allowDeleting: true, mode: 'Normal' }}
+            actionComplete={handleActionComplete}
             filterSettings={{ type: 'Menu' }}
             gridLines="Horizontal"
             rowHeight={56}
@@ -247,15 +270,15 @@ const Marks = () => {
           >
             <ColumnsDirective>
               <ColumnDirective field="subject"  headerText="Subject" minWidth="140" textAlign="Left"  isPrimaryKey />
-              <ColumnDirective field="ca1"      headerText="CA 1"   width="80"   textAlign="Center" />
-              <ColumnDirective field="ca2"      headerText="CA 2"   width="80"   textAlign="Center" />
-              <ColumnDirective field="mte"      headerText="MTE"    width="80"   textAlign="Center" />
-              <ColumnDirective field="ete"      headerText="ETE"    width="80"   textAlign="Center" />
-              <ColumnDirective field="total"    headerText="Total"  width="90"   textAlign="Center" />
-              <ColumnDirective field="grade"    headerText="Grade"  width="90"   textAlign="Center" template={gradeTemplate} />
+              <ColumnDirective field="ca1"      headerText="CA 1"   width="80"   textAlign="Center" editType="numericEdit" />
+              <ColumnDirective field="ca2"      headerText="CA 2"   width="80"   textAlign="Center" editType="numericEdit" />
+              <ColumnDirective field="mte"      headerText="MTE"    width="80"   textAlign="Center" editType="numericEdit" />
+              <ColumnDirective field="ete"      headerText="ETE"    width="80"   textAlign="Center" editType="numericEdit" />
+              <ColumnDirective field="total"    headerText="Total"  width="90"   textAlign="Center" allowEditing={false} />
+              <ColumnDirective field="grade"    headerText="Grade"  width="90"   textAlign="Center" template={gradeTemplate} allowEditing={false} />
               <ColumnDirective headerText="Actions" width="100" textAlign="Center" template={actionsTemplate} allowSorting={false} allowFiltering={false} />
             </ColumnsDirective>
-            <Inject services={[Sort, SfSearch, Toolbar, ExcelExport, PdfExport, Page, SfFilter]} />
+            <Inject services={[Sort, SfSearch, Toolbar, ExcelExport, PdfExport, Page, SfFilter, Edit]} />
           </GridComponent>
         </div>
       </Card>
