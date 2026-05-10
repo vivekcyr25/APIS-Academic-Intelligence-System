@@ -4,7 +4,9 @@ import { useAuth } from '../contexts/AuthContext';
 import { 
   subscribeToSemesters, 
   subscribeToSubjects,
-  getAcademicProfile 
+  getAcademicProfile,
+  updateSubject,
+  recomputeSemesterStats
 } from '../services/academic/semesterService';
 import type { Semester, Subject, AcademicProfile } from '../types/academic-v2';
 import { Card, StatsCard } from '../components/ui/Card';
@@ -28,7 +30,10 @@ import {
   Lock,
   RotateCcw,
   Sparkles,
-  Download
+  Download,
+  Edit3,
+  X,
+  Check
 } from 'lucide-react';
 import { exportSemesterToPDF } from '../services/export/exportService';
 import { getGradePoints } from '../services/academic/academicEngine';
@@ -43,49 +48,137 @@ import { FeedbackModal } from '../components/ui/FeedbackModal';
 import { MessageSquare } from 'lucide-react';
 import { usePerformanceMode } from '../hooks/usePerformanceMode';
 
-const SubjectCard = memo(({ subject }: { subject: Subject }) => (
-  <div className="p-4 rounded-xl bg-card border border-white/5 hover:border-white/10 transition-colors group">
-    <div className="flex justify-between items-start mb-4">
-      <div>
-        <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">
-          {subject.code} • {subject.subjectType}
-        </p>
-        <h5 className="font-bold text-lg leading-tight line-clamp-1">{subject.name}</h5>
-      </div>
-      <div className="px-2 py-1 rounded bg-white/5 text-xs font-bold border border-white/10">
-        {subject.credits} CR
-      </div>
-    </div>
-    
-    <div className="grid grid-cols-3 gap-2 text-center mb-4">
-      <div className="p-2 rounded-lg bg-white/5">
-        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Score</p>
-        <p className="font-black text-sm">{subject.total}</p>
-      </div>
-      <div className="p-2 rounded-lg bg-white/5">
-        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Grade</p>
-        <p className={cn(
-          "font-black text-sm",
-          subject.grade === 'F' ? "text-rose-400" : "text-primary"
-        )}>{subject.grade || '—'}</p>
-      </div>
-      <div className="p-2 rounded-lg bg-white/5">
-        <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Att.</p>
-        <p className={cn(
-          "font-black text-sm",
-          subject.attendancePercentage < 75 ? "text-amber-400" : "text-white"
-        )}>{subject.attendancePercentage}%</p>
-      </div>
-    </div>
+const SubjectCard = memo(({ subject, userId, profile }: { subject: Subject, userId: string, profile: AcademicProfile }) => {
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({
+    total: subject.total,
+    attendancePercentage: subject.attendancePercentage,
+    grade: subject.grade
+  });
+  const [loading, setLoading] = useState(false);
 
-    {/* AI Risk Indicator */}
-    {subject.priority === 'high' && subject.total < 50 && (
-      <div className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 font-medium">
-        <AlertTriangle className="w-3.5 h-3.5" /> High-credit performance risk
+  const handleSave = async () => {
+    setLoading(true);
+    try {
+      await updateSubject(userId, subject.id!, {
+        total: Number(editData.total),
+        attendancePercentage: Number(editData.attendancePercentage),
+        grade: editData.grade
+      });
+      // Recompute stats
+      if (subject.semesterId && profile) {
+        await recomputeSemesterStats(userId, subject.semesterId, profile);
+      }
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Failed to update subject:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (isEditing) {
+    return (
+      <div className="p-4 rounded-xl bg-card border border-primary/30 shadow-lg transition-all animate-in fade-in zoom-in duration-200">
+        <div className="flex justify-between items-center mb-4">
+          <h5 className="font-bold text-sm text-primary">Edit {subject.code}</h5>
+          <button onClick={() => setIsEditing(false)} className="p-1 hover:bg-white/10 rounded-lg">
+            <X className="w-4 h-4 text-muted-foreground" />
+          </button>
+        </div>
+        
+        <div className="space-y-3">
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1 block">Total Score</label>
+            <input 
+              type="number" 
+              value={editData.total}
+              onChange={(e) => setEditData({...editData, total: Number(e.target.value)})}
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary/50 outline-none"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1 block">Attendance %</label>
+            <input 
+              type="number" 
+              value={editData.attendancePercentage}
+              onChange={(e) => setEditData({...editData, attendancePercentage: Number(e.target.value)})}
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary/50 outline-none"
+            />
+          </div>
+          <div>
+            <label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1 block">Grade</label>
+            <select 
+              value={editData.grade}
+              onChange={(e) => setEditData({...editData, grade: e.target.value})}
+              className="w-full bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:border-primary/50 outline-none"
+            >
+              {['O', 'A+', 'A', 'B+', 'B', 'C', 'P', 'F'].map(g => <option key={g} value={g}>{g}</option>)}
+            </select>
+          </div>
+          <Button 
+            onClick={handleSave} 
+            disabled={loading}
+            className="w-full h-10 mt-2 neural-glow"
+          >
+            {loading ? 'Saving...' : 'Update Records'}
+          </Button>
+        </div>
       </div>
-    )}
-  </div>
-));
+    );
+  }
+
+  return (
+    <div className="p-4 rounded-xl bg-card border border-white/5 hover:border-white/10 transition-colors group relative">
+      <button 
+        onClick={() => setIsEditing(true)}
+        className="absolute top-2 right-2 p-2 rounded-lg bg-white/0 hover:bg-white/5 text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100"
+      >
+        <Edit3 className="w-3.5 h-3.5" />
+      </button>
+
+      <div className="flex justify-between items-start mb-4 pr-6">
+        <div>
+          <p className="text-[10px] font-black uppercase tracking-widest text-primary mb-1">
+            {subject.code} • {subject.subjectType}
+          </p>
+          <h5 className="font-bold text-lg leading-tight line-clamp-1">{subject.name}</h5>
+        </div>
+        <div className="px-2 py-1 rounded bg-white/5 text-xs font-bold border border-white/10">
+          {subject.credits} CR
+        </div>
+      </div>
+      
+      <div className="grid grid-cols-3 gap-2 text-center mb-4">
+        <div className="p-2 rounded-lg bg-white/5">
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Score</p>
+          <p className="font-black text-sm">{subject.total}</p>
+        </div>
+        <div className="p-2 rounded-lg bg-white/5">
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Grade</p>
+          <p className={cn(
+            "font-black text-sm",
+            subject.grade === 'F' ? "text-rose-400" : "text-primary"
+          )}>{subject.grade || '—'}</p>
+        </div>
+        <div className="p-2 rounded-lg bg-white/5">
+          <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Att.</p>
+          <p className={cn(
+            "font-black text-sm",
+            subject.attendancePercentage < 75 ? "text-amber-400" : "text-white"
+          )}>{subject.attendancePercentage}%</p>
+        </div>
+      </div>
+
+      {/* AI Risk Indicator */}
+      {subject.priority === 'high' && subject.total < 50 && (
+        <div className="mt-2 flex items-center gap-2 px-3 py-2 rounded-lg bg-rose-500/10 border border-rose-500/20 text-xs text-rose-300 font-medium">
+          <AlertTriangle className="w-3.5 h-3.5" /> High-credit performance risk
+        </div>
+      )}
+    </div>
+  );
+});
 
 const SemesterVault = () => {
   const { user } = useAuth();
@@ -382,7 +475,12 @@ const SemesterVault = () => {
                             {/* Subject Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                               {subjects.map(subject => (
-                                <SubjectCard key={subject.id} subject={subject} />
+                                <SubjectCard 
+                                  key={subject.id} 
+                                  subject={subject} 
+                                  userId={user!.id}
+                                  profile={profile!}
+                                />
                               ))}
                               
                               {/* Add Subject Card */}
