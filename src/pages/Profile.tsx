@@ -4,9 +4,12 @@ import { useAuth } from '../contexts/AuthContext.tsx';
 import { db } from '../services/firebase/config.ts';
 import { doc, updateDoc } from 'firebase/firestore';
 import { logoutUser } from '../services/auth/authService.ts';
-import { Card } from '../components/ui/Card.tsx';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card.tsx';
 import { Button } from '../components/ui/Button.tsx';
 import { Input } from '../components/ui/Input.tsx';
+import { Badge } from '../components/ui/Badge.tsx';
+import { ApisInfoRow } from '../components/apis/ApisInfoRow.tsx';
+import { ApisSectionHeader } from '../components/apis/ApisSectionHeader.tsx';
 import { 
   User, Shield, Key, Bell, Camera, Save, LogOut,
   Eye, EyeOff, CheckCircle2, AlertTriangle, Lock,
@@ -162,20 +165,18 @@ const Profile = () => {
             <p className="text-sm text-muted-foreground mt-1">{user?.email || 'authenticated@edu.com'}</p>
             
             <div className="mt-6 w-full pt-6 border-t border-white/5 space-y-3">
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Account Status</span>
-                <span className="text-green-400 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" /> Active
-                </span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Security Level</span>
-                <span className="text-primary font-bold">Enterprise</span>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">AI Access</span>
-                <span className="text-amber-400 font-bold">Pro</span>
-              </div>
+              <ApisInfoRow 
+                label="Account Status" 
+                value={<span className="text-green-400 flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5" /> Active</span>} 
+              />
+              <ApisInfoRow 
+                label="Security Level" 
+                value={<span className="text-primary">Enterprise</span>} 
+              />
+              <ApisInfoRow 
+                label="AI Access" 
+                value={<span className="text-amber-400">Pro</span>} 
+              />
             </div>
 
             <Button
@@ -197,7 +198,7 @@ const Profile = () => {
                   if (tab.id === 'activity') fetchLogs();
                 }}
                 className={cn(
-                  'w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold border border-transparent transition-all duration-200',
+                  'w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold border border-transparent transition-all duration-200 active:scale-[0.98]',
                   activeTab === tab.id
                     ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_4px_12px_rgba(139,92,246,0.1)]'
                     : 'text-muted-foreground hover:bg-white/[0.04] hover:border-white/[0.08] hover:text-foreground hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]'
@@ -291,9 +292,13 @@ const Profile = () => {
                 className="space-y-6"
               >
                 <Card>
-                  <h3 className="text-lg font-black mb-2">Privacy & Data</h3>
-                  <p className="text-sm text-muted-foreground mb-6">Control how your academic data is stored and shared.</p>
-                  <div className="space-y-4">
+                  <CardHeader className="p-0 mb-6 border-l-0 pl-0 -ml-0">
+                    <CardTitle className="text-lg font-black mb-2 text-hover-premium hover-active underline-reveal">Privacy & Data</CardTitle>
+                    <CardDescription className="text-sm text-muted-foreground mb-6">Control how your academic data is stored and shared.</CardDescription>
+                  </CardHeader>
+                  
+                  <CardContent className="p-0">
+                    <div className="space-y-4">
                     {[
                       { label: 'Share analytics with institution', desc: 'Allows your university to view anonymized performance data.', enabled: false },
                       { label: 'AI data training opt-in', desc: 'Help improve APIS AI by allowing anonymized data usage.', enabled: true },
@@ -316,6 +321,7 @@ const Profile = () => {
                       </div>
                     ))}
                   </div>
+                  </CardContent>
                 </Card>
                 <Card>
                   <div className="flex items-center gap-3 mb-4">
@@ -405,7 +411,7 @@ const Profile = () => {
                         </div>
                       )}
                     </div>
-                    <Button className="w-full rounded-2xl" disabled={!currentPass || newPass.length < 8}>
+                    <Button variant="default" className="w-full rounded-2xl" disabled={!currentPass || newPass.length < 8}>
                       Update Password
                     </Button>
                   </div>
@@ -414,7 +420,7 @@ const Profile = () => {
                   <div className="flex items-center gap-3 mb-4">
                     <Smartphone className="w-5 h-5 text-amber-400" />
                     <h3 className="font-black">Two-Factor Authentication</h3>
-                    <span className="ml-auto text-xs font-bold px-2 py-1 rounded-full bg-green-400/10 text-green-400">Active</span>
+                    <Badge variant="success" className="ml-auto">Active</Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">2FA is enforced on your Google Cloud account, protecting your Firebase project and this application.</p>
                 </Card>
@@ -432,20 +438,23 @@ const Profile = () => {
                 className="space-y-6"
               >
                 <Card>
-                  <div className="flex items-center justify-between mb-8">
-                    <div>
-                      <h3 className="text-lg font-black">System Interaction History</h3>
-                      <p className="text-sm text-muted-foreground mt-1">Audit trail of all modifications to your academic record</p>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={fetchLogs} 
-                      className="rounded-xl border border-white/5"
-                    >
-                      <Clock className="w-4 h-4 mr-2" /> Refresh
-                    </Button>
-                  </div>
+                  <ApisSectionHeader
+                    title="System Interaction History"
+                    description="Audit trail of all modifications to your academic record"
+                    titleClassName="text-lg"
+                    descriptionClassName="mt-1"
+                    className="mb-8"
+                    rightAction={
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={fetchLogs} 
+                        className="rounded-xl border border-white/5"
+                      >
+                        <Clock className="w-4 h-4 mr-2" /> Refresh
+                      </Button>
+                    }
+                  />
 
                   {logsLoading ? (
                     <div className="space-y-4">

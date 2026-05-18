@@ -5,7 +5,11 @@ import { HeroSection } from '../components/onboarding/HeroSection.tsx';
 import { AcademicSetup } from '../components/onboarding/AcademicSetup.tsx';
 import { subscribeToAcademicProfile, getAcademicProfile } from '../services/academic/semesterService.ts';
 import { subscribeToMarks, type MarkRecord } from '../services/marks/marksService.ts';
-import { StatsCard, Card } from '../components/ui/Card.tsx';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card.tsx';
+import { Badge } from '../components/ui/Badge.tsx';
+import { ApisMetricCard } from '../components/apis/ApisMetricCard.tsx';
+import { ApisActionButton } from '../components/apis/ApisActionButton.tsx';
+import { ApisSectionHeader } from '../components/apis/ApisSectionHeader.tsx';
 import { 
   GraduationCap, 
   BookOpen, 
@@ -281,28 +285,28 @@ const Dashboard = () => {
   return (
     <div className="relative gpu-accelerated" style={{ contain: 'paint' }}>
       {/* Scrollable Container */}
-      <div className="space-y-10 relative z-10 pb-32">
+      <div className="space-y-8 relative z-10 pb-32">
         
         {/* Cinematic Hero */}
         <HeroSection />
 
-        <div className="space-y-10 px-4 md:px-0">
+        <div className="space-y-8 px-4 md:px-0">
           {/* Legacy Empty State Hook / Quick Start */}
           {marks.length === 0 && (
-            <Card className="p-8 border-primary/20 bg-primary/5 text-center">
+            <Card className="p-8 border-primary/20 bg-primary/5 text-center hover:border-primary/40 transition-colors duration-300">
               <BrainCircuit className="w-12 h-12 text-primary mx-auto mb-4" />
               <h3 className="text-2xl font-bold mb-2">Initialize Your Intelligence</h3>
               <p className="text-muted-foreground mb-6 max-w-md mx-auto">
                 Your semester vault is empty. Upload your academic documents or enter data manually to activate the SGPA intelligence engine.
               </p>
-              <Button onClick={() => navigate('/upload')} className="px-8 neural-glow">
+              <Button variant="default" onClick={() => navigate('/upload')} className="px-8 neural-glow">
                 Initialize First Semester <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             </Card>
           )}
 
           {/* AI Synopsis */}
-          <Card className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20">
+          <Card className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20 hover:-translate-y-0.5 transition-transform duration-300">
             <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none" style={{ opacity: 'calc(0.1 * var(--glow-opacity))' }}>
               <Sparkles className="w-32 h-32 text-primary animate-pulse" />
             </div>
@@ -316,7 +320,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-3 mb-2">
                   <h2 className="text-2xl font-black tracking-tight text-hover-premium hover-active underline-reveal">Neural Synopsis</h2>
                   {tipLoading && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
-                  {!tipLoading && <span className="px-3 py-1 text-[10px] font-black uppercase tracking-[0.2em] bg-primary/20 text-primary rounded-full">Live</span>}
+                  {!tipLoading && <Badge variant="default">Live</Badge>}
                 </div>
                 
                 <p className="text-muted-foreground text-lg leading-relaxed font-bold italic">
@@ -338,28 +342,28 @@ const Dashboard = () => {
 
           {/* KPI Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <StatsCard 
+            <ApisMetricCard 
               label="Current SGPA" 
               value={gpa > 0 ? gpa.toFixed(2) : '—'}
               subtext={marks.length > 0 ? `Based on ${marks.length} evaluations` : 'Awaiting data'}
               icon={Trophy}
               color="primary"
             />
-            <StatsCard 
+            <ApisMetricCard 
               label="Credits Earned" 
               value="0"
               subtext="Legacy Migration Mode"
               icon={Target}
               color="secondary"
             />
-            <StatsCard 
+            <ApisMetricCard 
               label="Average Attendance" 
               value={`${overallAttendance.toFixed(1)}%`}
               subtext={overallAttendance < 75 ? 'Critical Warning' : 'Optimal'}
               icon={Clock}
               color={overallAttendance < 75 ? 'danger' : 'success'}
             />
-            <StatsCard 
+            <ApisMetricCard 
               label="Pending Intelligence" 
               value={pendingAssignments.length.toString()}
               subtext="Assignments & Tasks"
@@ -371,16 +375,19 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Trajectory */}
             <div className="lg:col-span-2">
-              <Card className="h-full min-h-[400px] flex flex-col p-6">
-                <div className="flex items-center justify-between mb-8">
-                  <div>
-                    <h3 className="text-xl font-black tracking-tight mb-1 text-hover-premium hover-active underline-reveal">Performance Trajectory</h3>
-                    <p className="text-sm text-muted-foreground font-black uppercase tracking-widest">Historical vectors and simulated projections</p>
-                  </div>
-                  <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                    <TrendingUp className="w-5 h-5" />
-                  </div>
-                </div>
+              <Card className="h-full min-h-[400px] flex flex-col p-6 hover:-translate-y-0.5 transition-transform duration-300">
+                <ApisSectionHeader
+                  title="Performance Trajectory"
+                  description="Historical vectors and simulated projections"
+                  titleClassName="text-xl tracking-tight mb-1"
+                  descriptionClassName="font-black uppercase tracking-widest"
+                  className="mb-8"
+                  rightAction={
+                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
+                      <TrendingUp className="w-5 h-5" />
+                    </div>
+                  }
+                />
                 
                 <div className="flex-1 w-full h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
@@ -436,56 +443,41 @@ const Dashboard = () => {
 
             {/* Smart Navigation Hub */}
             <div className="space-y-6">
-              <Card className="bg-gradient-to-br from-card to-card/50">
-                <div className="mb-6">
-                  <h3 className="text-xl font-black tracking-tight mb-1 text-hover-premium hover-active underline-reveal">Command Center</h3>
-                  <p className="text-sm text-muted-foreground font-black uppercase tracking-widest">Quick access modules</p>
-                </div>
+              <Card className="bg-gradient-to-br from-card to-card/50 hover:-translate-y-0.5 transition-transform duration-300">
+                <CardHeader className="p-0 mb-6 border-l-0 pl-0 -ml-0">
+                  <CardTitle className="text-xl font-black tracking-tight mb-1 text-hover-premium hover-active underline-reveal">Command Center</CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground font-black uppercase tracking-widest">Quick access modules</CardDescription>
+                </CardHeader>
                 
-                <div className="space-y-3">
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between h-14 bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
+                <CardContent className="p-0">
+                  <div className="space-y-3">
+                  <ApisActionButton 
+                    icon={GraduationCap}
+                    label="Upload Center"
+                    iconClassName="text-primary"
                     onClick={() => navigate('/upload')}
-                  >
-                    <div className="flex items-center gap-3">
-                      <GraduationCap className="w-5 h-5 text-primary" />
-                      <span className="font-semibold">Upload Center</span>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                  </Button>
+                  />
                   
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between h-14 bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
+                  <ApisActionButton 
+                    icon={BookOpen}
+                    label="Assignments"
+                    iconClassName="text-secondary"
                     onClick={() => navigate('/assignments')}
-                  >
-                    <div className="flex items-center gap-3">
-                      <BookOpen className="w-5 h-5 text-secondary" />
-                      <span className="font-semibold">Assignments</span>
-                    </div>
-                    <div className="flex items-center gap-3">
-                      {pendingAssignments.length > 0 && (
-                        <span className="bg-rose-500/20 text-rose-400 text-xs font-bold px-2 py-1 rounded-full">
-                          {pendingAssignments.length}
-                        </span>
-                      )}
-                      <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                    </div>
-                  </Button>
+                    badge={pendingAssignments.length > 0 && (
+                      <Badge variant="destructive">
+                        {pendingAssignments.length}
+                      </Badge>
+                    )}
+                  />
 
-                  <Button 
-                    variant="outline" 
-                    className="w-full justify-between h-14 bg-white/5 border-white/10 hover:bg-white/10 hover:border-white/20"
+                  <ApisActionButton 
+                    icon={ShieldAlert}
+                    label="Attendance Vault"
+                    iconClassName="text-amber-400"
                     onClick={() => navigate('/attendance')}
-                  >
-                    <div className="flex items-center gap-3">
-                      <ShieldAlert className="w-5 h-5 text-amber-400" />
-                      <span className="font-semibold">Attendance Vault</span>
-                    </div>
-                    <ArrowRight className="w-4 h-4 text-muted-foreground" />
-                  </Button>
+                  />
                 </div>
+                </CardContent>
               </Card>
 
               {/* Academic Health Snapshot — Backup Nudge & Secured State */}

@@ -115,7 +115,7 @@ const MoreMenu = () => {
       <button
         onClick={() => setOpen(prev => !prev)}
         className={cn(
-          "relative px-4 py-2 rounded-full flex items-center gap-2 text-sm font-black tracking-widest uppercase transition-all duration-500",
+          "relative px-4 py-2 rounded-full flex items-center gap-2 text-sm font-black tracking-widest uppercase transition-all duration-500 active:scale-[0.98]",
           "text-hover-premium underline-reveal",
           isActive || open ? "text-white" : "text-white/40"
         )}
