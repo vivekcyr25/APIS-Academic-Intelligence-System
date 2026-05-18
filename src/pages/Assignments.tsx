@@ -204,13 +204,14 @@ const Assignments = () => {
                         <button 
                           onClick={() => toggleStatus(assignment.id, assignment.status)}
                           className={cn(
-                            "w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all",
+                            "w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all duration-300",
                             assignment.status === 'submitted' 
-                              ? "bg-green-500 border-green-500 text-white" 
-                              : "border-white/20 hover:border-primary text-transparent"
+                              ? "bg-green-500 border-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]" 
+                              : "border-white/20 text-white/10 hover:border-primary hover:text-primary hover:bg-primary/10"
                           )}
+                          title={assignment.status === 'submitted' ? "Mark as Pending" : "Mark as Complete"}
                         >
-                          <CheckCircle2 className="w-4 h-4 text-inherit" />
+                          <CheckCircle2 className="w-5 h-5 text-inherit" />
                         </button>
                         
                         <button 
@@ -284,7 +285,6 @@ const Assignments = () => {
             </div>
           </Card>
         </div>
-      </div>
       </div>
 
       <Modal 

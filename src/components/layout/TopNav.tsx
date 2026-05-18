@@ -41,28 +41,50 @@ const NavLink = memo(({ item }: { item: NavItem }) => {
       className={cn(
         "relative px-4 py-2 rounded-full group flex items-center gap-2 text-sm font-black tracking-wide transition-all duration-300",
         "text-hover-premium underline-reveal",
-        isActive ? "text-white hover-active" : "text-white/40 hover-active"
+        isActive ? "text-white" : "text-white/40 hover:text-white/80"
       )}
     >
+      {/* Active Pill (Liquid Glass) */}
       {isActive && (
         <motion.div
           layoutId="active-pill"
-          className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/[0.12] gpu-accelerated"
+          className="absolute inset-0 rounded-full border border-white/[0.14] gpu-accelerated shadow-[0_10px_28px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.12)]"
           style={{ 
-            backdropFilter: 'blur(var(--blur-md))',
-            WebkitBackdropFilter: 'blur(var(--blur-md))'
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.035))',
+            backdropFilter: 'blur(18px)',
+            WebkitBackdropFilter: 'blur(18px)'
           }}
           transition={{ type: 'spring', stiffness: 380, damping: 38 }}
         />
       )}
+      
+      {/* Hover Pill (Subtle Liquid Glass for inactive tabs) */}
+      {!isActive && (
+        <motion.div
+          className="absolute inset-0 rounded-full border border-white/[0.08] opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
+          style={{ 
+            background: 'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
+            backdropFilter: 'blur(8px)',
+            WebkitBackdropFilter: 'blur(8px)'
+          }}
+        />
+      )}
+
       <span className="relative z-10 flex items-center gap-2">
         <Icon className={cn("w-4 h-4 transition-transform group-hover:scale-110", isActive ? "text-primary" : "text-inherit")} />
         <span className="hidden md:block">{item.label}</span>
+        {isActive && (
+          <motion.span 
+            layoutId="active-dot"
+            className="w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.6)]" 
+            transition={{ type: 'spring', stiffness: 380, damping: 38 }}
+          />
+        )}
       </span>
       {isActive && (
         <motion.div
           layoutId="active-glow"
-          className="absolute bottom-[-2px] left-1/2 -translate-x-1/2 w-1/2 h-px bg-gradient-to-r from-transparent via-primary/60 to-transparent"
+          className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-violet-400/50 to-transparent blur-md"
           transition={{ type: 'spring', stiffness: 380, damping: 38 }}
         />
       )}
@@ -94,21 +116,36 @@ const MoreMenu = () => {
         onClick={() => setOpen(prev => !prev)}
         className={cn(
           "relative px-4 py-2 rounded-full flex items-center gap-2 text-sm font-black tracking-widest uppercase transition-all duration-500",
-          "text-hover-premium hover-active underline-reveal",
+          "text-hover-premium underline-reveal",
           isActive || open ? "text-white" : "text-white/40"
         )}
       >
+        {/* Active Pill (Liquid Glass) */}
         {(isActive || open) && (
           <motion.div
             layoutId="active-pill"
-            className="absolute inset-0 rounded-full bg-white/[0.08] border border-white/[0.12] gpu-accelerated"
+            className="absolute inset-0 rounded-full border border-white/[0.14] gpu-accelerated shadow-[0_10px_28px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.12)]"
             style={{ 
-              backdropFilter: 'blur(var(--blur-md))',
-              WebkitBackdropFilter: 'blur(var(--blur-md))'
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.035))',
+              backdropFilter: 'blur(18px)',
+              WebkitBackdropFilter: 'blur(18px)'
             }}
             transition={{ type: 'spring', stiffness: 380, damping: 38 }}
           />
         )}
+        
+        {/* Hover Pill (Subtle Liquid Glass for inactive state) */}
+        {!(isActive || open) && (
+          <motion.div
+            className="absolute inset-0 rounded-full border border-white/[0.08] opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
+            style={{ 
+              background: 'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)'
+            }}
+          />
+        )}
+
         <span className="relative z-10 flex items-center gap-2">
           <MoreHorizontal className="w-4 h-4 opacity-60 group-hover:opacity-100 transition-opacity" />
           <span className="hidden md:block">More</span>
@@ -145,15 +182,42 @@ const MoreMenu = () => {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-black transition-all duration-300",
-                      "text-hover-premium hover-active",
-                      isItemActive
-                        ? "bg-white/10 text-white"
-                        : "text-white/50 hover:bg-white/5"
+                      "relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-black transition-all duration-300",
+                      "text-hover-premium",
+                      isItemActive ? "text-white" : "text-white/50 hover:text-white/80"
                     )}
                   >
-                    <item.icon className="w-4 h-4" />
-                    {item.label}
+                    {/* Active Dropdown Pill */}
+                    {isItemActive && (
+                      <motion.div
+                        layoutId="active-dropdown-pill"
+                        className="absolute inset-0 rounded-2xl border border-white/[0.14] gpu-accelerated shadow-[0_10px_28px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.12)]"
+                        style={{ 
+                          background: 'linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.035))',
+                          backdropFilter: 'blur(18px)',
+                          WebkitBackdropFilter: 'blur(18px)'
+                        }}
+                      />
+                    )}
+                    
+                    {/* Hover Pill for dropdown items */}
+                    {!isItemActive && (
+                      <div
+                        className="absolute inset-0 rounded-2xl border border-transparent hover:border-white/[0.08] hover:bg-white/[0.04] transition-all duration-300"
+                        style={{ 
+                          backdropFilter: 'blur(8px)',
+                          WebkitBackdropFilter: 'blur(8px)'
+                        }}
+                      />
+                    )}
+
+                    <span className="relative z-10 flex items-center gap-3 w-full">
+                      <item.icon className="w-4 h-4" />
+                      <span>{item.label}</span>
+                      {isItemActive && (
+                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
+                      )}
+                    </span>
                   </Link>
                 );
               })}
@@ -200,7 +264,7 @@ const ProfileCapsule = memo(() => {
       }}
     >
       {/* Online pulse */}
-      <div className="relative">
+      <div className="relative flex-shrink-0">
         {user?.photoURL && !imgError ? (
           <img
             src={user.photoURL}
@@ -285,7 +349,7 @@ const TopNav = () => {
             <NeuralGradient />
 
             {/* ── Left: Logo ── */}
-            <div className="flex items-center gap-3 pl-2 flex-shrink-0 flex-1 justify-start">
+            <div className="flex items-center gap-3 pl-2 flex-shrink-0 justify-start">
               <motion.div
                 whileHover={{ scale: 1.08, rotate: 5 }}
                 whileTap={{ scale: 0.95 }}
@@ -315,13 +379,13 @@ const TopNav = () => {
             </div>
 
             {/* ── Center: Primary Nav (desktop) ── */}
-            <nav className="hidden md:flex items-center gap-1 flex-1 justify-center">
+            <nav className="hidden md:flex items-center gap-4 flex-1 justify-center">
               {primaryNav.map((item) => <NavLink key={item.path} item={item} />)}
               <MoreMenu />
             </nav>
 
             {/* ── Right: Profile + Logout ── */}
-            <div className="flex items-center gap-2 pr-1 flex-shrink-0 flex-1 justify-end">
+            <div className="flex items-center gap-2 pr-1 flex-shrink-0 justify-end">
               <ProfileCapsule />
               <div className="flex items-center gap-1">
                 <motion.button

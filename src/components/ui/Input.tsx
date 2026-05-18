@@ -27,7 +27,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             className={cn(
               "flex h-12 w-full rounded-2xl border border-white/5 bg-white/5 px-4 py-2 text-sm transition-all duration-300",
               "placeholder:text-muted-foreground/50",
-              "focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary/50 focus:bg-white/10",
+              "focus:outline-none focus:border-primary/50 focus:bg-white/[0.08]",
               "disabled:cursor-not-allowed disabled:opacity-50",
               icon ? "pl-11" : "",
               error ? "border-destructive/50 focus:ring-destructive/50" : "",

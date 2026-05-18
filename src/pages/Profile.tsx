@@ -147,10 +147,10 @@ const Profile = () => {
                   src={user.photoURL}
                   alt={user?.name || 'Profile'}
                   referrerPolicy="no-referrer"
-                  className="h-32 w-32 rounded-full object-cover border border-purple-500/30 shadow-[0_0_40px_rgba(139,92,246,0.45)] transition-transform hover:scale-105 duration-300"
+                  className="h-32 w-32 rounded-full object-cover border border-purple-500/30 shadow-[0_0_20px_rgba(139,92,246,0.25)] transition-transform hover:scale-105 duration-300"
                 />
               ) : (
-                <div className="h-32 w-32 rounded-full bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center text-4xl font-bold text-white transition-transform hover:scale-105 duration-300 shadow-[0_0_40px_rgba(139,92,246,0.45)]">
+                <div className="h-32 w-32 rounded-full bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center text-4xl font-bold text-white transition-transform hover:scale-105 duration-300 shadow-[0_0_20px_rgba(139,92,246,0.25)]">
                   {user?.name?.charAt(0)?.toUpperCase() || "U"}
                 </div>
               )}
@@ -181,14 +181,14 @@ const Profile = () => {
             <Button
               onClick={handleLogout}
               variant="ghost"
-              className="w-full mt-6 text-rose-400 hover:bg-rose-400/10 hover:text-rose-300 rounded-2xl border border-rose-400/20"
+              className="w-full mt-6 text-rose-400 hover:bg-rose-400/10 hover:text-rose-300 rounded-2xl border border-rose-400/20 active:scale-95 transition-all"
             >
               <LogOut className="w-4 h-4 mr-2" /> Sign Out
             </Button>
           </Card>
 
           {/* Tab Navigation */}
-          <div className="space-y-1">
+          <div className="space-y-2">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
@@ -197,10 +197,10 @@ const Profile = () => {
                   if (tab.id === 'activity') fetchLogs();
                 }}
                 className={cn(
-                  'w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold transition-all duration-200',
+                  'w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold border border-transparent transition-all duration-200',
                   activeTab === tab.id
-                    ? 'bg-primary/10 text-primary border border-primary/20 shadow-[0_0_15px_rgba(139,92,246,0.1)]'
-                    : 'text-muted-foreground hover:bg-white/5 hover:text-foreground'
+                    ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_4px_12px_rgba(139,92,246,0.1)]'
+                    : 'text-muted-foreground hover:bg-white/[0.04] hover:border-white/[0.08] hover:text-foreground hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]'
                 )}
               >
                 <tab.icon className="w-4 h-4" />
@@ -363,7 +363,7 @@ const Profile = () => {
                           value={currentPass}
                           onChange={(e) => setCurrentPass(e.target.value)}
                           placeholder="Enter current password"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 pr-12"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-primary/50 focus:bg-white/[0.08] pr-12 transition-all duration-300"
                         />
                         <button
                           type="button"
@@ -382,7 +382,7 @@ const Profile = () => {
                           value={newPass}
                           onChange={(e) => setNewPass(e.target.value)}
                           placeholder="Enter new password (min 8 chars)"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50 pr-12"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl px-4 py-3 text-sm focus:outline-none focus:border-primary/50 focus:bg-white/[0.08] pr-12 transition-all duration-300"
                         />
                         <button
                           type="button"
@@ -454,10 +454,10 @@ const Profile = () => {
                       ))}
                     </div>
                   ) : logs.length > 0 ? (
-                    <div className="relative space-y-4">
+                    <div className="relative space-y-5">
                       <div className="absolute left-[27px] top-4 bottom-4 w-0.5 bg-white/5" />
                       {logs.map((log) => (
-                        <div key={log.id} className="relative flex items-start gap-4 p-4 rounded-2xl bg-white/3 border border-white/5 group hover:bg-white/5 transition-all">
+                        <div key={log.id} className="relative flex items-start gap-5 p-4 rounded-2xl bg-white/3 border border-white/5 group hover:bg-white/5 hover:-translate-y-0.5 transition-all duration-300">
                           <div className={cn(
                             "z-10 w-8 h-8 rounded-full flex items-center justify-center shrink-0 shadow-lg",
                             log.action === 'ADD_MARK' ? "bg-green-500/20 text-green-400" :
@@ -479,7 +479,7 @@ const Profile = () => {
                               "{log.details}"
                             </p>
                           </div>
-                          <ChevronRight className="w-4 h-4 text-white/10 group-hover:text-white/30 self-center" />
+                          <ChevronRight className="w-4 h-4 text-white/10 group-hover:text-white/30 self-center transition-colors" />
                         </div>
                       ))}
                     </div>

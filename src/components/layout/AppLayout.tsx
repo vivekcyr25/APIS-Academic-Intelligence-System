@@ -29,7 +29,7 @@ const Footer = () => (
     </div>
 
     <div className="text-[10px] font-black uppercase tracking-[0.3em] text-white/10 hover:text-white/30 transition-all duration-700 cursor-default">
-      RC v1.3.0 • Academic OS
+      RC v1.3.21.0 • Academic OS
     </div>
   </footer>
 );
