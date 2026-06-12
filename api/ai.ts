@@ -5,17 +5,28 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
  * Handles Gemini AI requests without exposing API keys to the client.
  */
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // 0. CORS — Allow GitHub Pages and any frontend to call this function
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Accept');
+
+  // Handle preflight OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   // 1. Diagnostic Logging (Temporary for Stabilization)
   console.log("========== AI ROUTE HEARTBEAT ==========");
   console.log("Timestamp:", new Date().toISOString());
   console.log("Method:", req.method);
   console.log("Environment:", process.env.NODE_ENV || 'development');
-  console.log("Has GEMINI_API_KEY:", !!process.env.GEMINI_API_KEY);
+  console.log("Has GROQ_API_KEY:", !!process.env.GROQ_API_KEY);
   
   // 2. Method Validation
   if (req.method !== 'POST') {
     return res.status(405).json({ success: false, error: 'Method not allowed' });
   }
+
 
   // 3. Secret Verification
   const GROQ_API_KEY = process.env.GROQ_API_KEY;
