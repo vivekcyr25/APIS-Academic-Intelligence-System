@@ -1,5 +1,6 @@
 import { db } from '../firebase/config.ts';
 import { doc, getDoc } from 'firebase/firestore';
+import { getApiBaseUrl } from '../../lib/apiConfig';
 
 export interface SystemStatus {
   firebase: boolean;
@@ -26,7 +27,7 @@ export const checkSystemHealth = async (): Promise<SystemStatus> => {
 
   // Check Groq AI backend health endpoint
   try {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const baseUrl = getApiBaseUrl();
     const res = await fetch(`${baseUrl}/api/health`, {
       method: 'GET',
       signal: AbortSignal.timeout(5000), // 5s timeout

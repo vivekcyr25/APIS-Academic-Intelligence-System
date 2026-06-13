@@ -46,8 +46,8 @@ jobs:
           VITE_SYNCFUSION_LICENSE: ${{ secrets.VITE_SYNCFUSION_LICENSE }}
           # Base path
           VITE_BASE_PATH: /APIS-Academic-Intelligence-System/
-          # Production backend URL (Render)
-          VITE_API_URL: ${{ secrets.VITE_API_URL }}
+          # Production backend URL (public — not a secret)
+          VITE_API_URL: https://apis-academic-intelligence-system.vercel.app
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

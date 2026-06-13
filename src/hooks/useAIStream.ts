@@ -1,4 +1,5 @@
 import { useState, useCallback, useRef } from 'react';
+import { getApiBaseUrl } from '../lib/apiConfig';
 
 interface UseAIStreamOptions {
   onChunk?: (chunk: string) => void;
@@ -22,7 +23,7 @@ export const useAIStream = (options?: UseAIStreamOptions) => {
 
     try {
       // Point to our backend express route. Uses env var for production Render URL
-      const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+      const baseUrl = getApiBaseUrl();
       const endpoint = `${baseUrl}/api/chat-stream`;
 
       const response = await fetch(endpoint, {

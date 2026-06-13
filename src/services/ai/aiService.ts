@@ -1,5 +1,6 @@
 import { createWorker } from 'tesseract.js';
 import { calculateConfidence } from './visionParser';
+import { getApiBaseUrl } from '../../lib/apiConfig';
 
 // Production Throttling: 1 request per 10 seconds for general AI actions
 const AI_THROTTLE_MS = 10000;
@@ -36,7 +37,7 @@ Guidelines:
 5. Always reference the student's actual data when available.`;
 
   try {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const baseUrl = getApiBaseUrl();
     const response = await fetch(`${baseUrl}/api/ai`, {
       method: 'POST',
       headers: { 
@@ -150,7 +151,7 @@ export const processAcademicImage = async (imageFile: File, type: string) => {
       Return ONLY valid JSON.
     `;
 
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const baseUrl = getApiBaseUrl();
     const response = await fetch(`${baseUrl}/api/ai`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -190,7 +191,7 @@ Synthesize this into a beautifully phrased, emotionally intelligent, and encoura
 It should feel like Apple Health or a calm AI. Do NOT use emojis. Keep it extremely premium and calm.`;
 
   try {
-    const baseUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const baseUrl = getApiBaseUrl();
     const response = await fetch(`${baseUrl}/api/ai`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
