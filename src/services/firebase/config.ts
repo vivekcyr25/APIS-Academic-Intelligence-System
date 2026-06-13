@@ -5,23 +5,14 @@ import { getStorage } from 'firebase/storage';
 import { getAnalytics, logEvent } from 'firebase/analytics';
 
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-}
-
-console.log('[Firebase Diagnoser] Config status:', {
-  apiKeyExists: !!firebaseConfig.apiKey,
-  authDomainExists: !!firebaseConfig.authDomain,
-  projectIdExists: !!firebaseConfig.projectId,
-  storageBucketExists: !!firebaseConfig.storageBucket,
-  messagingSenderIdExists: !!firebaseConfig.messagingSenderId,
-  appIdExists: !!firebaseConfig.appId,
-  rawConfig: firebaseConfig // safe to print since these are all public keys in Firebase
-});
+  apiKey: "AIzaSyBzXiQuUXNdaJb_Bg6Kk3VrfEfADc5JBRo",
+  authDomain: "gen-lang-client-0107179257.firebaseapp.com",
+  projectId: "gen-lang-client-0107179257",
+  storageBucket: "gen-lang-client-0107179257.firebasestorage.app",
+  messagingSenderId: "913521921132",
+  appId: "1:913521921132:web:c7cd2fbc77c7ab8957dc49",
+  measurementId: "G-JSWQSRRDXD"
+};
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
