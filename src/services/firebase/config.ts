@@ -13,6 +13,16 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 }
 
+console.log('[Firebase Diagnoser] Config status:', {
+  apiKeyExists: !!firebaseConfig.apiKey,
+  authDomainExists: !!firebaseConfig.authDomain,
+  projectIdExists: !!firebaseConfig.projectId,
+  storageBucketExists: !!firebaseConfig.storageBucket,
+  messagingSenderIdExists: !!firebaseConfig.messagingSenderId,
+  appIdExists: !!firebaseConfig.appId,
+  rawConfig: firebaseConfig // safe to print since these are all public keys in Firebase
+});
+
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
