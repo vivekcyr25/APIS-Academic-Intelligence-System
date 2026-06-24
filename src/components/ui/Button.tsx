@@ -1,16 +1,15 @@
 import { forwardRef } from 'react';
-import { motion } from 'framer-motion';
+import { motion, type HTMLMotionProps } from 'framer-motion';
 import { cn } from '../../lib/utils.ts';
 import { Loader2 } from 'lucide-react';
-import React from 'react';
 
-export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {
   variant?: 'default' | 'primary' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'glass';
   size?: 'default' | 'sm' | 'lg' | 'icon';
   isLoading?: boolean;
 }
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ className, variant = 'default', size = 'default', isLoading, disabled, children, ...props }, ref) => {
     const variants = {
       default: 'bg-primary/90 text-primary-foreground hover:bg-primary shadow-[0_0_20px_rgba(139,92,246,0.15)] border-white/5',

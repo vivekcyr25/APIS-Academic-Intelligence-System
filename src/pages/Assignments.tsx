@@ -30,6 +30,7 @@ import { Modal } from '../components/ui/Modal';
 import { Input } from '../components/ui/Input';
 import { toast } from 'react-hot-toast';
 import { Trash2 } from 'lucide-react';
+import type { AssignmentRecord } from '../types/academic';
 
 const Assignments = () => {
   const { user } = useAuth();

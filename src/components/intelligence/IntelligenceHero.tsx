@@ -12,9 +12,13 @@ interface Props {
 }
 
 export const IntelligenceHero = ({ semesters, memory }: Props) => {
-  if (semesters.length === 0) return null;
-
   const validSems = semesters.filter(s => s.status === 'completed' || s.status === 'active' || s.status === 'archived');
+  const initialSummary = memory
+    ? generateEvolutionSummary(memory.deltas, memory.vectors)
+    : 'Establishing baseline academic memory. Complete more semesters for deeper insights.';
+  const [summaryText, setSummaryText] = useState(initialSummary);
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
+
   if (validSems.length === 0) return null;
 
   let tCredits = 0;
@@ -30,10 +34,6 @@ export const IntelligenceHero = ({ semesters, memory }: Props) => {
   const strongestSem = validSems.reduce((prev, current) => (prev.sgpa > current.sgpa) ? prev : current);
   
   const consistencyScore = memory?.vectors.consistencyScore || 0;
-  const initialSummary = memory ? generateEvolutionSummary(memory.deltas, memory.vectors) : "Establishing baseline academic memory. Complete more semesters for deeper insights.";
-
-  const [summaryText, setSummaryText] = useState(initialSummary);
-  const [isSynthesizing, setIsSynthesizing] = useState(false);
 
   const handleSynthesize = async () => {
     if (!memory) return;
