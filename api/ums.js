@@ -1,8 +1,8 @@
 // api/ums.js — Academic Sync Proxy for LPU UMS
-const axios = require('axios');
-const cheerio = require('cheerio');
+import axios from 'axios';
+import cheerio from 'cheerio';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     // ── CORS ─────────────────────────────────────────────────────────────────
     const allowed = ['http://localhost:5173', 'https://vivekcyr25.github.io'];
     const origin = req.headers.origin || '';

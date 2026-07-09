@@ -107,21 +107,24 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className={cn(
-              "glass-panel rounded-[32px] flex flex-col overflow-hidden transition-all duration-500 mt-6 shadow-[0_0_50px_rgba(37,99,235,0.1)] border-blue-500/20",
+              "rounded-3xl flex flex-col overflow-hidden transition-all duration-500 mt-6",
+              "backdrop-blur-xl border border-white/10 bg-[rgba(11,17,32,0.9)]",
+              "shadow-[0_0_60px_rgba(139,92,246,0.1)]",
               isExpanded ? "h-[800px]" : "h-[500px]"
             )}
           >
             {/* AI Header */}
             <div className="p-8 border-b border-white/5 flex items-center justify-between bg-white/2">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-blue-600/20 flex items-center justify-center text-blue-400 relative">
-                  <Zap className="w-6 h-6 animate-glow-pulse" />
+                <div className="w-12 h-12 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary relative">
+                  <Zap className="w-6 h-6" />
+                  <div className="absolute inset-0 rounded-2xl bg-primary/10 animate-pulse" />
                 </div>
                 <div>
-                  <h3 className="font-black font-heading tracking-tight text-lg text-blue-100">Neural Console</h3>
+                  <h3 className="font-bold font-heading tracking-tight text-lg">Neural Console</h3>
                   <div className="flex items-center gap-2">
-                    <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", error ? "bg-red-400" : "bg-blue-400")} />
-                    <span className={cn("text-[10px] font-black uppercase tracking-[0.2em]", error ? "text-red-400" : "text-blue-400")}>
+                    <div className={cn("w-1.5 h-1.5 rounded-full animate-pulse", error ? "bg-red-400" : "bg-primary")} />
+                    <span className={cn("text-[10px] font-black uppercase tracking-[0.2em] font-mono", error ? "text-red-400" : "text-primary/80")}>
                       {error ? "CONNECTION LOST" : "GROQ V2 ACTIVE"}
                     </span>
                   </div>
@@ -158,16 +161,18 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
                     )}
                   >
                     <div className={cn(
-                      "w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg",
-                      msg.role === 'user' ? "bg-blue-600 text-white" : "bg-white/10 text-blue-400 border border-blue-400/30"
+                      "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg border",
+                      msg.role === 'user'
+                        ? "bg-primary text-white border-primary/50 shadow-[0_0_15px_rgba(139,92,246,0.4)]"
+                        : "bg-white/5 text-primary/80 border-white/10"
                     )}>
-                      {msg.role === 'user' ? <User className="w-5 h-5" /> : <Bot className="w-5 h-5" />}
+                      {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                     </div>
                     <div className={cn(
-                      "max-w-[85%] p-5 rounded-3xl text-sm leading-relaxed relative",
-                      msg.role === 'user' 
-                        ? "bg-blue-600/20 text-foreground rounded-tr-none border border-blue-500/30" 
-                        : "bg-white/5 text-foreground rounded-tl-none border border-white/5"
+                      "max-w-[85%] px-5 py-4 rounded-3xl text-sm leading-relaxed",
+                      msg.role === 'user'
+                        ? "bg-gradient-to-br from-primary/25 to-secondary/15 text-foreground rounded-tr-none border border-primary/25 shadow-[0_4px_20px_rgba(139,92,246,0.1)]"
+                        : "bg-white/5 text-foreground/90 rounded-tl-none border border-white/8"
                     )}>
                       {msg.content.split('\n').map((line, idx) => (
                         <p key={idx} className={line ? "mb-2" : "mb-4"}>{line}</p>
@@ -177,12 +182,12 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
                 );
               })}
               {isStreaming && !text && (
-                <div className="flex gap-4 animate-pulse">
-                  <div className="w-10 h-10 rounded-xl bg-white/10 text-blue-400 flex items-center justify-center">
-                    <Loader2 className="w-5 h-5 animate-spin" />
+                <div className="flex gap-4">
+                  <div className="w-9 h-9 rounded-xl bg-white/5 text-primary border border-white/10 flex items-center justify-center">
+                    <Loader2 className="w-4 h-4 animate-spin" />
                   </div>
-                  <div className="bg-white/5 p-5 rounded-3xl rounded-tl-none border border-white/5">
-                    <span className="text-xs font-black text-blue-400 uppercase tracking-widest">Opening Stream...</span>
+                  <div className="bg-white/5 px-5 py-4 rounded-3xl rounded-tl-none border border-white/8">
+                    <span className="text-xs font-mono text-primary/60 uppercase tracking-widest">Processing vectors...</span>
                   </div>
                 </div>
               )}
@@ -190,26 +195,26 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
 
             {/* Input Node */}
             <div className="p-8 border-t border-white/5 bg-white/2 backdrop-blur-3xl">
-              <div className="relative">
+              <div className="relative flex items-center gap-3">
                 <input
                   type="text"
-                  placeholder="Transmit vectors to Groq Engine..."
+                  placeholder="Ask your academic AI..."
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-                  className="w-full bg-background border border-white/10 rounded-3xl pl-6 pr-16 py-4 text-sm font-medium focus:outline-none focus:ring-4 focus:ring-blue-600/20 focus:border-blue-500/50 transition-all placeholder:text-muted-foreground/30"
+                  className="flex-1 bg-white/5 border border-white/10 rounded-2xl pl-5 pr-16 py-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/40 transition-all placeholder:text-white/20"
                 />
                 <button
                   onClick={isStreaming ? abortStream : handleSend}
                   disabled={(!input.trim() && !isStreaming)}
                   className={cn(
-                    "absolute right-3 top-1/2 -translate-y-1/2 p-3 rounded-2xl shadow-lg transition-all active:scale-95",
-                    isStreaming 
-                      ? "bg-rose-500 hover:bg-rose-600 text-white" 
-                      : "bg-blue-600 hover:bg-blue-500 text-white shadow-blue-600/30 hover:scale-110 disabled:opacity-50 disabled:scale-100"
+                    "absolute right-2 p-3 rounded-xl shadow-lg transition-all active:scale-95",
+                    isStreaming
+                      ? "bg-rose-500 hover:bg-rose-600 text-white shadow-rose-500/30"
+                      : "bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:shadow-[0_0_30px_rgba(139,92,246,0.5)] hover:scale-110 disabled:opacity-30 disabled:scale-100"
                   )}
                 >
-                  {isStreaming ? <Square className="w-5 h-5 fill-current" /> : <Send className="w-5 h-5" />}
+                  {isStreaming ? <Square className="w-4 h-4 fill-current" /> : <Send className="w-4 h-4" />}
                 </button>
               </div>
             </div>

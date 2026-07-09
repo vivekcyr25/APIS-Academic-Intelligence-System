@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -8,7 +8,6 @@ import { Input } from '../components/ui/Input.tsx';
 import { Card } from '../components/ui/Card.tsx';
 import { AuthSuccessTransition } from '../components/auth/AuthSuccessTransition.tsx';
 import { ArrowRight, ShieldCheck, Mail, Lock } from 'lucide-react';
-import { toast } from 'react-hot-toast';
 
 const GoogleIcon = () => (
   <svg viewBox="0 0 24 24" className="w-5 h-5" xmlns="http://www.w3.org/2000/svg">
@@ -30,6 +29,13 @@ const Login = () => {
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState('');
 
+  const handleAuthSuccess = useCallback(() => {
+    setShowSuccess(true);
+    setTimeout(() => {
+      navigate('/dashboard');
+    }, 2200); // Cinematic duration
+  }, [navigate]);
+
   // ── HYDRATION & SUCCESS REDIRECT ──────────────────────────────────────────
   useEffect(() => {
     if (!loading && user && !showSuccess) {
@@ -37,14 +43,7 @@ const Login = () => {
       // To meet "Premium" requirement, we'll trigger the transition
       handleAuthSuccess();
     }
-  }, [loading, user]);
-
-  const handleAuthSuccess = () => {
-    setShowSuccess(true);
-    setTimeout(() => {
-      navigate('/dashboard');
-    }, 2200); // Cinematic duration
-  };
+  }, [handleAuthSuccess, loading, showSuccess, user]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import TopNav from './TopNav.tsx';
 import { NeuralBackground } from './NeuralBackground.tsx';
@@ -36,10 +36,35 @@ const Footer = () => (
 
 export const AppLayout = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   usePerformanceMode(); // Initialize performance engine
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   return (
     <div className="flex flex-col min-h-screen text-foreground relative overflow-hidden" style={{ background: '#06030f' }}>
+      
+      {/* Dynamic Glow */}
+      <div 
+        className="pointer-events-none fixed inset-0 z-0 transition-opacity duration-300"
+        style={{
+          background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(139, 92, 246, 0.05), transparent 40%)`
+        }}
+      />
+      
+      {/* Noise Texture Overlay */}
+      <div 
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.03]"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`
+        }}
+      />
       
       {/* Living cinematic neural environment */}
       <NeuralBackground />

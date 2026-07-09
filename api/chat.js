@@ -1,7 +1,7 @@
 // api/chat.js — Vercel Serverless Proxy for Groq AI
 // CommonJS format for maximum Vercel compatibility
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     // ── CORS ─────────────────────────────────────────────────────────────────
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');

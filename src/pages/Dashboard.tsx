@@ -341,7 +341,12 @@ const Dashboard = () => {
           )}
 
           {/* KPI Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <motion.div 
+            initial="hidden" 
+            animate="show" 
+            variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.15 } } }}
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+          >
             <ApisMetricCard 
               label="Current SGPA" 
               value={gpa > 0 ? gpa.toFixed(2) : '—'}
@@ -370,7 +375,7 @@ const Dashboard = () => {
               icon={BookOpen}
               color="warning"
             />
-          </div>
+          </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main Trajectory */}
@@ -417,13 +422,15 @@ const Dashboard = () => {
                       />
                       <Tooltip 
                         contentStyle={{ 
-                          backgroundColor: 'rgba(0,0,0,0.8)', 
-                          border: '1px solid rgba(255,255,255,0.1)',
-                          borderRadius: '12px',
-                          backdropFilter: 'blur(var(--blur-md))',
-                          WebkitBackdropFilter: 'blur(var(--blur-md))'
+                          backgroundColor: 'rgba(17,25,40,0.85)', 
+                          border: '1px solid rgba(255,255,255,0.15)',
+                          borderRadius: '16px',
+                          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.8)',
+                          backdropFilter: 'blur(12px)',
+                          WebkitBackdropFilter: 'blur(12px)'
                         }}
-                        itemStyle={{ color: '#fff', fontWeight: 'bold' }}
+                        itemStyle={{ color: '#8b5cf6', fontWeight: 'bold' }}
+                        cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2, strokeDasharray: '4 4' }}
                       />
                       <Area 
                         type="monotone" 

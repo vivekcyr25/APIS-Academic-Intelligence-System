@@ -1,8 +1,8 @@
 // api/ums-sync.js — Fortified Neural Extraction with OCR Fallback
-const { GoogleGenerativeAI } = require("@google/generative-ai");
-const Tesseract = require('tesseract.js');
+import { GoogleGenerativeAI } from "@google/generative-ai";
+import Tesseract from 'tesseract.js';
 
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     console.log("[ums-sync-api] Received request at:", new Date().toISOString());
 
     // ── CORS & HEADERS ────────────────────────────────────────────────────────

@@ -221,7 +221,7 @@ const UploadCenter = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Left Col: Input Zone */}
         <div className="space-y-6">
-          <Card className="p-0 overflow-hidden border-primary/20">
+          <div className="overflow-hidden rounded-3xl backdrop-blur-xl border border-white/10 bg-[rgba(17,25,40,0.7)] shadow-2xl">
             <div className="p-6 border-b border-white/5 bg-primary/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary rounded-lg text-white shadow-[0_0_15px_rgba(139,92,246,0.5)]">
@@ -275,20 +275,22 @@ const UploadCenter = () => {
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -10 }}
                     onDragEnter={handleDrag}
-                    onDragLeave={handleDrag}
-                    onDragOver={handleDrag}
-                    onDrop={handleDrop}
-                    className={cn(
-                      "flex flex-col items-center text-center transition-all duration-300 rounded-2xl border-2 border-dashed p-10",
-                      dragActive ? "bg-primary/10 border-primary scale-[0.99]" : "border-white/10",
-                      file ? "py-8" : "py-20"
-                    )}
+                     onDragLeave={handleDrag}
+                     onDragOver={handleDrag}
+                     onDrop={handleDrop}
+                     className={cn(
+                       "flex flex-col items-center text-center transition-all duration-500 rounded-2xl border-2 border-dashed p-10 group cursor-pointer",
+                       dragActive
+                         ? "bg-primary/10 border-primary scale-[0.99] shadow-[0_0_60px_rgba(139,92,246,0.2)]"
+                         : "border-white/10 hover:border-primary/40 hover:bg-primary/5",
+                       file ? "py-8" : "py-20"
+                     )}
                   >
                     {!file ? (
                       <>
-                        <div className="w-20 h-20 rounded-3xl bg-white/5 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-                          <ImageIcon className="w-10 h-10 text-muted-foreground" />
-                        </div>
+                         <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-all duration-500">
+                           <ImageIcon className="w-10 h-10 text-primary/60 group-hover:text-primary transition-colors" />
+                         </div>
                         <h4 className="text-xl font-bold mb-2">Drop academic screenshot here</h4>
                         <p className="text-sm text-muted-foreground mb-8 max-w-xs">
                           Supported: Attendance, CA Marks, Timetables, and PDF Reports
@@ -345,7 +347,7 @@ const UploadCenter = () => {
                 )}
               </AnimatePresence>
             </div>
-          </Card>
+          </div>
         </div>
 
         {/* Right Col: Live Preview & Results Zone */}
@@ -360,7 +362,7 @@ const UploadCenter = () => {
                 exit={{ opacity: 0, x: 20 }}
                 className="space-y-6"
               >
-                <Card className="border-primary/20 bg-primary/5">
+                <div className="overflow-hidden rounded-3xl backdrop-blur-xl border border-primary/20 bg-primary/5 p-6 shadow-[0_0_40px_rgba(139,92,246,0.08)]">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="p-2 bg-primary/20 text-primary rounded-lg">
                       <BrainCircuit className="w-5 h-5" />
@@ -472,7 +474,7 @@ const UploadCenter = () => {
                       )}
                     </Button>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             ) : inputMode === 'ai' && extractedData ? (
               // AI EXTRACTION RESULTS PREVIEW
@@ -483,7 +485,7 @@ const UploadCenter = () => {
                 exit={{ opacity: 0, x: 20 }}
                 className="space-y-6"
               >
-                <Card className="border-green-500/20 bg-green-500/5">
+                <div className="overflow-hidden rounded-3xl backdrop-blur-xl border border-emerald-500/20 bg-emerald-500/5 p-6 shadow-[0_0_40px_rgba(52,211,153,0.08)]">
                   <div className="flex items-center justify-between mb-8">
                     <div className="flex items-center gap-3">
                       <div className="p-2 bg-green-500/20 text-green-400 rounded-lg">
@@ -552,7 +554,7 @@ const UploadCenter = () => {
                       By confirming, you verify that this data is accurate as per your official academic record.
                     </p>
                   </div>
-                </Card>
+                </div>
               </motion.div>
             ) : (
               // EMPTY STATE
@@ -562,7 +564,7 @@ const UploadCenter = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <Card className="h-full min-h-[400px] flex flex-col items-center justify-center text-center p-10 border-dashed border-white/10 bg-transparent">
+                <div className="h-full min-h-[400px] rounded-3xl backdrop-blur-xl border-2 border-dashed border-white/10 bg-[rgba(17,25,40,0.3)] flex flex-col items-center justify-center text-center p-10">
                   <div className="p-4 bg-white/5 rounded-full mb-6">
                     <Sparkles className="w-8 h-8 text-primary/40" />
                   </div>
@@ -572,7 +574,7 @@ const UploadCenter = () => {
                       ? "Upload a file and initialize AI to see structured academic data here."
                       : "Start typing in the manual forms to see live neural projections and validation."}
                   </p>
-                </Card>
+                </div>
               </motion.div>
             )}
           </AnimatePresence>

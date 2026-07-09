@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { X, LogOut, Settings, History, Archive, Activity } from 'lucide-react';
+import { X, LogOut, Settings, History, Archive, Activity, MessageSquare } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import { Button } from '../ui/Button';
 
@@ -25,6 +25,7 @@ export const MobileDrawer = ({ isOpen, onClose }: Props) => {
     { icon: Activity, label: 'Advanced Analytics', path: '/analytics' },
     { icon: History, label: 'Migration Tool', path: '/semester-vault' },
     { icon: Archive, label: 'Archived Semesters', path: '/semester-vault' },
+    { icon: MessageSquare, label: 'LMS', path: '/lms' },
     { icon: Settings, label: 'System Preferences', path: '/profile' },
   ];
 

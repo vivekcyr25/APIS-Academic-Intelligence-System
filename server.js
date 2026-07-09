@@ -12,12 +12,13 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 
-// Safely load the CommonJS API handler
+// Safely load the ES Module API handler
 let umsSyncHandler = null;
 try {
-    umsSyncHandler = require('./api/ums-sync.js');
+    const module = await import('./api/ums-sync.js');
+    umsSyncHandler = module.default;
 } catch (e) {
-    console.error('[server] Failed to load ums-sync.js (CommonJS mismatch). Ignoring for now.');
+    console.error('[server] Failed to load ums-sync.js:', e);
 }
 
 app.post('/api/ums-sync', async (req, res) => {

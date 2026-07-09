@@ -51,7 +51,7 @@ const AttendanceForm = ({ onChange }: { onChange: (data: any) => void }) => {
       subject: formData.subject,
       percentage: attendancePercentage
     });
-  }, [formData]);
+  }, [formData, onChange]);
 
   return (
     <div className="space-y-4">
@@ -139,7 +139,7 @@ const MarksForm = ({ onChange }: { onChange: (data: any) => void }) => {
       subjectType: formData.subjectType,
       faculty: formData.faculty
     });
-  }, [formData]);
+  }, [formData, onChange]);
 
   return (
     <div className="space-y-4">
@@ -237,7 +237,7 @@ const AssignmentForm = ({ onChange }: { onChange: (data: any) => void }) => {
 
   useEffect(() => {
     onChange({ type: 'assignment', ...formData });
-  }, [formData]);
+  }, [formData, onChange]);
 
   return (
     <div className="space-y-4">
@@ -306,7 +306,7 @@ const TimetableForm = ({ onChange }: { onChange: (data: any) => void }) => {
 
   useEffect(() => {
     onChange({ type: 'timetable', ...formData });
-  }, [formData]);
+  }, [formData, onChange]);
 
   return (
     <div className="space-y-4">

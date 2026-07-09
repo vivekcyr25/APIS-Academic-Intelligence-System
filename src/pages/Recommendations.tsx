@@ -29,19 +29,6 @@ const Recommendations = () => {
     return () => unsubscribe();
   }, [user]);
 
-  const generateRoadmap = async () => {
-    if (marks.length === 0) return;
-    setLoading(true);
-    try {
-      const data = await getRoadmapAnalysis(marks);
-      setRoadmap(data);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const generatePlan = async () => {
     setPlanLoading(true);
     setIsPlanModalOpen(true);
@@ -56,9 +43,25 @@ const Recommendations = () => {
   };
 
   useEffect(() => {
-    if (marks.length > 0 && !roadmap && !loading) {
-      generateRoadmap();
-    }
+    if (marks.length === 0) return;
+
+    let cancelled = false;
+    const generateRoadmap = async () => {
+      setLoading(true);
+      try {
+        const data = await getRoadmapAnalysis(marks);
+        if (!cancelled) setRoadmap(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void generateRoadmap();
+    return () => {
+      cancelled = true;
+    };
   }, [marks]);
 
   const weakSubjects = marks.filter(m => m.total < 60);

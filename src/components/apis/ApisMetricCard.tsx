@@ -1,7 +1,7 @@
-import { Card } from '../ui/Card.tsx';
 import { usePerformanceMode } from '../../hooks/usePerformanceMode.ts';
 import { cn } from '../../lib/utils.ts';
 import { memo } from 'react';
+import { motion } from 'framer-motion';
 
 interface ApisMetricCardProps {
   label: string;
@@ -14,45 +14,51 @@ interface ApisMetricCardProps {
 
 export const ApisMetricCard = memo(({ label, value, subtext, icon: Icon, trend, color = "primary" }: ApisMetricCardProps) => {
   const { isLowEnd } = usePerformanceMode();
-  const colors: Record<string, string> = {
-    primary: "text-primary bg-primary/5 hover-active",
-    success: "text-emerald-400 bg-emerald-400/5 hover-success",
-    warning: "text-amber-400 bg-amber-400/5 hover-warning",
-    danger: "text-rose-400 bg-rose-400/5 hover-warning",
-    secondary: "text-secondary bg-secondary/5 hover-active",
-  };
 
   return (
-    <Card className="flex flex-col gap-6 group cursor-default p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(139,92,246,0.1)] hover:border-primary/20">
-      {!isLowEnd && <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/[0.03] rounded-full blur-3xl group-hover:bg-primary/[0.08] transition-all duration-1000" />}
-      <div className="flex items-center justify-between relative z-10">
-        <div className={cn("p-4 rounded-[20px] transition-all duration-700 group-hover:scale-105 shadow-lg shadow-black/20", colors[color], "border border-white/[0.03]")}>
-          <Icon className="w-6 h-6 opacity-80 group-hover:opacity-100 transition-opacity" />
+    <motion.div 
+      whileHover={{ y: -5 }}
+      className={cn(
+        "relative group overflow-hidden rounded-3xl border backdrop-blur-xl p-6 shadow-2xl transition-all duration-500",
+        color === 'primary' ? 'bg-[rgba(17,25,40,0.6)] hover:shadow-[0_0_40px_rgba(139,92,246,0.15)] border-white/10' : 
+        color === 'success' ? 'bg-emerald-500/5 hover:shadow-[0_0_40px_rgba(16,185,129,0.15)] border-emerald-500/20' :
+        color === 'warning' ? 'bg-amber-500/5 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] border-amber-500/20' :
+        color === 'danger' ? 'bg-rose-500/5 hover:shadow-[0_0_40px_rgba(244,63,94,0.15)] border-rose-500/20' :
+        'bg-[rgba(17,25,40,0.6)] hover:shadow-[0_0_40px_rgba(255,255,255,0.05)] border-white/10'
+      )}
+    >
+      <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="flex items-start justify-between relative z-10">
+        <div>
+          <p className="text-[10px] font-medium text-white/50 uppercase tracking-widest">{label}</p>
+          <p className="text-4xl md:text-5xl font-bold mt-2 font-mono tracking-tighter text-white">
+            {value}
+          </p>
         </div>
-        {trend !== undefined && (
-          <span className={cn(
-            "text-[10px] font-black px-4 py-1.5 rounded-full border border-white/[0.03]",
-            trend > 0 ? "text-emerald-400 bg-emerald-400/5" : "text-rose-400 bg-rose-400/5"
-          )}>
-            {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
-          </span>
-        )}
-      </div>
-      <div className="relative z-10 space-y-1">
-        <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] text-hover-premium hover-muted">
-          {label}
-        </p>
-        <h3 className={cn(
-          "text-fluid-4xl font-black tracking-tighter text-hover-premium transition-all duration-700",
-          color === 'primary' ? 'hover-active' : color === 'success' ? 'hover-success' : 'hover-warning'
+        <div className={cn(
+          "w-12 h-12 rounded-2xl flex items-center justify-center border",
+          color === 'primary' ? "bg-primary/20 border-primary/30 text-primary" :
+          color === 'success' ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" :
+          color === 'warning' ? "bg-amber-500/20 border-amber-500/30 text-amber-400" :
+          color === 'danger' ? "bg-rose-500/20 border-rose-500/30 text-rose-400" :
+          "bg-white/10 border-white/20 text-white"
         )}>
-          {value}
-        </h3>
-        {subtext && (
-          <p className="text-xs text-muted-foreground mt-1">{subtext}</p>
-        )}
+          <Icon className="w-6 h-6" />
+        </div>
       </div>
-    </Card>
+      {subtext && (
+        <div className="mt-6 flex flex-col gap-1.5 relative z-10">
+          <span className="text-xs font-semibold text-white/40">{subtext}</span>
+        </div>
+      )}
+      {trend !== undefined && (
+         <div className="mt-4 flex items-center gap-2 text-xs font-semibold relative z-10">
+            <span className={cn("flex items-center justify-center px-2 py-0.5 rounded-full", trend > 0 ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400")}>
+              {trend > 0 ? '+' : ''}{trend}%
+            </span>
+         </div>
+      )}
+    </motion.div>
   );
 });
 

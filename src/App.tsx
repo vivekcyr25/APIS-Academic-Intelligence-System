@@ -19,10 +19,10 @@ const Profile = lazy(() => import('./pages/Profile.tsx'));
 const UploadCenter = lazy(() => import('./pages/UploadCenter.tsx'));
 const Attendance = lazy(() => import('./pages/Attendance.tsx'));
 const Assignments = lazy(() => import('./pages/Assignments.tsx'));
+const LMS = lazy(() => import('./pages/LMS.tsx'));
 const IntelligenceDashboard = lazy(() => import('./pages/IntelligenceDashboard.tsx'));
 const Architecture = lazy(() => import('./pages/Architecture.tsx'));
 const AboutPage = lazy(() => import('./pages/About.tsx'));
-
 // --- LEGAL PAGES ---
 const PrivacyPolicy = lazy(() => import('./pages/legal/PrivacyPolicy.tsx'));
 const TermsOfUse = lazy(() => import('./pages/legal/TermsOfUse.tsx'));
@@ -79,6 +79,7 @@ function App() {
             <Route path="upload" element={<UploadCenter />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="assignments" element={<Assignments />} />
+            <Route path="lms" element={<LMS />} />
             <Route path="semester-vault" element={<SemesterVault />} />
             <Route path="analytics" element={<Navigate to="/academic-intelligence" replace />} />
             <Route path="academic-intelligence" element={<IntelligenceDashboard />} />
@@ -100,4 +101,3 @@ function App() {
 }
 
 export default App;
-

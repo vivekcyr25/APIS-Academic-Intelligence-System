@@ -26,6 +26,7 @@ const secondaryNav: NavItem[] = [
   { icon: Table,        label: 'Semester Vault', path: '/semester-vault'   },
   { icon: Table,        label: 'Attendance',  path: '/attendance'      },
   { icon: ClipboardList,label: 'Assignments', path: '/assignments'     },
+  { icon: MessageSquare, label: 'LMS',         path: '/lms'            },
   { icon: BrainCircuit, label: 'Roadmap',     path: '/recommendations' },
 ];
 

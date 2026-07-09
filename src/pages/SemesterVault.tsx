@@ -129,7 +129,7 @@ const SubjectCard = memo(({ subject, userId, profile }: { subject: Subject, user
   }
 
   return (
-    <div className="p-4 rounded-xl bg-card border border-white/5 hover:border-white/10 transition-colors group relative">
+    <div className="p-4 rounded-3xl bg-[rgba(17,25,40,0.6)] backdrop-blur-xl border border-white/10 hover:border-white/20 hover:shadow-[0_0_30px_rgba(139,92,246,0.1)] transition-all duration-500 group relative">
       <button 
         onClick={() => setIsEditing(true)}
         className="absolute top-2 right-2 p-2 rounded-lg bg-white/0 hover:bg-white/5 text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100"
@@ -152,19 +152,19 @@ const SubjectCard = memo(({ subject, userId, profile }: { subject: Subject, user
       <div className="grid grid-cols-3 gap-2 text-center mb-4">
         <div className="p-2 rounded-lg bg-white/5">
           <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Score</p>
-          <p className="font-black text-sm">{subject.total}</p>
+          <p className="font-mono font-black text-sm">{subject.total}</p>
         </div>
         <div className="p-2 rounded-lg bg-white/5">
           <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Grade</p>
           <p className={cn(
-            "font-black text-sm",
+            "font-mono font-black text-sm",
             subject.grade === 'F' ? "text-rose-400" : "text-primary"
           )}>{subject.grade || '—'}</p>
         </div>
         <div className="p-2 rounded-lg bg-white/5">
           <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-widest mb-1">Att.</p>
           <p className={cn(
-            "font-black text-sm",
+            "font-mono font-black text-sm",
             subject.attendancePercentage < 75 ? "text-amber-400" : "text-white"
           )}>{subject.attendancePercentage}%</p>
         </div>
@@ -326,10 +326,10 @@ const SemesterVault = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: isLowEnd ? 0 : idx * 0.1 }}
             >
-              <Card className={cn(
-                "overflow-hidden transition-all duration-300",
-                sem.status === 'active' && "border-primary/30 shadow-[0_0_30px_rgba(139,92,246,0.1)] bg-card",
-                sem.status === 'completed' && "border-emerald-500/20 shadow-[0_0_20px_rgba(52,211,153,0.05)] bg-card",
+              <div className={cn(
+                "overflow-hidden transition-all duration-500 rounded-3xl backdrop-blur-xl border border-white/10",
+                sem.status === 'active' && "bg-[rgba(17,25,40,0.8)] border-primary/30 shadow-[0_0_40px_rgba(139,92,246,0.15)]",
+                sem.status === 'completed' && "bg-[rgba(17,25,40,0.6)] border-emerald-500/20 shadow-[0_0_20px_rgba(52,211,153,0.05)]",
                 sem.status === 'upcoming' && "border-white/5 bg-black/60 opacity-80 border-dashed",
                 !['active', 'completed', 'upcoming'].includes(sem.status) && "border-white/5 bg-black/40",
                 isExpanded ? "ring-1 ring-white/10" : "hover:border-white/20"
@@ -500,7 +500,7 @@ const SemesterVault = () => {
                     </motion.div>
                   )}
                 </AnimatePresence>
-              </Card>
+              </div>
             </motion.div>
           );
         })}
