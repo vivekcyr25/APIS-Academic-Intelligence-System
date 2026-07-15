@@ -7,7 +7,7 @@ import {
   signOut,
   signInWithEmailAndPassword
 } from 'firebase/auth';
-import { auth, db, firebaseConfig, clearFirebaseCache } from '../services/firebase/config';
+import { auth, db, clearFirebaseCache } from '../services/firebase/config';
 import { doc, onSnapshot } from 'firebase/firestore';
 
 interface UserProfile {
@@ -27,8 +27,6 @@ interface AuthContextType {
   loading: boolean;
   error: string | null;
   loginWithGoogle: () => Promise<void>;
-  loginWithEmail: (email: string, pass: string) => Promise<void>;
-  registerWithEmail: (name: string, regNo: string, email: string, pass: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -56,12 +54,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     if (BYPASS_AUTH) return;
 
-    const savedUser = localStorage.getItem('apis_fallback_user');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-      setLoading(false);
-    }
-
     let unsubscribeProfile: (() => void) | null = null;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
@@ -73,7 +65,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       try {
         if (firebaseUser) {
-          localStorage.removeItem('apis_fallback_user');
           const userRef = doc(db, 'users', firebaseUser.uid);
           unsubscribeProfile = onSnapshot(userRef, (docSnap) => {
             const data = docSnap.exists() ? docSnap.data() : {};
@@ -106,9 +97,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setLoading(false);
           });
         } else {
-          if (!localStorage.getItem('apis_fallback_user')) {
-            setUser(null);
-          }
+          setUser(null);
           setLoading(false);
         }
       } catch (err: any) {
@@ -126,67 +115,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const loginWithGoogle = async () => {
-    if (firebaseConfig.projectId === 'gen-lang-client-0107179257') {
-      console.warn('Placeholder Firebase project detected. Bypassing Google Auth.');
-      const profile: UserProfile = {
-        uid: 'dev-user-id',
-        id: 'dev-user-id',
-        name: 'Scholar',
-        fullName: 'Google Scholar',
-        email: 'google-user@apis.local',
-        photoURL: 'https://api.dicebear.com/7.x/initials/svg?seed=Scholar',
-        onboardingCompleted: true,
-        regNo: 'DEV-2026',
-        lastBackupAt: new Date(),
-      };
-      localStorage.setItem('apis_fallback_user', JSON.stringify(profile));
-      setUser(profile);
-      return;
-    }
-
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
-    } catch (err: any) {
-      if (
-        err.code === 'auth/api-key-not-valid' ||
-        err.code === 'auth/network-request-failed' ||
-        err.message?.includes('API key not valid') ||
-        err.message?.includes('network-request-failed')
-      ) {
-        console.warn('Firebase Google Auth error caught. Using fallback developer session.');
-        const profile: UserProfile = {
-          uid: 'dev-user-id',
-          id: 'dev-user-id',
-          name: 'Scholar',
-          fullName: 'Google Scholar',
-          email: 'google-user@apis.local',
-          photoURL: 'https://api.dicebear.com/7.x/initials/svg?seed=Scholar',
-          onboardingCompleted: true,
-          regNo: 'DEV-2026',
-          lastBackupAt: new Date(),
-        };
-        localStorage.setItem('apis_fallback_user', JSON.stringify(profile));
-        setUser(profile);
-        return;
-      }
-      throw err;
-    }
-  };
-
-  const loginWithEmail = async (email: string, pass: string) => {
-    try {
-      const profile = await loginUser(email, pass);
-      setUser(profile);
-    } catch (err: any) {
-      throw err;
-    }
-  };
-
-  const registerWithEmail = async (name: string, regNo: string, email: string, pass: string) => {
-    try {
-      const profile = await registerUser(name, regNo, email, pass);
-      setUser(profile);
     } catch (err: any) {
       throw err;
     }
@@ -194,20 +125,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const logout = async () => {
     try {
-      localStorage.removeItem('apis_fallback_user');
       await signOut(auth);
       await clearFirebaseCache();
       setUser(null);
       window.location.href = '/login';
     } catch (err: any) {
-      localStorage.removeItem('apis_fallback_user');
-      setUser(null);
-      window.location.href = '/login';
+      throw err;
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, loginWithGoogle, loginWithEmail, registerWithEmail, logout }}>
+    <AuthContext.Provider value={{ user, loading, error, loginWithGoogle, logout }}>
       {children}
     </AuthContext.Provider>
   );
