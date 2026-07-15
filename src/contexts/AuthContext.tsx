@@ -30,21 +30,43 @@ interface AuthContextType {
   logout: () => Promise<void>;
 }
 
+const BYPASS_AUTH = false; // Set to false to restore production Firebase Auth
+
+const devUser: UserProfile = {
+  uid: 'dev-user-id',
+  id: 'dev-user-id',
+  name: 'Developer',
+  fullName: 'Developer User',
+  email: 'developer@apis.local',
+  photoURL: 'https://api.dicebear.com/7.x/initials/svg?seed=Developer',
+  onboardingCompleted: true,
+  regNo: 'DEV-2026',
+  lastBackupAt: new Date(),
+};
+
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<UserProfile | null>(BYPASS_AUTH ? devUser : null);
+  const [loading, setLoading] = useState(!BYPASS_AUTH);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (BYPASS_AUTH) return;
+
+    let unsubscribeProfile: (() => void) | null = null;
+
     const unsubscribeAuth = onAuthStateChanged(auth, async (firebaseUser) => {
+      // Clean up previous profile listener if any
+      if (unsubscribeProfile) {
+        unsubscribeProfile();
+        unsubscribeProfile = null;
+      }
+
       try {
         if (firebaseUser) {
-
-          
           const userRef = doc(db, 'users', firebaseUser.uid);
-          const unsubscribeProfile = onSnapshot(userRef, (docSnap) => {
+          unsubscribeProfile = onSnapshot(userRef, (docSnap) => {
             const data = docSnap.exists() ? docSnap.data() : {};
             
             // Fallback Chain: Firestore Name -> Firebase DisplayName -> Email Prefix -> "Scholar"
@@ -74,8 +96,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           }, (err) => {
             setLoading(false);
           });
-
-          return () => unsubscribeProfile();
         } else {
           setUser(null);
           setLoading(false);
@@ -86,7 +106,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     });
 
-    return () => unsubscribeAuth();
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeProfile) {
+        unsubscribeProfile();
+      }
+    };
   }, []);
 
   const loginWithGoogle = async () => {

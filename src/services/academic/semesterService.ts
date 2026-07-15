@@ -42,6 +42,17 @@ export const subscribeToAcademicProfile = (
   userId: string,
   callback: (profile: AcademicProfile | null) => void
 ) => {
+  if (userId === 'dev-user-id') {
+    callback({
+      userId: 'dev-user-id',
+      domain: 'university',
+      programName: 'B.Tech Computer Science',
+      totalSemesters: 8,
+      currentSemester: 5,
+      onboardingComplete: true
+    });
+    return () => { };
+  }
   const ref = doc(db, 'users', userId, 'profile', 'academic');
   return onSnapshot(ref, (snap) => {
     callback(snap.exists() ? (snap.data() as AcademicProfile) : null);
@@ -89,6 +100,16 @@ export const subscribeToSemesters = (
   userId: string,
   callback: (semesters: Semester[]) => void
 ) => {
+  if (userId === 'dev-user-id') {
+    callback([
+      { id: 'sem-1', userId: 'dev-user-id', number: 1, label: 'Semester 1', status: 'completed', totalCredits: 20, earnedCredits: 20, failedCredits: 0, sgpa: 8.5, avgAttendance: 85 },
+      { id: 'sem-2', userId: 'dev-user-id', number: 2, label: 'Semester 2', status: 'completed', totalCredits: 22, earnedCredits: 22, failedCredits: 0, sgpa: 8.7, avgAttendance: 88 },
+      { id: 'sem-3', userId: 'dev-user-id', number: 3, label: 'Semester 3', status: 'completed', totalCredits: 20, earnedCredits: 20, failedCredits: 0, sgpa: 8.2, avgAttendance: 82 },
+      { id: 'sem-4', userId: 'dev-user-id', number: 4, label: 'Semester 4', status: 'completed', totalCredits: 24, earnedCredits: 24, failedCredits: 0, sgpa: 8.9, avgAttendance: 90 },
+      { id: 'sem-5', userId: 'dev-user-id', number: 5, label: 'Semester 5', status: 'active', totalCredits: 20, earnedCredits: 0, failedCredits: 0, sgpa: 0, avgAttendance: 0 }
+    ]);
+    return () => { };
+  }
   const q = query(
     collection(db, 'users', userId, 'semesters'),
     orderBy('number', 'asc')
@@ -135,10 +156,10 @@ export const subscribeToSubjects = (
 ) => {
   let q = semesterId
     ? query(
-        collection(db, 'users', userId, 'subjects'),
-        where('semesterId', '==', semesterId),
-        orderBy('credits', 'desc')
-      )
+      collection(db, 'users', userId, 'subjects'),
+      where('semesterId', '==', semesterId),
+      orderBy('credits', 'desc')
+    )
     : query(collection(db, 'users', userId, 'subjects'), orderBy('credits', 'desc'));
 
   return onSnapshot(q, (snap) => {

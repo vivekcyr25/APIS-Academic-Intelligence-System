@@ -1,6 +1,6 @@
 // api/ums.js — Academic Sync Proxy for LPU UMS
 import axios from 'axios';
-import cheerio from 'cheerio';
+import * as cheerio from 'cheerio';
 
 export default async function handler(req, res) {
     // ── CORS ─────────────────────────────────────────────────────────────────

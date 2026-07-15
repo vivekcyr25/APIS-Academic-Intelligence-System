@@ -1,11 +1,11 @@
-import { 
-  collection, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  doc, 
-  query, 
-  where, 
+import {
+  collection,
+  addDoc,
+  updateDoc,
+  deleteDoc,
+  doc,
+  query,
+  where,
   onSnapshot,
   serverTimestamp
 } from 'firebase/firestore';
@@ -56,7 +56,7 @@ export const calculateDynamicTotal = (data: Partial<MarkRecord>) => {
   const W_CA2 = 0.20; // 20%
   const W_ASS = 0.10; // 10%
   const W_ETE = 0.50; // 50%
-  
+
   // Example max marks for normalization (assuming standard configuration)
   const MAX_CA = 30;
   const MAX_ASS = 100;
@@ -77,17 +77,17 @@ export const calculateDynamicTotal = (data: Partial<MarkRecord>) => {
 
   // Additional lab/mte could be factored based on subject type, but using a unified normalized total here
   let finalPercentage = normCA1 + normCA2 + normAss + normEte;
-  
+
   // Fallback for custom logic if mte or lab are entered directly without weightages 
   // (In real LPU systems, MTE replaces CA2 or is factored, we'll sum raw and clamp for safety if needed)
   if (finalPercentage === 0 && (data.mte || data.lab)) {
-      const rawTotal = ca1 + ca2 + safeVal(data.mte) + ete + safeVal(data.lab);
-      finalPercentage = (rawTotal / 260) * 100; // rough scale if weightages unused
+    const rawTotal = ca1 + ca2 + safeVal(data.mte) + ete + safeVal(data.lab);
+    finalPercentage = (rawTotal / 260) * 100; // rough scale if weightages unused
   }
 
   // Never exceed 100%
   finalPercentage = Math.min(100, Math.max(0, finalPercentage));
-  
+
   return {
     total: Math.round(finalPercentage), // Store as rounded total out of 100
     percentage: parseFloat(finalPercentage.toFixed(2)),

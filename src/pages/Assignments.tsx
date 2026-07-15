@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  ClipboardList, 
-  Clock, 
-  CheckCircle2, 
+import {
+  ClipboardList,
+  Clock,
+  CheckCircle2,
   AlertCircle,
   BrainCircuit,
   Plus,
@@ -15,14 +15,14 @@ import { Button } from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../services/firebase/config';
 import { cn } from '../lib/utils';
-import { 
-  collection, 
-  query, 
-  onSnapshot, 
-  orderBy, 
-  addDoc, 
-  updateDoc, 
-  doc, 
+import {
+  collection,
+  query,
+  onSnapshot,
+  orderBy,
+  addDoc,
+  updateDoc,
+  doc,
   Timestamp,
   deleteDoc
 } from 'firebase/firestore';
@@ -118,7 +118,7 @@ const Assignments = () => {
           <h1 className="text-4xl font-black font-heading tracking-tight mb-2">Assignment Intelligence</h1>
           <p className="text-muted-foreground font-medium">Priority-ranked task management and deadline vectors</p>
         </div>
-        <Button 
+        <Button
           onClick={() => setIsAddModalOpen(true)}
           className="rounded-2xl h-12 px-6 shadow-[0_0_20px_rgba(139,92,246,0.3)]"
         >
@@ -128,20 +128,20 @@ const Assignments = () => {
 
       {/* KPI Overlays */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatsCard 
-          label="Total Tasks" 
+        <StatsCard
+          label="Total Tasks"
           value={assignments.length}
           icon={ClipboardList}
           color="primary"
         />
-        <StatsCard 
-          label="Pending Intelligence" 
+        <StatsCard
+          label="Pending Intelligence"
           value={pending.length}
           icon={Clock}
           color="warning"
         />
-        <StatsCard 
-          label="Critical Deadlines" 
+        <StatsCard
+          label="Critical Deadlines"
           value={critical.length}
           icon={AlertCircle}
           color="danger"
@@ -155,9 +155,9 @@ const Assignments = () => {
             <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-3">
                 <Search className="w-4 h-4 text-muted-foreground" />
-                <input 
-                  type="text" 
-                  placeholder="Search assignments..." 
+                <input
+                  type="text"
+                  placeholder="Search assignments..."
                   className="bg-transparent border-none outline-none text-sm font-medium w-full"
                 />
               </div>
@@ -200,22 +200,22 @@ const Assignments = () => {
                           {assignment.deadline?.toDate?.().toLocaleDateString() || 'No Date'}
                         </p>
                       </div>
-                      
+
                       <div className="flex items-center gap-2">
-                        <button 
+                        <button
                           onClick={() => toggleStatus(assignment.id, assignment.status)}
                           className={cn(
                             "w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all duration-300",
-                            assignment.status === 'submitted' 
-                              ? "bg-green-500 border-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]" 
+                            assignment.status === 'submitted'
+                              ? "bg-green-500 border-green-500 text-white shadow-[0_0_15px_rgba(34,197,94,0.4)]"
                               : "border-white/20 text-white/10 hover:border-primary hover:text-primary hover:bg-primary/10"
                           )}
                           title={assignment.status === 'submitted' ? "Mark as Pending" : "Mark as Complete"}
                         >
                           <CheckCircle2 className="w-5 h-5 text-inherit" />
                         </button>
-                        
-                        <button 
+
+                        <button
                           onClick={() => handleDelete(assignment.id)}
                           className="p-2 text-muted-foreground hover:text-rose-400 transition-colors"
                         >
@@ -246,7 +246,7 @@ const Assignments = () => {
               </div>
               <h3 className="text-xl font-black font-heading tracking-tight">Priority Matrix</h3>
             </div>
-            
+
             <div className="space-y-4">
               {critical.length > 0 ? (
                 <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/20">
@@ -288,47 +288,47 @@ const Assignments = () => {
         </div>
       </div>
 
-      <Modal 
-        isOpen={isAddModalOpen} 
+      <Modal
+        isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         title="Add New Assignment"
       >
         <form onSubmit={handleAddAssignment} className="space-y-4 pt-4">
-          <Input 
+          <Input
             label="Title"
             placeholder="e.g., Quantum Mechanics Report"
             value={formData.title}
-            onChange={e => setFormData({...formData, title: e.target.value})}
+            onChange={e => setFormData({ ...formData, title: e.target.value })}
             required
           />
           <div className="grid grid-cols-2 gap-4">
-            <Input 
+            <Input
               label="Subject"
               placeholder="PHY101"
               value={formData.subject}
-              onChange={e => setFormData({...formData, subject: e.target.value})}
+              onChange={e => setFormData({ ...formData, subject: e.target.value })}
               required
             />
-            <Input 
+            <Input
               label="Faculty"
               placeholder="Dr. Smith"
               value={formData.faculty}
-              onChange={e => setFormData({...formData, faculty: e.target.value})}
+              onChange={e => setFormData({ ...formData, faculty: e.target.value })}
             />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Input 
+            <Input
               label="Deadline"
               type="date"
               value={formData.deadline}
-              onChange={e => setFormData({...formData, deadline: e.target.value})}
+              onChange={e => setFormData({ ...formData, deadline: e.target.value })}
               required
             />
             <div className="space-y-1.5">
               <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">Priority</label>
-              <select 
+              <select
                 value={formData.priority}
-                onChange={e => setFormData({...formData, priority: e.target.value as any})}
+                onChange={e => setFormData({ ...formData, priority: e.target.value as any })}
                 className="w-full h-11 bg-white/5 border border-white/10 rounded-xl px-4 text-sm outline-none focus:border-primary/50 transition-all"
               >
                 <option value="low">Low</option>

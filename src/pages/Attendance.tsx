@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { 
-  ShieldCheck, 
-  ShieldAlert, 
-  Calendar, 
-  TrendingUp, 
+import {
+  ShieldCheck,
+  ShieldAlert,
+  Calendar,
+  TrendingUp,
   AlertTriangle,
   BrainCircuit,
   Info
@@ -60,20 +60,20 @@ const Attendance = () => {
 
       {/* KPI Overlays */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <StatsCard 
-          label="Cumulative Attendance" 
+        <StatsCard
+          label="Cumulative Attendance"
           value={`${overallAttendance.toFixed(1)}%`}
           icon={TrendingUp}
           color={overallAttendance >= 75 ? 'success' : 'danger'}
         />
-        <StatsCard 
-          label="Subjects at Risk" 
+        <StatsCard
+          label="Subjects at Risk"
           value={lowAttendanceCount}
           icon={ShieldAlert}
           color={lowAttendanceCount > 0 ? 'danger' : 'success'}
         />
-        <StatsCard 
-          label="Minimum Required" 
+        <StatsCard
+          label="Minimum Required"
           value="75%"
           icon={ShieldCheck}
           color="primary"
@@ -110,8 +110,8 @@ const Attendance = () => {
                         <div className={cn(
                           "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-right",
                           record.attendancePercentage >= 85 ? "bg-green-500/10 text-green-400" :
-                          record.attendancePercentage >= 75 ? "bg-amber-500/10 text-amber-400" :
-                          "bg-rose-500/10 text-rose-400"
+                            record.attendancePercentage >= 75 ? "bg-amber-500/10 text-amber-400" :
+                              "bg-rose-500/10 text-rose-400"
                         )}>
                           {record.attendancePercentage >= 85 ? 'Optimized' : record.attendancePercentage >= 75 ? 'Fair' : 'CRITICAL'}
                         </div>
@@ -132,7 +132,7 @@ const Attendance = () => {
 
                   {/* Progress Bar */}
                   <div className="mt-6 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                    <motion.div 
+                    <motion.div
                       initial={{ width: 0 }}
                       animate={{ width: `${record.attendancePercentage}%` }}
                       className={cn(
@@ -163,7 +163,7 @@ const Attendance = () => {
               </div>
               <h3 className="text-xl font-black font-heading tracking-tight">AI Strategy</h3>
             </div>
-            
+
             <div className="space-y-4">
               <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
                 <div className="flex items-center gap-2 mb-2">
@@ -171,7 +171,7 @@ const Attendance = () => {
                   <span className="text-xs font-black uppercase tracking-widest text-amber-400">Recovery Plan</span>
                 </div>
                 <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-                  {lowAttendanceCount > 0 
+                  {lowAttendanceCount > 0
                     ? `You need to attend the next 4 lectures of ${records.find(r => r.attendancePercentage < 75)?.subjectName} to reach 75%.`
                     : "Your attendance vectors are stable. Maintain the current rhythm to optimize performance."}
                 </p>

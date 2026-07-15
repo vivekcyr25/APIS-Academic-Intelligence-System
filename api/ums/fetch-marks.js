@@ -1,4 +1,4 @@
-module.exports = async function handler(req, res) {
+export default async function handler(req, res) {
     const allowed = ['http://localhost:5173', 'https://vivekcyr25.github.io'];
     const origin = req.headers.origin || '';
     res.setHeader('Access-Control-Allow-Origin', allowed.includes(origin) ? origin : 'https://vivekcyr25.github.io');

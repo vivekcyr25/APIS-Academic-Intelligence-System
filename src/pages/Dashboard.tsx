@@ -10,10 +10,10 @@ import { Badge } from '../components/ui/Badge.tsx';
 import { ApisMetricCard } from '../components/apis/ApisMetricCard.tsx';
 import { ApisActionButton } from '../components/apis/ApisActionButton.tsx';
 import { ApisSectionHeader } from '../components/apis/ApisSectionHeader.tsx';
-import { 
-  GraduationCap, 
-  BookOpen, 
-  Trophy, 
+import {
+  GraduationCap,
+  BookOpen,
+  Trophy,
   Target,
   TrendingUp,
   BrainCircuit,
@@ -28,14 +28,14 @@ import {
 } from 'lucide-react';
 import { triggerAcademicBackup } from '../services/backup/backupService';
 import { formatRelativeTime } from '../utils/academicUtils';
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
+import {
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer
 } from 'recharts';
 import { Button } from '../components/ui/Button.tsx';
 import { useNavigate } from 'react-router-dom';
@@ -133,10 +133,10 @@ const Dashboard = () => {
   }, [user, marks.length, showSetup]);
 
   const gpa = calculateGPA(marks);
-  const overallAttendance = attendance.length > 0 
-    ? attendance.reduce((acc, curr) => acc + curr.attendancePercentage, 0) / attendance.length 
+  const overallAttendance = attendance.length > 0
+    ? attendance.reduce((acc, curr) => acc + curr.attendancePercentage, 0) / attendance.length
     : 0;
-  
+
   const pendingAssignments = assignments.filter(a => a.status === 'pending');
 
   const chartData = [
@@ -170,13 +170,13 @@ const Dashboard = () => {
     const now = Date.now();
     const lastBackupDate = lastBackupAt?.toDate ? lastBackupAt.toDate() : new Date(lastBackupAt);
     const daysSinceBackup = lastBackupAt ? (now - lastBackupDate.getTime()) / (1000 * 60 * 60 * 24) : 999;
-    
+
     const isRecentlyBackedUp = daysSinceBackup < 30 || backupSuccess;
 
     return (
       <AnimatePresence mode="wait">
         {!isRecentlyBackedUp ? (
-          <motion.div 
+          <motion.div
             key="nudge"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -192,8 +192,8 @@ const Dashboard = () => {
             <p className="text-xs text-muted-foreground mb-4 leading-relaxed font-bold">
               You haven't backed up your academic memory in {Math.round(daysSinceBackup) > 900 ? 'some time' : `${Math.round(daysSinceBackup)} days`}. Protecting your evolution is our priority.
             </p>
-            <Button 
-              onClick={handleBackup} 
+            <Button
+              onClick={handleBackup}
               disabled={isBackingUp}
               className="w-full h-10 text-xs bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 border border-violet-500/30 flex items-center justify-center gap-2"
             >
@@ -202,7 +202,7 @@ const Dashboard = () => {
             </Button>
           </motion.div>
         ) : (
-          <motion.div 
+          <motion.div
             key="secured"
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -245,14 +245,14 @@ const Dashboard = () => {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background" />
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 1.1 }}
           className="text-center relative z-10"
         >
           <motion.div
-            animate={{ 
+            animate={{
               boxShadow: ["0 0 0 0 rgba(139, 92, 246, 0)", "0 0 0 40px rgba(139, 92, 246, 0)"]
             }}
             transition={{ duration: 1.5, repeat: Infinity }}
@@ -260,7 +260,7 @@ const Dashboard = () => {
           >
             <BrainCircuit className="w-10 h-10 text-primary" />
           </motion.div>
-          <motion.h2 
+          <motion.h2
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -268,7 +268,7 @@ const Dashboard = () => {
           >
             Identity Verified
           </motion.h2>
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
@@ -286,7 +286,7 @@ const Dashboard = () => {
     <div className="relative gpu-accelerated" style={{ contain: 'paint' }}>
       {/* Scrollable Container */}
       <div className="space-y-8 relative z-10 pb-32">
-        
+
         {/* Cinematic Hero */}
         <HeroSection />
 
@@ -310,19 +310,19 @@ const Dashboard = () => {
             <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none" style={{ opacity: 'calc(0.1 * var(--glow-opacity))' }}>
               <Sparkles className="w-32 h-32 text-primary animate-pulse" />
             </div>
-            
+
             <div className="relative z-10 p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
               <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0 neural-glow border border-primary/30">
                 <BrainCircuit className="w-8 h-8 text-primary" />
               </div>
-              
+
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <h2 className="text-2xl font-black tracking-tight text-hover-premium hover-active underline-reveal">Neural Synopsis</h2>
                   {tipLoading && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
                   {!tipLoading && <Badge variant="default">Live</Badge>}
                 </div>
-                
+
                 <p className="text-muted-foreground text-lg leading-relaxed font-bold italic">
                   {aiTip || "Synthesizing academic patterns. Provide more data points for deeper insights."}
                 </p>
@@ -341,35 +341,35 @@ const Dashboard = () => {
           )}
 
           {/* KPI Grid */}
-          <motion.div 
-            initial="hidden" 
-            animate="show" 
+          <motion.div
+            initial="hidden"
+            animate="show"
             variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.15 } } }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
           >
-            <ApisMetricCard 
-              label="Current SGPA" 
+            <ApisMetricCard
+              label="Current SGPA"
               value={gpa > 0 ? gpa.toFixed(2) : '—'}
               subtext={marks.length > 0 ? `Based on ${marks.length} evaluations` : 'Awaiting data'}
               icon={Trophy}
               color="primary"
             />
-            <ApisMetricCard 
-              label="Credits Earned" 
+            <ApisMetricCard
+              label="Credits Earned"
               value="0"
               subtext="Legacy Migration Mode"
               icon={Target}
               color="secondary"
             />
-            <ApisMetricCard 
-              label="Average Attendance" 
+            <ApisMetricCard
+              label="Average Attendance"
               value={`${overallAttendance.toFixed(1)}%`}
               subtext={overallAttendance < 75 ? 'Critical Warning' : 'Optimal'}
               icon={Clock}
               color={overallAttendance < 75 ? 'danger' : 'success'}
             />
-            <ApisMetricCard 
-              label="Pending Intelligence" 
+            <ApisMetricCard
+              label="Pending Intelligence"
               value={pendingAssignments.length.toString()}
               subtext="Assignments & Tasks"
               icon={BookOpen}
@@ -393,36 +393,36 @@ const Dashboard = () => {
                     </div>
                   }
                 />
-                
+
                 <div className="flex-1 w-full h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                       <defs>
                         <linearGradient id="colorGpa" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3}/>
-                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
+                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                      <XAxis 
-                        dataKey="name" 
-                        stroke="rgba(255,255,255,0.4)" 
-                        fontSize={12} 
+                      <XAxis
+                        dataKey="name"
+                        stroke="rgba(255,255,255,0.4)"
+                        fontSize={12}
                         tickLine={false}
                         axisLine={false}
                         dy={10}
                       />
-                      <YAxis 
-                        stroke="rgba(255,255,255,0.4)" 
+                      <YAxis
+                        stroke="rgba(255,255,255,0.4)"
                         fontSize={12}
                         tickLine={false}
                         axisLine={false}
                         domain={[0, 10]}
                         dx={-10}
                       />
-                      <Tooltip 
-                        contentStyle={{ 
-                          backgroundColor: 'rgba(17,25,40,0.85)', 
+                      <Tooltip
+                        contentStyle={{
+                          backgroundColor: 'rgba(17,25,40,0.85)',
                           border: '1px solid rgba(255,255,255,0.15)',
                           borderRadius: '16px',
                           boxShadow: '0 20px 40px -10px rgba(0,0,0,0.8)',
@@ -432,13 +432,13 @@ const Dashboard = () => {
                         itemStyle={{ color: '#8b5cf6', fontWeight: 'bold' }}
                         cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2, strokeDasharray: '4 4' }}
                       />
-                      <Area 
-                        type="monotone" 
-                        dataKey="gpa" 
-                        stroke="#8b5cf6" 
+                      <Area
+                        type="monotone"
+                        dataKey="gpa"
+                        stroke="#8b5cf6"
                         strokeWidth={3}
-                        fillOpacity={1} 
-                        fill="url(#colorGpa)" 
+                        fillOpacity={1}
+                        fill="url(#colorGpa)"
                         isAnimationActive={!isLowEnd}
                         animationDuration={1500}
                       />
@@ -455,35 +455,35 @@ const Dashboard = () => {
                   <CardTitle className="text-xl font-black tracking-tight mb-1 text-hover-premium hover-active underline-reveal">Command Center</CardTitle>
                   <CardDescription className="text-sm text-muted-foreground font-black uppercase tracking-widest">Quick access modules</CardDescription>
                 </CardHeader>
-                
+
                 <CardContent className="p-0">
                   <div className="space-y-3">
-                  <ApisActionButton 
-                    icon={GraduationCap}
-                    label="Upload Center"
-                    iconClassName="text-primary"
-                    onClick={() => navigate('/upload')}
-                  />
-                  
-                  <ApisActionButton 
-                    icon={BookOpen}
-                    label="Assignments"
-                    iconClassName="text-secondary"
-                    onClick={() => navigate('/assignments')}
-                    badge={pendingAssignments.length > 0 && (
-                      <Badge variant="destructive">
-                        {pendingAssignments.length}
-                      </Badge>
-                    )}
-                  />
+                    <ApisActionButton
+                      icon={GraduationCap}
+                      label="Upload Center"
+                      iconClassName="text-primary"
+                      onClick={() => navigate('/upload')}
+                    />
 
-                  <ApisActionButton 
-                    icon={ShieldAlert}
-                    label="Attendance Vault"
-                    iconClassName="text-amber-400"
-                    onClick={() => navigate('/attendance')}
-                  />
-                </div>
+                    <ApisActionButton
+                      icon={BookOpen}
+                      label="Assignments"
+                      iconClassName="text-secondary"
+                      onClick={() => navigate('/assignments')}
+                      badge={pendingAssignments.length > 0 && (
+                        <Badge variant="destructive">
+                          {pendingAssignments.length}
+                        </Badge>
+                      )}
+                    />
+
+                    <ApisActionButton
+                      icon={ShieldAlert}
+                      label="Attendance Vault"
+                      iconClassName="text-amber-400"
+                      onClick={() => navigate('/attendance')}
+                    />
+                  </div>
                 </CardContent>
               </Card>
 
