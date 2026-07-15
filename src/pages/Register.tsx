@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { registerUser, signInWithGoogle, handleGoogleRedirectResult } from '../services/auth/authService.ts';
 import { Button } from '../components/ui/Button.tsx';
 import { Input } from '../components/ui/Input.tsx';
 import { Card } from '../components/ui/Card.tsx';
@@ -18,7 +18,6 @@ const GoogleIcon = () => (
 );
 
 const Register = () => {
-  const { loginWithGoogle, registerWithEmail } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     regNo: '',
@@ -35,7 +34,7 @@ const Register = () => {
     setGoogleLoading(true);
     setError('');
     try {
-      await loginWithGoogle(); // popup flow
+      const profile = await signInWithGoogle(); // popup flow
       navigate('/dashboard');
     } catch (err: any) {
       const technicalMsg = err.code ? ` (${err.code})` : '';
@@ -62,13 +61,13 @@ const Register = () => {
     setLoading(true);
     setError('');
     try {
-      await registerWithEmail(
+      const profile = await registerUser(
         formData.name,
         formData.regNo,
         formData.email,
         formData.password
       );
-      navigate('/dashboard');
+      navigate('/');
     } catch (err: any) {
       setError(err.message || 'Identity initialization failed. Registration error.');
     } finally {

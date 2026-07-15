@@ -4,14 +4,14 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 import { getAnalytics, logEvent } from 'firebase/analytics';
 
-export const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBzXiQuUXNdaJb_Bg6Kk3VrfEfADc5JBRo",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "gen-lang-client-0107179257.firebaseapp.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "gen-lang-client-0107179257",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "gen-lang-client-0107179257.firebasestorage.app",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "913521921132",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:913521921132:web:c7cd2fbc77c7ab8957dc49",
-  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || "G-JSWQSRRDXD"
+const firebaseConfig = {
+  apiKey: "AIzaSyBzXiQuUXNdaJb_Bg6Kk3VrfEfADc5JBRo",
+  authDomain: "gen-lang-client-0107179257.firebaseapp.com",
+  projectId: "gen-lang-client-0107179257",
+  storageBucket: "gen-lang-client-0107179257.firebasestorage.app",
+  messagingSenderId: "913521921132",
+  appId: "1:913521921132:web:c7cd2fbc77c7ab8957dc49",
+  measurementId: "G-JSWQSRRDXD"
 };
 
 // Initialize Firebase
