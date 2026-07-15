@@ -7,7 +7,7 @@ import {
   signOut,
   signInWithEmailAndPassword
 } from 'firebase/auth';
-import { auth, db, clearFirebaseCache } from '../services/firebase/config';
+import { auth, db, firebaseConfig, clearFirebaseCache } from '../services/firebase/config';
 import { doc, onSnapshot } from 'firebase/firestore';
 
 interface UserProfile {
@@ -126,6 +126,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const loginWithGoogle = async () => {
+    if (firebaseConfig.projectId === 'gen-lang-client-0107179257') {
+      console.warn('Placeholder Firebase project detected. Bypassing Google Auth.');
+      const profile: UserProfile = {
+        uid: 'dev-user-id',
+        id: 'dev-user-id',
+        name: 'Scholar',
+        fullName: 'Google Scholar',
+        email: 'google-user@apis.local',
+        photoURL: 'https://api.dicebear.com/7.x/initials/svg?seed=Scholar',
+        onboardingCompleted: true,
+        regNo: 'DEV-2026',
+        lastBackupAt: new Date(),
+      };
+      localStorage.setItem('apis_fallback_user', JSON.stringify(profile));
+      setUser(profile);
+      return;
+    }
+
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
