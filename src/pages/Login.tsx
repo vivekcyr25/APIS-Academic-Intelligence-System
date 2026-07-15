@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { loginUser } from '../services/auth/authService.ts';
 import { Button } from '../components/ui/Button.tsx';
 import { Input } from '../components/ui/Input.tsx';
 import { Card } from '../components/ui/Card.tsx';
@@ -20,7 +19,7 @@ const GoogleIcon = () => (
 
 const Login = () => {
   const navigate = useNavigate();
-  const { user, loading, loginWithGoogle } = useAuth();
+  const { user, loading, loginWithGoogle, loginWithEmail } = useAuth();
   
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,7 +49,7 @@ const Login = () => {
     setIsEmailLoading(true);
     setError('');
     try {
-      await loginUser(email, password);
+      await loginWithEmail(email, password);
       // Redirect logic handled by useEffect + handleAuthSuccess
     } catch (err: any) {
       setError(err.message || 'Verification failed.');
