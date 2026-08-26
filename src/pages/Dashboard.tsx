@@ -3,28 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext.tsx';
 import { HeroSection } from '../components/onboarding/HeroSection.tsx';
 import { AcademicSetup } from '../components/onboarding/AcademicSetup.tsx';
-import { subscribeToAcademicProfile, getAcademicProfile } from '../services/academic/semesterService.ts';
+import { subscribeToAcademicProfile, subscribeToSemesters } from '../services/academic/semesterService.ts';
 import { subscribeToMarks, type MarkRecord } from '../services/marks/marksService.ts';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '../components/ui/Card.tsx';
+import { Card } from '../components/ui/Card.tsx';
 import { Badge } from '../components/ui/Badge.tsx';
-import { ApisMetricCard } from '../components/apis/ApisMetricCard.tsx';
 import { ApisActionButton } from '../components/apis/ApisActionButton.tsx';
 import { ApisSectionHeader } from '../components/apis/ApisSectionHeader.tsx';
 import {
   GraduationCap,
   BookOpen,
-  Trophy,
-  Target,
   TrendingUp,
   BrainCircuit,
   Sparkles,
   ArrowRight,
   ShieldAlert,
-  Clock,
   Loader2,
   CheckCircle2,
   RefreshCcw,
-  ShieldCheck
+  ShieldCheck,
+  Calendar
 } from 'lucide-react';
 import { triggerAcademicBackup } from '../services/backup/backupService';
 import { formatRelativeTime } from '../utils/academicUtils';
@@ -44,17 +41,20 @@ import { calculateGPA } from '../utils/academicUtils.ts';
 import { db } from '../services/firebase/config.ts';
 import { collection, query, onSnapshot, limit } from 'firebase/firestore';
 import type { AttendanceRecord, AssignmentRecord } from '../types/academic';
-import type { AcademicProfile } from '../types/academic-v2';
+import type { AcademicProfile, Semester } from '../types/academic-v2';
 import { usePerformanceMode } from '../hooks/usePerformanceMode';
 import NeuralConsole from '../components/ai/NeuralConsole.tsx';
+import { HowApisWorks } from '../components/dashboard/HowApisWorks.tsx';
+import { AcademicSnapshot } from '../components/dashboard/AcademicSnapshot.tsx';
+import { EmptyState } from '../components/ui/EmptyState.tsx';
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { isLowEnd } = usePerformanceMode();
   const [profile, setProfile] = useState<AcademicProfile | null>(null);
+  const [semesters, setSemesters] = useState<Semester[]>([]);
   const [loadingProfile, setLoadingProfile] = useState(true);
   const [showSetup, setShowSetup] = useState(false);
-  const [verificationComplete, setVerificationComplete] = useState(false);
 
   const [marks, setMarks] = useState<MarkRecord[]>([]);
   const [aiTip, setAiTip] = useState<string>('');
@@ -62,18 +62,18 @@ const Dashboard = () => {
   const [showConsole, setShowConsole] = useState(false);
   const navigate = useNavigate();
 
-  // Legacy state
   const [attendance, setAttendance] = useState<AttendanceRecord[]>([]);
   const [assignments, setAssignments] = useState<AssignmentRecord[]>([]);
 
-  // 1. Profile Initialization & Onboarding Check
+  // 1. Profile Initialization
   useEffect(() => {
     if (!user) return;
     const unsubscribe = subscribeToAcademicProfile(user.id, (data) => {
       setProfile(data);
       if (data && data.onboardingComplete) {
         setShowSetup(false);
-      } else {
+      } else if (data === null) {
+        // First time user with no profile record
         setShowSetup(true);
       }
       setLoadingProfile(false);
@@ -81,24 +81,23 @@ const Dashboard = () => {
     return () => unsubscribe();
   }, [user]);
 
-  // 2. Cinematic Verification Flow
+  // 2. Real Semester Data
   useEffect(() => {
-    if (!loadingProfile && !showSetup) {
-      // Small delay to show verification animation
-      const timer = setTimeout(() => {
-        setVerificationComplete(true);
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [loadingProfile, showSetup]);
+    if (!user || showSetup) return;
+    const unsubscribe = subscribeToSemesters(user.id, (sems) => {
+      setSemesters(sems);
+    });
+    return () => unsubscribe();
+  }, [user, showSetup]);
 
-  // Legacy data fetches (will be migrated to SemesterVault later)
+  // 3. Marks Data
   useEffect(() => {
     if (!user || showSetup) return;
     const unsubscribe = subscribeToMarks(user.id, (data) => setMarks(data));
     return () => unsubscribe();
   }, [user, showSetup]);
 
+  // 4. Attendance
   useEffect(() => {
     if (!user || showSetup) return;
     const q = query(collection(db, 'users', user.id, 'attendance'));
@@ -107,15 +106,16 @@ const Dashboard = () => {
     });
   }, [user, showSetup]);
 
+  // 5. Assignments
   useEffect(() => {
     if (!user || showSetup) return;
-    const q = query(collection(db, 'users', user.id, 'assignment'), limit(5));
+    const q = query(collection(db, 'users', user.id, 'assignment'), limit(10));
     return onSnapshot(q, (snapshot) => {
       setAssignments(snapshot.docs.map(doc => doc.data() as AssignmentRecord));
     });
   }, [user, showSetup]);
 
-  // AI Tip Generation
+  // AI Interpretation Generation
   useEffect(() => {
     const fetchSnapshot = async () => {
       if (!user || marks.length === 0 || showSetup) return;
@@ -135,17 +135,37 @@ const Dashboard = () => {
   const gpa = calculateGPA(marks);
   const overallAttendance = attendance.length > 0
     ? attendance.reduce((acc, curr) => acc + curr.attendancePercentage, 0) / attendance.length
-    : 0;
+    : null;
 
   const pendingAssignments = assignments.filter(a => a.status === 'pending');
 
-  const chartData = [
-    { name: 'Week 1', gpa: 7.2 },
-    { name: 'Week 2', gpa: 7.5 },
-    { name: 'Week 3', gpa: 7.4 },
-    { name: 'Week 4', gpa: 8.1 },
-    { name: 'Current', gpa: gpa || 8.1 },
-  ];
+  // Compute total credits and CGPA across completed/active semesters
+  const validSems = semesters
+    .filter(s => s.status === 'completed' || s.status === 'active' || s.status === 'archived')
+    .sort((a, b) => a.number - b.number);
+
+  let totalCreditsEarned = 0;
+  let totalRegisteredCredits = 0;
+  let cumulativePoints = 0;
+
+  validSems.forEach(s => {
+    if (s.totalCredits > 0) {
+      totalRegisteredCredits += s.totalCredits;
+      totalCreditsEarned += s.earnedCredits || 0;
+      cumulativePoints += (s.sgpa * s.totalCredits);
+    }
+  });
+
+  const computedCGPA = totalRegisteredCredits > 0 ? cumulativePoints / totalRegisteredCredits : null;
+
+  // Real Semester Evolution Chart Data
+  const chartData = validSems
+    .filter(s => s.sgpa > 0)
+    .map(s => ({
+      name: s.label || `Sem ${s.number}`,
+      sgpa: s.sgpa,
+      credits: s.earnedCredits,
+    }));
 
   // ─── Backup Logic ──────────────────────────────────────────
   const [isBackingUp, setIsBackingUp] = useState(false);
@@ -170,7 +190,6 @@ const Dashboard = () => {
     const now = Date.now();
     const lastBackupDate = lastBackupAt?.toDate ? lastBackupAt.toDate() : new Date(lastBackupAt);
     const daysSinceBackup = lastBackupAt ? (now - lastBackupDate.getTime()) / (1000 * 60 * 60 * 24) : 999;
-
     const isRecentlyBackedUp = daysSinceBackup < 30 || backupSuccess;
 
     return (
@@ -178,47 +197,47 @@ const Dashboard = () => {
         {!isRecentlyBackedUp ? (
           <motion.div
             key="nudge"
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="p-5 rounded-2xl bg-violet-500/10 border border-violet-500/20 relative overflow-hidden"
+            exit={{ opacity: 0, scale: 0.98 }}
+            className="p-5 rounded-2xl bg-card border border-white/[0.08] relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <ShieldAlert className="w-16 h-16 text-violet-400" />
+            <div className="flex items-center gap-2 mb-2">
+              <ShieldAlert className="w-4 h-4 text-violet-400" />
+              <h4 className="text-xs font-black text-white/90 uppercase tracking-wider">
+                Academic Memory Backup
+              </h4>
             </div>
-            <h4 className="text-sm font-black text-violet-300 mb-1 flex items-center gap-2 text-hover-premium hover-active">
-              <ShieldAlert className="w-4 h-4" /> Academic Safety Check
-            </h4>
-            <p className="text-xs text-muted-foreground mb-4 leading-relaxed font-bold">
-              You haven't backed up your academic memory in {Math.round(daysSinceBackup) > 900 ? 'some time' : `${Math.round(daysSinceBackup)} days`}. Protecting your evolution is our priority.
+            <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+              Backup your academic records to preserve your longitudinal history and risk models.
             </p>
             <Button
               onClick={handleBackup}
               disabled={isBackingUp}
-              className="w-full h-10 text-xs bg-violet-500/20 hover:bg-violet-500/30 text-violet-300 border border-violet-500/30 flex items-center justify-center gap-2"
+              className="w-full h-9 text-xs bg-white/[0.05] hover:bg-white/[0.1] text-white/80 border border-white/10 flex items-center justify-center gap-2"
             >
-              {isBackingUp ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCcw className="w-4 h-4" />}
-              {isBackingUp ? 'Securing Memory...' : 'Secure Backup Now'}
+              {isBackingUp ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <RefreshCcw className="w-3.5 h-3.5" />}
+              {isBackingUp ? 'Securing Records...' : 'Backup Records Now'}
             </Button>
           </motion.div>
         ) : (
           <motion.div
             key="secured"
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="p-5 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 relative overflow-hidden"
+            className="p-5 rounded-2xl bg-card border border-emerald-500/20 relative overflow-hidden"
           >
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <ShieldCheck className="w-16 h-16 text-emerald-400" />
+            <div className="flex items-center gap-2 mb-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <h4 className="text-xs font-black text-emerald-400 uppercase tracking-wider">
+                Academic Memory Synchronized
+              </h4>
             </div>
-            <h4 className="text-sm font-black text-emerald-400 mb-1 flex items-center gap-2 text-hover-premium hover-success">
-              <CheckCircle2 className="w-4 h-4" /> Academic Memory Secured
-            </h4>
-            <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
-              Your academic evolution is synchronized and protected. Next safety check in {Math.round(30 - daysSinceBackup)} days.
+            <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+              Your academic records are safely stored. Next scheduled check in {Math.max(1, Math.round(30 - daysSinceBackup))} days.
             </p>
-            <div className="flex items-center justify-between text-[10px] font-black uppercase tracking-widest text-emerald-400/60">
-              <span>Last Backup</span>
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-emerald-400/60">
+              <span>Last Snapshot</span>
               <span>{backupSuccess ? 'Just now' : formatRelativeTime(lastBackupAt)}</span>
             </div>
           </motion.div>
@@ -229,268 +248,216 @@ const Dashboard = () => {
 
   if (loadingProfile) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-[50vh] flex items-center justify-center">
+        <Loader2 className="w-7 h-7 animate-spin text-primary" />
       </div>
     );
   }
 
-  // 1. Setup Wizard
+  // Setup Wizard for new users
   if (showSetup) {
     return <AcademicSetup onComplete={() => setShowSetup(false)} />;
   }
 
-  // 2. Verification Animation
-  if (!verificationComplete) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-background">
-        <div className="absolute inset-0 bg-gradient-to-b from-primary/10 via-background to-background" />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 1.1 }}
-          className="text-center relative z-10"
-        >
-          <motion.div
-            animate={{
-              boxShadow: ["0 0 0 0 rgba(139, 92, 246, 0)", "0 0 0 40px rgba(139, 92, 246, 0)"]
-            }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-24 h-24 mx-auto rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center mb-6"
-          >
-            <BrainCircuit className="w-10 h-10 text-primary" />
-          </motion.div>
-          <motion.h2
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="text-2xl font-black uppercase tracking-widest text-primary mb-2"
-          >
-            Identity Verified
-          </motion.h2>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-            className="text-muted-foreground font-medium"
-          >
-            Initializing Academic Intelligence Vault...
-          </motion.p>
-        </motion.div>
-      </div>
-    );
-  }
+  const hasAnyData = marks.length > 0 || validSems.length > 0 || attendance.length > 0;
 
-  // 3. Main Dashboard with Cinematic Scroll Reveal
   return (
-    <div className="relative gpu-accelerated" style={{ contain: 'paint' }}>
-      {/* Scrollable Container */}
-      <div className="space-y-8 relative z-10 pb-32">
+    <div className="relative space-y-10 pb-24">
+      {/* 1. Hero & Product Positioning */}
+      <HeroSection hasData={hasAnyData} />
 
-        {/* Cinematic Hero */}
-        <HeroSection />
+      {/* 2. How APIS Works (Core Architecture Flow) */}
+      <HowApisWorks />
 
-        <div className="space-y-8 px-4 md:px-0">
-          {/* Legacy Empty State Hook / Quick Start */}
-          {marks.length === 0 && (
-            <Card className="p-8 border-primary/20 bg-primary/5 text-center hover:border-primary/40 transition-colors duration-300">
-              <BrainCircuit className="w-12 h-12 text-primary mx-auto mb-4" />
-              <h3 className="text-2xl font-bold mb-2">Initialize Your Intelligence</h3>
-              <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-                Your semester vault is empty. Upload your academic documents or enter data manually to activate the SGPA intelligence engine.
-              </p>
-              <Button variant="default" onClick={() => navigate('/upload')} className="px-8 neural-glow">
-                Initialize First Semester <ArrowRight className="w-4 h-4 ml-2" />
-              </Button>
-            </Card>
-          )}
+      {/* 3. Academic Snapshot (Real Metrics with Provenance) */}
+      <AcademicSnapshot
+        cgpa={computedCGPA}
+        sgpa={gpa > 0 ? gpa : (validSems.length > 0 ? validSems[validSems.length - 1]?.sgpa : null)}
+        attendancePercentage={overallAttendance}
+        creditsEarned={totalCreditsEarned > 0 ? totalCreditsEarned : null}
+        totalCredits={totalRegisteredCredits > 0 ? totalRegisteredCredits : null}
+        marksCount={marks.length}
+        attendanceCount={attendance.length}
+        semestersCount={validSems.length}
+      />
 
-          {/* AI Synopsis */}
-          <Card className="relative overflow-hidden bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border-primary/20 hover:-translate-y-0.5 transition-transform duration-300">
-            <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none" style={{ opacity: 'calc(0.1 * var(--glow-opacity))' }}>
-              <Sparkles className="w-32 h-32 text-primary animate-pulse" />
+      {/* 4. AI Interpretation Section */}
+      <Card className="relative overflow-hidden bg-card/75 border-white/[0.08]">
+        <div className="p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
+          <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 text-violet-400">
+            <Sparkles className="w-6 h-6" />
+          </div>
+
+          <div className="flex-1 space-y-2">
+            <div className="flex flex-wrap items-center gap-3">
+              <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest uppercase">
+                REASONING LAYER
+              </span>
+              <h3 className="font-condensed-heading text-xl sm:text-2xl font-bold text-white tracking-wide">
+                ACADEMIC INTERPRETATION & CONTEXT
+              </h3>
+              {tipLoading && <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />}
+              <span className="provenance-tag font-condensed">
+                Derived from verified records
+              </span>
             </div>
 
-            <div className="relative z-10 p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
-              <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center shrink-0 neural-glow border border-primary/30">
-                <BrainCircuit className="w-8 h-8 text-primary" />
-              </div>
-
-              <div className="flex-1">
-                <div className="flex items-center gap-3 mb-2">
-                  <h2 className="text-2xl font-black tracking-tight text-hover-premium hover-active underline-reveal">Neural Synopsis</h2>
-                  {tipLoading && <Loader2 className="w-4 h-4 text-primary animate-spin" />}
-                  {!tipLoading && <Badge variant="default">Live</Badge>}
-                </div>
-
-                <p className="text-muted-foreground text-lg leading-relaxed font-bold italic">
-                  {aiTip || "Synthesizing academic patterns. Provide more data points for deeper insights."}
-                </p>
-              </div>
-
-              {!isLowEnd && !showConsole && (
-                <Button onClick={() => setShowConsole(true)} className="shrink-0 h-12 px-6 rounded-xl bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]">
-                  Ask AI Assistant <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
+            <p className="font-condensed text-base sm:text-lg text-muted-foreground leading-relaxed font-medium tracking-wide">
+              {aiTip || (
+                marks.length > 0
+                  ? "Analyzing your current mark distributions to highlight trends and workload patterns."
+                  : "Add semester marks and attendance to generate contextual academic insights."
               )}
+            </p>
+          </div>
+
+          {!isLowEnd && !showConsole && (
+            <Button
+              onClick={() => setShowConsole(true)}
+              variant="outline"
+              className="shrink-0 h-11 px-5 rounded-xl border-white/10 hover:border-white/20 font-condensed text-sm font-bold text-white/90 uppercase tracking-wider"
+            >
+              Ask Academic Assistant <ArrowRight className="w-4 h-4 ml-1.5" />
+            </Button>
+          )}
+        </div>
+      </Card>
+
+      {showConsole && (
+        <NeuralConsole isOpen={showConsole} onClose={() => setShowConsole(false)} />
+      )}
+
+      {/* 5. Trajectory & Command Center Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Academic History Graph */}
+        <div className="lg:col-span-2">
+          <Card className="h-full min-h-[380px] flex flex-col p-6 sm:p-7 border-white/[0.08]">
+            <ApisSectionHeader
+              title="ACADEMIC HISTORY"
+              description="Longitudinal SGPA trend across completed semesters"
+              titleClassName="font-condensed-heading text-xl sm:text-2xl font-bold tracking-wide text-white mb-1"
+              descriptionClassName="font-condensed text-sm text-muted-foreground font-medium tracking-wide"
+              className="mb-6"
+              rightAction={
+                <div className="p-2 bg-violet-500/10 rounded-lg text-violet-400 border border-violet-500/20">
+                  <TrendingUp className="w-4 h-4" />
+                </div>
+              }
+            />
+
+            {chartData.length >= 2 ? (
+              <div className="flex-1 w-full h-[260px] mt-2">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                    <defs>
+                      <linearGradient id="colorGpa" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                      </linearGradient>
+                    </defs>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      stroke="rgba(255,255,255,0.4)"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      dy={10}
+                    />
+                    <YAxis
+                      stroke="rgba(255,255,255,0.4)"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                      domain={[0, 10]}
+                      dx={-10}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: 'rgba(10,10,18,0.95)',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '12px',
+                        boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
+                        color: '#fff'
+                      }}
+                      itemStyle={{ color: '#a78bfa', fontWeight: 'bold' }}
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="sgpa"
+                      name="SGPA"
+                      stroke="#8b5cf6"
+                      strokeWidth={2.5}
+                      fillOpacity={1}
+                      fill="url(#colorGpa)"
+                      isAnimationActive={!isLowEnd}
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            ) : (
+              <EmptyState
+                icon={TrendingUp}
+                title="Academic history starts here"
+                description={
+                  chartData.length === 1
+                    ? "You have 1 semester recorded. Add another semester to reveal your longitudinal trajectory."
+                    : "No completed semester records found. Add your semester marks in Semester Vault to visualize your trajectory."
+                }
+                hint="APIS never fabricates historical points — trajectories require at least 2 real semesters."
+                action={
+                  <Button
+                    onClick={() => navigate('/semester-vault')}
+                    variant="outline"
+                    className="h-9 text-xs rounded-xl border-white/10"
+                  >
+                    Go to Semester Vault <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                  </Button>
+                }
+              />
+            )}
+          </Card>
+        </div>
+
+        {/* Quick Access / Workflows */}
+        <div className="space-y-6">
+          <Card className="bg-card/70 border-white/[0.08] p-6">
+            <div className="mb-5">
+              <h3 className="text-base font-bold text-white tracking-tight">Academic Modules</h3>
+              <p className="text-xs text-muted-foreground">Jump directly to your active workspaces</p>
+            </div>
+
+            <div className="space-y-3">
+              <ApisActionButton
+                icon={GraduationCap}
+                label="Semester Vault"
+                iconClassName="text-violet-400"
+                onClick={() => navigate('/semester-vault')}
+              />
+
+              <ApisActionButton
+                icon={BookOpen}
+                label="Assignments & Tasks"
+                iconClassName="text-indigo-400"
+                onClick={() => navigate('/assignments')}
+                badge={pendingAssignments.length > 0 && (
+                  <Badge variant="destructive">
+                    {pendingAssignments.length}
+                  </Badge>
+                )}
+              />
+
+              <ApisActionButton
+                icon={Calendar}
+                label="Attendance Vault"
+                iconClassName="text-emerald-400"
+                onClick={() => navigate('/attendance')}
+              />
             </div>
           </Card>
 
-          {showConsole && (
-            <NeuralConsole isOpen={showConsole} onClose={() => setShowConsole(false)} />
-          )}
-
-          {/* KPI Grid */}
-          <motion.div
-            initial="hidden"
-            animate="show"
-            variants={{ hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.15 } } }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
-          >
-            <ApisMetricCard
-              label="Current SGPA"
-              value={gpa > 0 ? gpa.toFixed(2) : '—'}
-              subtext={marks.length > 0 ? `Based on ${marks.length} evaluations` : 'Awaiting data'}
-              icon={Trophy}
-              color="primary"
-            />
-            <ApisMetricCard
-              label="Credits Earned"
-              value="0"
-              subtext="Legacy Migration Mode"
-              icon={Target}
-              color="secondary"
-            />
-            <ApisMetricCard
-              label="Average Attendance"
-              value={`${overallAttendance.toFixed(1)}%`}
-              subtext={overallAttendance < 75 ? 'Critical Warning' : 'Optimal'}
-              icon={Clock}
-              color={overallAttendance < 75 ? 'danger' : 'success'}
-            />
-            <ApisMetricCard
-              label="Pending Intelligence"
-              value={pendingAssignments.length.toString()}
-              subtext="Assignments & Tasks"
-              icon={BookOpen}
-              color="warning"
-            />
-          </motion.div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Trajectory */}
-            <div className="lg:col-span-2">
-              <Card className="h-full min-h-[400px] flex flex-col p-6 hover:-translate-y-0.5 transition-transform duration-300">
-                <ApisSectionHeader
-                  title="Performance Trajectory"
-                  description="Historical vectors and simulated projections"
-                  titleClassName="text-xl tracking-tight mb-1"
-                  descriptionClassName="font-black uppercase tracking-widest"
-                  className="mb-8"
-                  rightAction={
-                    <div className="p-2 bg-primary/10 rounded-lg text-primary">
-                      <TrendingUp className="w-5 h-5" />
-                    </div>
-                  }
-                />
-
-                <div className="flex-1 w-full h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="colorGpa" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                      <XAxis
-                        dataKey="name"
-                        stroke="rgba(255,255,255,0.4)"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        dy={10}
-                      />
-                      <YAxis
-                        stroke="rgba(255,255,255,0.4)"
-                        fontSize={12}
-                        tickLine={false}
-                        axisLine={false}
-                        domain={[0, 10]}
-                        dx={-10}
-                      />
-                      <Tooltip
-                        contentStyle={{
-                          backgroundColor: 'rgba(17,25,40,0.85)',
-                          border: '1px solid rgba(255,255,255,0.15)',
-                          borderRadius: '16px',
-                          boxShadow: '0 20px 40px -10px rgba(0,0,0,0.8)',
-                          backdropFilter: 'blur(12px)',
-                          WebkitBackdropFilter: 'blur(12px)'
-                        }}
-                        itemStyle={{ color: '#8b5cf6', fontWeight: 'bold' }}
-                        cursor={{ stroke: 'rgba(255,255,255,0.1)', strokeWidth: 2, strokeDasharray: '4 4' }}
-                      />
-                      <Area
-                        type="monotone"
-                        dataKey="gpa"
-                        stroke="#8b5cf6"
-                        strokeWidth={3}
-                        fillOpacity={1}
-                        fill="url(#colorGpa)"
-                        isAnimationActive={!isLowEnd}
-                        animationDuration={1500}
-                      />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </Card>
-            </div>
-
-            {/* Smart Navigation Hub */}
-            <div className="space-y-6">
-              <Card className="bg-gradient-to-br from-card to-card/50 hover:-translate-y-0.5 transition-transform duration-300">
-                <CardHeader className="p-0 mb-6 border-l-0 pl-0 -ml-0">
-                  <CardTitle className="text-xl font-black tracking-tight mb-1 text-hover-premium hover-active underline-reveal">Command Center</CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground font-black uppercase tracking-widest">Quick access modules</CardDescription>
-                </CardHeader>
-
-                <CardContent className="p-0">
-                  <div className="space-y-3">
-                    <ApisActionButton
-                      icon={GraduationCap}
-                      label="Upload Center"
-                      iconClassName="text-primary"
-                      onClick={() => navigate('/upload')}
-                    />
-
-                    <ApisActionButton
-                      icon={BookOpen}
-                      label="Assignments"
-                      iconClassName="text-secondary"
-                      onClick={() => navigate('/assignments')}
-                      badge={pendingAssignments.length > 0 && (
-                        <Badge variant="destructive">
-                          {pendingAssignments.length}
-                        </Badge>
-                      )}
-                    />
-
-                    <ApisActionButton
-                      icon={ShieldAlert}
-                      label="Attendance Vault"
-                      iconClassName="text-amber-400"
-                      onClick={() => navigate('/attendance')}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Academic Health Snapshot — Backup Nudge & Secured State */}
-              <AcademicHealthSnapshot />
-            </div>
-          </div>
+          {/* Academic Memory Backup Status */}
+          <AcademicHealthSnapshot />
         </div>
       </div>
     </div>

@@ -113,14 +113,21 @@ const Assignments = () => {
 
   return (
     <div className="space-y-10">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/[0.08] pb-4">
         <div>
-          <h1 className="text-4xl font-black font-heading tracking-tight mb-2">Assignment Intelligence</h1>
-          <p className="text-muted-foreground font-medium">Priority-ranked task management and deadline vectors</p>
+          <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+            TASK MANAGEMENT
+          </span>
+          <h1 className="font-condensed-heading text-4xl sm:text-5xl font-black tracking-wide text-white mb-2">
+            ASSIGNMENTS & DEADLINES
+          </h1>
+          <p className="font-condensed text-base text-muted-foreground font-medium tracking-wide">
+            Priority-ranked academic deliverables and submission timelines
+          </p>
         </div>
         <Button
           onClick={() => setIsAddModalOpen(true)}
-          className="rounded-2xl h-12 px-6 shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+          className="rounded-2xl h-12 px-6 font-condensed text-sm font-bold uppercase tracking-wider shadow-[0_0_20px_rgba(139,92,246,0.3)]"
         >
           <Plus className="w-4 h-4 mr-2" /> Add Assignment
         </Button>

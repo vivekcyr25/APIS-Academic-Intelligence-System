@@ -4,6 +4,7 @@ import { HashRouter } from 'react-router-dom'
 import App from './App.tsx'
 import './global.css'
 import { AuthProvider } from './contexts/AuthContext.tsx'
+import { ThemeProvider } from './contexts/ThemeContext.tsx'
 
 // Syncfusion License Registration — key loaded from .env (VITE_SYNCFUSION_LICENSE)
 import { registerLicense } from '@syncfusion/ej2-base'
@@ -17,10 +18,13 @@ import '@syncfusion/ej2-react-grids/styles/material-dark.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <AuthProvider>
-      <HashRouter>
-        <App />
-      </HashRouter>
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <HashRouter>
+          <App />
+        </HashRouter>
+      </AuthProvider>
+    </ThemeProvider>
   </StrictMode>,
 )
+

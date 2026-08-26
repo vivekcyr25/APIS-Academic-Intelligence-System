@@ -134,9 +134,16 @@ const Profile = () => {
       className="space-y-10"
     >
       {/* Header */}
-      <header>
-        <h1 className="text-4xl font-black font-heading tracking-tight mb-2">User Profile</h1>
-        <p className="text-muted-foreground font-medium">Manage your identity, security, and preferences</p>
+      <header className="border-b border-white/[0.08] pb-4">
+        <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+          ACCOUNT & SECURITY
+        </span>
+        <h1 className="font-condensed-heading text-4xl sm:text-5xl font-black tracking-wide text-white mb-2">
+          USER PROFILE & PREFERENCES
+        </h1>
+        <p className="font-condensed text-base text-muted-foreground font-medium tracking-wide">
+          Manage your personal academic identity, privacy settings, and data exports
+        </p>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

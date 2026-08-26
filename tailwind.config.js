@@ -28,7 +28,8 @@ export default {
       },
       fontFamily: {
         sans: ['Inter', 'sans-serif'],
-        heading: ['Space Grotesk', 'sans-serif'],
+        heading: ['Barlow Condensed', 'Space Grotesk', 'sans-serif'],
+        condensed: ['Barlow Condensed', 'Space Grotesk', 'sans-serif'],
         mono: ['JetBrains Mono', 'monospace'],
       },
     },

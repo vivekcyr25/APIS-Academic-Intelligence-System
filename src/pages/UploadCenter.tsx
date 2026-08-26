@@ -31,9 +31,11 @@ import { cn } from '../lib/utils';
 import { ManualForms, type FormType } from '../components/upload/ManualForms';
 import { subscribeToSemesters, addSubject, recomputeSemesterStats, getAcademicProfile } from '../services/academic/semesterService';
 import type { Semester, AcademicProfile } from '../types/academic-v2';
+import { useTheme } from '../contexts/ThemeContext';
 
 const UploadCenter = () => {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   
   // Segmented Control State
   const [inputMode, setInputMode] = useState<'ai' | 'manual'>('ai');
@@ -185,9 +187,16 @@ const UploadCenter = () => {
 
   return (
     <div className="space-y-10 pb-20">
-      <header>
-        <h1 className="text-4xl font-black font-heading tracking-tight mb-2">Neural Upload Center</h1>
-        <p className="text-muted-foreground font-medium">Ingest academic data into your intelligence ecosystem</p>
+      <header className="border-b border-white/[0.08] pb-4">
+        <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+          RECORD INGESTION
+        </span>
+        <h1 className="font-condensed-heading text-4xl sm:text-5xl font-black tracking-wide text-white mb-2">
+          ACADEMIC UPLOAD CENTER
+        </h1>
+        <p className="font-condensed text-base text-muted-foreground font-medium tracking-wide">
+          Ingest transcript marks, attendance records, and evaluations into your personal vault
+        </p>
       </header>
 
       {/* Segmented Control */}
@@ -195,33 +204,38 @@ const UploadCenter = () => {
         <button
           onClick={() => setInputMode('ai')}
           className={cn(
-            "relative px-6 py-2.5 rounded-xl text-sm font-black transition-colors z-10 flex items-center gap-2",
+            "relative px-6 py-2.5 rounded-xl font-condensed text-sm font-bold uppercase tracking-wider transition-colors z-10 flex items-center gap-2",
             inputMode === 'ai' ? "text-white" : "text-muted-foreground hover:text-white"
           )}
         >
           {inputMode === 'ai' && (
             <motion.div layoutId="upload-mode-bg" className="absolute inset-0 bg-primary rounded-xl shadow-[0_0_15px_rgba(139,92,246,0.4)] -z-10" />
           )}
-          <Cpu className="w-4 h-4" /> AI Extraction
+          <Cpu className="w-4 h-4" /> AI OCR Extraction
         </button>
         <button
           onClick={() => setInputMode('manual')}
           className={cn(
-            "relative px-6 py-2.5 rounded-xl text-sm font-black transition-colors z-10 flex items-center gap-2",
+            "relative px-6 py-2.5 rounded-xl font-condensed text-sm font-bold uppercase tracking-wider transition-colors z-10 flex items-center gap-2",
             inputMode === 'manual' ? "text-white" : "text-muted-foreground hover:text-white"
           )}
         >
           {inputMode === 'manual' && (
             <motion.div layoutId="upload-mode-bg" className="absolute inset-0 bg-primary rounded-xl shadow-[0_0_15px_rgba(139,92,246,0.4)] -z-10" />
           )}
-          <Keyboard className="w-4 h-4" /> Manual Input
+          <Keyboard className="w-4 h-4" /> Manual Form Entry
         </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
         {/* Left Col: Input Zone */}
         <div className="space-y-6">
-          <div className="overflow-hidden rounded-3xl backdrop-blur-xl border border-white/10 bg-[rgba(17,25,40,0.7)] shadow-2xl">
+        <div className="overflow-hidden rounded-3xl backdrop-blur-xl shadow-2xl"
+          style={{
+            border: isDark ? '1px solid rgba(255,255,255,0.10)' : '1px solid rgba(139,92,246,0.15)',
+            background: isDark ? 'rgba(17,25,40,0.7)' : 'rgba(255,255,255,0.88)',
+            boxShadow: isDark ? undefined : '0 4px 24px rgba(139,92,246,0.08)',
+          }}>
             <div className="p-6 border-b border-white/5 bg-primary/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-primary rounded-lg text-white shadow-[0_0_15px_rgba(139,92,246,0.5)]">

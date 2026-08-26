@@ -87,9 +87,16 @@ const Analytics = () => {
       animate="show"
       className="p-6 md:p-10 space-y-8"
     >
-      <header>
-        <h1 className="text-3xl font-bold font-heading">Deep Analytics</h1>
-        <p className="text-muted-foreground">Multi-dimensional performance visualization</p>
+      <header className="border-b border-white/[0.08] pb-4">
+        <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+          PERFORMANCE INSIGHTS
+        </span>
+        <h1 className="font-condensed-heading text-4xl sm:text-5xl font-black tracking-wide text-white mb-2">
+          DEEP ANALYTICS & VISUALIZATIONS
+        </h1>
+        <p className="font-condensed text-base text-muted-foreground font-medium tracking-wide">
+          Multi-dimensional academic performance breakdown across components and subjects
+        </p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -100,7 +107,7 @@ const Analytics = () => {
               <div className="p-2 bg-primary/10 text-primary rounded-lg">
                 <Target className="w-5 h-5" />
               </div>
-              <h3 className="font-bold">Skill Radar</h3>
+              <h3 className="font-condensed-heading text-lg font-black tracking-wide text-white uppercase">Component Performance Radar</h3>
             </div>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -134,7 +141,7 @@ const Analytics = () => {
               <div className="p-2 bg-amber-400/10 text-amber-400 rounded-lg">
                 <PieIcon className="w-5 h-5" />
               </div>
-              <h3 className="font-bold">Grade Distribution</h3>
+              <h3 className="font-condensed-heading text-lg font-black tracking-wide text-white uppercase">Grade Distribution Map</h3>
             </div>
             <div className="h-[300px] flex items-center justify-center">
               <ResponsiveContainer width="100%" height="100%">
@@ -180,7 +187,7 @@ const Analytics = () => {
               <div className="p-2 bg-green-400/10 text-green-400 rounded-lg">
                 <TrendingUp className="w-5 h-5" />
               </div>
-              <h3 className="font-bold">Trend Analysis</h3>
+              <h3 className="font-condensed-heading text-lg font-black tracking-wide text-white uppercase">Subject Score Trend Analysis</h3>
             </div>
             <div className="h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -226,8 +233,8 @@ const Analytics = () => {
                   className="mt-6 p-6 rounded-2xl bg-white/5 border border-white/10"
                 >
                   <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-bold text-primary">{selectedSubject.name} — Detailed Split</h4>
-                    <button onClick={() => setSelectedSubject(null)} className="text-xs font-black uppercase tracking-widest text-muted-foreground hover:text-white">Close</button>
+                    <h4 className="font-condensed-heading text-base font-black tracking-wide text-primary uppercase">{selectedSubject.name} — Component Breakdown</h4>
+                    <button onClick={() => setSelectedSubject(null)} className="font-condensed text-xs font-bold uppercase tracking-widest text-muted-foreground hover:text-white">Close</button>
                   </div>
                   <div className="grid grid-cols-4 gap-4">
                     <div className="space-y-1">

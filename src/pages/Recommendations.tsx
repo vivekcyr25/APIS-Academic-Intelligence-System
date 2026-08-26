@@ -84,13 +84,20 @@ const Recommendations = () => {
       animate="show"
       className="p-6 md:p-10 space-y-8"
     >
-      <header className="flex items-center justify-between">
+      <header className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.08] pb-4">
         <div>
-          <h1 className="text-3xl font-bold font-heading">Academic Roadmap</h1>
-          <p className="text-muted-foreground">AI-generated suggestions for performance optimization</p>
+          <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+            STRATEGY ENGINE
+          </span>
+          <h1 className="font-condensed-heading text-4xl sm:text-5xl font-black tracking-wide text-white mb-2">
+            ACADEMIC ROADMAP & RECOMMENDATIONS
+          </h1>
+          <p className="font-condensed text-base text-muted-foreground font-medium tracking-wide">
+            Contextual study strategies, exam score targets, and performance optimization suggestions
+          </p>
         </div>
-        <Button onClick={() => navigate('/analytics')}>
-          Analysis Engine <ArrowRight className="ml-2 w-4 h-4" />
+        <Button onClick={() => navigate('/analytics')} className="font-condensed text-sm font-bold uppercase tracking-wider h-11 px-5 rounded-xl">
+          Analytics Engine <ArrowRight className="ml-2 w-4 h-4" />
         </Button>
       </header>
 

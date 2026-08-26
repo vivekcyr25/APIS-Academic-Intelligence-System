@@ -47,14 +47,23 @@ const Attendance = () => {
 
   return (
     <div className="space-y-10">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/[0.08] pb-4">
         <div>
-          <h1 className="text-4xl font-black font-heading tracking-tight mb-2">Attendance Analytics</h1>
-          <p className="text-muted-foreground font-medium">Real-time tracking and shortage risk detection</p>
+          <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+            PRESENCE MONITORING
+          </span>
+          <h1 className="font-condensed-heading text-4xl sm:text-5xl font-black tracking-wide text-white mb-2">
+            ATTENDANCE ANALYTICS
+          </h1>
+          <p className="font-condensed text-base text-muted-foreground font-medium tracking-wide">
+            Real-time attendance tracking, shortage risk detection, and minimum threshold compliance
+          </p>
         </div>
-        <div className="flex items-center gap-3 bg-white/5 px-4 py-2 rounded-2xl border border-white/5">
-          <Calendar className="w-5 h-5 text-primary" />
-          <span className="text-sm font-black uppercase tracking-wider">Semester Fall 2026</span>
+        <div className="flex items-center gap-2 bg-white/5 px-4 py-2.5 rounded-2xl border border-white/8">
+          <Calendar className="w-4 h-4 text-violet-400" />
+          <span className="font-condensed text-xs font-bold uppercase tracking-widest text-white/80">
+            {records.length > 0 ? `${records.length} Tracked Courses` : 'Attendance Registry'}
+          </span>
         </div>
       </header>
 

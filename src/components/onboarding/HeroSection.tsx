@@ -6,21 +6,15 @@ export const HeroSection = () => {
   const { user } = useAuth();
   
   return (
-    <div className="relative min-h-[90vh] flex flex-col items-center justify-center -mt-24 pt-24 mb-32 z-10">
+    <div className="relative min-h-[80vh] flex flex-col items-center justify-center -mt-16 pt-16 pb-12 z-10">
       
-      {/* Background Hero Layer */}
-      <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
-          className="w-[800px] h-[800px] bg-primary/5 rounded-full blur-[100px] mix-blend-screen"
-        />
-        <motion.div 
-          initial={{ opacity: 0, rotate: 90 }}
-          animate={{ opacity: 1, rotate: 0 }}
-          transition={{ duration: 2, ease: "easeOut" }}
-          className="absolute w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[80px] mix-blend-screen"
+      {/* Background Hero Glow Layer */}
+      <div className="absolute inset-0 pointer-events-none flex items-center justify-center overflow-hidden">
+        <div 
+          className="w-[700px] h-[700px] rounded-full blur-[140px] opacity-40 mix-blend-screen"
+          style={{
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, rgba(99, 102, 241, 0.15) 45%, transparent 70%)'
+          }}
         />
       </div>
 
@@ -33,22 +27,27 @@ export const HeroSection = () => {
         <motion.div 
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.5, duration: 0.8 }}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 backdrop-blur-md"
+          transition={{ delay: 0.3, duration: 0.6 }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 mb-8 backdrop-blur-md"
         >
-          <div className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-widest text-primary">Identity Verified</span>
+          <div className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
+          <span className="text-xs font-bold uppercase tracking-widest text-violet-300">Identity Verified</span>
         </motion.div>
 
-        <h1 className="text-6xl md:text-8xl font-black font-heading tracking-tight leading-[1.1] mb-6 drop-shadow-2xl">
+        <h1 className="text-6xl md:text-8xl font-black font-heading tracking-tight leading-[1.1] mb-6 drop-shadow-2xl text-white">
           Welcome to <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-primary/80 to-secondary animate-text-drift hover:text-white transition-all cursor-default">
+          <span 
+            className="text-transparent bg-clip-text select-none"
+            style={{
+              backgroundImage: 'linear-gradient(90deg, #ffffff 0%, #e9d5ff 18%, #a855f7 36%, #7c3aed 55%, #6b21a8 76%, #3b0764 100%)'
+            }}
+          >
             APIS AI
           </span>
         </h1>
         
         <p className="text-xl md:text-2xl text-muted-foreground font-medium mb-12 max-w-2xl mx-auto leading-relaxed">
-          <span className="text-hover-premium hover-active underline-reveal text-white/60">
+          <span className="text-white/80 font-semibold">
             Welcome back, {user?.name || 'Scholar'}.
           </span>
         </p>
@@ -59,15 +58,15 @@ export const HeroSection = () => {
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 1.5, duration: 1 }}
-        className="absolute bottom-10 flex flex-col items-center gap-3 text-muted-foreground"
+        transition={{ delay: 1, duration: 0.8 }}
+        className="absolute bottom-6 flex flex-col items-center gap-2 text-muted-foreground"
       >
-        <span className="text-[10px] font-black uppercase tracking-widest">Scroll to enter vault</span>
+        <span className="text-[10px] font-black uppercase tracking-widest text-white/40">Scroll to enter vault</span>
         <motion.div
-          animate={{ y: [0, 8, 0] }}
+          animate={{ y: [0, 6, 0] }}
           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
         >
-          <ChevronDown className="w-5 h-5 text-primary" />
+          <ChevronDown className="w-4 h-4 text-violet-400" />
         </motion.div>
       </motion.div>
     </div>

@@ -4,12 +4,14 @@ import { useAuth } from '../../contexts/AuthContext.tsx';
 import {
   Sparkles, LayoutDashboard, BarChart3,
   User, LogOut, Upload, ClipboardList,
-  Table, BrainCircuit, MoreHorizontal, X, ChevronDown, MessageSquare
+  Table, BrainCircuit, MoreHorizontal, X, ChevronDown, MessageSquare,
+  Sun, Moon
 } from 'lucide-react';
 import { cn } from '../../lib/utils.ts';
 import { useState, useEffect, useRef, memo } from 'react';
 import { checkSystemHealth, type SystemStatus } from '../../services/health/healthService.ts';
 import { FeedbackModal } from '../ui/FeedbackModal';
+import { useTheme } from '../../contexts/ThemeContext.tsx';
 
 // ─── Types ────────────────────────────────────────────────
 interface NavItem { icon: React.FC<any>; label: string; path: string; }
@@ -40,7 +42,7 @@ const NavLink = memo(({ item }: { item: NavItem }) => {
     <Link
       to={item.path}
       className={cn(
-        "relative px-4 py-2 rounded-full group flex items-center gap-2 text-sm font-black tracking-wide transition-all duration-300",
+        "relative px-4 py-2 rounded-full group flex items-center gap-2 font-condensed text-sm font-bold uppercase tracking-wider transition-all duration-300",
         "text-hover-premium underline-reveal",
         isActive ? "text-white" : "text-white/40 hover:text-white/80"
       )}
@@ -93,11 +95,12 @@ const NavLink = memo(({ item }: { item: NavItem }) => {
   );
 });
 
-// ─── More Dropdown ────────────────────────────────────────
+// ─── More Dropdown ──────────────────────────────────────────
 const MoreMenu = () => {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const { isDark } = useTheme();
   const isActive = secondaryNav.some(n => n.path === location.pathname);
 
   useEffect(() => {
@@ -114,11 +117,14 @@ const MoreMenu = () => {
   return (
     <div ref={ref} className="relative">
       <button
-        onClick={() => setOpen(prev => !prev)}
+        ref={ref}
+        onClick={() => setOpen(!open)}
         className={cn(
-          "relative px-4 py-2 rounded-full flex items-center gap-2 text-sm font-black tracking-widest uppercase transition-all duration-500 active:scale-[0.98]",
+          "relative px-4 py-2 rounded-full group flex items-center gap-2 font-condensed text-sm font-bold uppercase tracking-wider transition-all duration-300",
           "text-hover-premium underline-reveal",
-          isActive || open ? "text-white" : "text-white/40"
+          isActive || open
+            ? (isDark ? "text-white" : "text-violet-900")
+            : (isDark ? "text-white/40" : "text-violet-600/50")
         )}
       >
         {/* Active Pill (Liquid Glass) */}
@@ -163,16 +169,20 @@ const MoreMenu = () => {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8, scale: 0.96 }}
             transition={{ type: 'spring', stiffness: 400, damping: 32 }}
-            className="absolute top-full right-0 mt-3 w-52 rounded-3xl overflow-hidden border border-white/10 shadow-[0_24px_60px_rgba(0,0,0,0.6)] gpu-accelerated"
+            className="absolute top-full right-0 mt-3 w-52 rounded-3xl overflow-hidden gpu-accelerated"
             style={{
-              background: 'rgba(10,10,18,0.85)',
+              border: isDark ? '1px solid rgba(255,255,255,0.10)' : '1px solid rgba(139,92,246,0.18)',
+              background: isDark ? 'rgba(10,10,18,0.92)' : 'rgba(248,245,255,0.96)',
               backdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
               WebkitBackdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
+              boxShadow: isDark
+                ? '0 24px 60px rgba(0,0,0,0.6)'
+                : '0 24px 60px rgba(139,92,246,0.15), 0 4px 16px rgba(0,0,0,0.06)',
             }}
           >
             {/* Glass sheen */}
             <div className="absolute inset-0 rounded-3xl pointer-events-none">
-              <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
+              <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent ${isDark ? 'via-white/20' : 'via-violet-300/40'} to-transparent`} />
             </div>
 
             <div className="p-2 space-y-0.5">
@@ -183,9 +193,11 @@ const MoreMenu = () => {
                     key={item.path}
                     to={item.path}
                     className={cn(
-                      "relative flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-black transition-all duration-300",
+                      "relative flex items-center gap-3 px-4 py-3 rounded-2xl font-condensed text-sm font-bold uppercase tracking-wide transition-all duration-300",
                       "text-hover-premium",
-                      isItemActive ? "text-white" : "text-white/50 hover:text-white/80"
+                      isItemActive
+                        ? (isDark ? "text-white" : "text-violet-900")
+                        : (isDark ? "text-white/50 hover:text-white/80" : "text-violet-700/60 hover:text-violet-900")
                     )}
                   >
                     {/* Active Dropdown Pill */}
@@ -230,21 +242,14 @@ const MoreMenu = () => {
   );
 };
 
-// ─── Animated Neural Gradient ─────────────────────────────
+// ─── Calm Header Background ───────────────────────────────
 const NeuralGradient = () => (
   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[40px]">
-    <motion.div
-      className="absolute -inset-4"
-      animate={{
-        background: [
-          'radial-gradient(ellipse 80% 60% at 10% 50%, rgba(99,60,220,0.12) 0%, transparent 70%)',
-          'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(139,92,246,0.10) 0%, transparent 70%)',
-          'radial-gradient(ellipse 80% 60% at 90% 50%, rgba(76,29,200,0.12) 0%, transparent 70%)',
-          'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(109,40,217,0.09) 0%, transparent 70%)',
-          'radial-gradient(ellipse 80% 60% at 10% 50%, rgba(99,60,220,0.12) 0%, transparent 70%)',
-        ]
+    <div 
+      className="absolute inset-0 opacity-40"
+      style={{
+        background: 'radial-gradient(ellipse 70% 50% at 50% 50%, rgba(139,92,246,0.08) 0%, transparent 80%)'
       }}
-      transition={{ duration: 10, repeat: Infinity, ease: 'linear' }}
     />
   </div>
 );
@@ -264,7 +269,7 @@ const ProfileCapsule = memo(() => {
         WebkitBackdropFilter: 'blur(var(--blur-lg))',
       }}
     >
-      {/* Online pulse */}
+      {/* Online indicator */}
       <div className="relative flex-shrink-0">
         {user?.photoURL && !imgError ? (
           <img
@@ -279,17 +284,14 @@ const ProfileCapsule = memo(() => {
             {user?.name?.charAt(0)?.toUpperCase() || "U"}
           </div>
         )}
-        {/* Neural pulse */}
-        <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-black flex items-center justify-center">
-          <span className="absolute inline-flex w-full h-full rounded-full bg-green-400 opacity-60 animate-ping" />
-        </span>
+        <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-black" />
       </div>
       <div className="hidden sm:flex flex-col">
         <span className="text-xs font-bold text-white/80 leading-none truncate max-w-[90px]">
           {user?.name || 'User'}
         </span>
-        <span className="text-[9px] font-black uppercase tracking-widest text-violet-400 leading-none mt-0.5">
-          Pro v1.2.0
+        <span className="text-[9px] font-bold uppercase tracking-widest text-violet-400/80 leading-none mt-0.5">
+          Scholar
         </span>
       </div>
     </motion.div>
@@ -299,6 +301,7 @@ const ProfileCapsule = memo(() => {
 // ─── Root TopNav ──────────────────────────────────────────
 const TopNav = () => {
   const { logout } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const [scrolled, setScrolled] = useState(false);
   const [health, setHealth] = useState<SystemStatus | null>(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
@@ -333,18 +336,25 @@ const TopNav = () => {
           transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
           className="relative w-full max-w-5xl"
         >
-          {/* Glass shell */}
+          {/* Glass shell — theme-aware */}
           <div
-            className="relative flex items-center justify-between h-14 px-3 rounded-[40px] border border-white/[0.10] transition-all duration-500"
+            className="relative flex items-center justify-between h-14 px-3 rounded-[40px] transition-all duration-500"
             style={{
-              background: scrolled
-                ? 'rgba(6,6,15,0.88)'
-                : 'rgba(8,8,20,0.72)',
+              border: isDark
+                ? '1px solid rgba(255,255,255,0.10)'
+                : '1px solid rgba(139,92,246,0.18)',
+              background: isDark
+                ? (scrolled ? 'rgba(6,6,15,0.88)' : 'rgba(8,8,20,0.72)')
+                : (scrolled ? 'rgba(244,240,255,0.94)' : 'rgba(248,245,255,0.85)'),
               backdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
               WebkitBackdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
-              boxShadow: scrolled
-                ? '0 8px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)'
-                : '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)',
+              boxShadow: isDark
+                ? (scrolled
+                    ? '0 8px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)'
+                    : '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)')
+                : (scrolled
+                    ? '0 8px 32px rgba(139,92,246,0.12), 0 1px 4px rgba(0,0,0,0.06)'
+                    : '0 4px 24px rgba(139,92,246,0.08), 0 1px 2px rgba(0,0,0,0.04)'),
             }}
           >
             <NeuralGradient />
@@ -359,7 +369,10 @@ const TopNav = () => {
                 <Sparkles className="text-white w-4 h-4" />
               </motion.div>
               <div className="hidden sm:flex flex-col">
-                <span className="text-sm font-black tracking-tight leading-none text-white">APIS AI</span>
+                <span className={cn(
+                  "text-sm font-black tracking-tight leading-none",
+                  isDark ? 'text-white' : 'text-violet-900'
+                )}>APIS AI</span>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <div className={cn(
                     "w-1.5 h-1.5 rounded-full",
@@ -385,15 +398,53 @@ const TopNav = () => {
               <MoreMenu />
             </nav>
 
-            {/* ── Right: Profile + Logout ── */}
+            {/* ── Right: Theme Toggle + Profile + Logout ── */}
             <div className="flex items-center gap-2 pr-1 flex-shrink-0 justify-end">
               <ProfileCapsule />
               <div className="flex items-center gap-1">
+                {/* Theme Toggle Button */}
+                <motion.button
+                  whileTap={{ scale: 0.88 }}
+                  onClick={toggleTheme}
+                  className="theme-toggle-btn relative p-2 rounded-full overflow-hidden transition-all duration-300"
+                  title={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                  aria-label={isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                >
+                  <AnimatePresence mode="wait" initial={false}>
+                    {isDark ? (
+                      <motion.span
+                        key="moon"
+                        initial={{ rotate: -30, opacity: 0, scale: 0.7 }}
+                        animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                        exit={{ rotate: 30, opacity: 0, scale: 0.7 }}
+                        transition={{ duration: 0.25, ease: [0.22,1,0.36,1] }}
+                        className="block"
+                      >
+                        <Moon className="w-4 h-4" />
+                      </motion.span>
+                    ) : (
+                      <motion.span
+                        key="sun"
+                        initial={{ rotate: 30, opacity: 0, scale: 0.7 }}
+                        animate={{ rotate: 0, opacity: 1, scale: 1 }}
+                        exit={{ rotate: -30, opacity: 0, scale: 0.7 }}
+                        transition={{ duration: 0.25, ease: [0.22,1,0.36,1] }}
+                        className="block"
+                      >
+                        <Sun className="w-4 h-4" />
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
+                </motion.button>
+
                 <motion.button
                   whileHover={{ scale: 1.1, backgroundColor: 'rgba(139,92,246,0.15)' }}
                   whileTap={{ scale: 0.92 }}
                   onClick={() => setShowFeedbackModal(true)}
-                  className="p-2 rounded-full text-white/30 hover:text-primary transition-colors duration-200"
+                  className={cn(
+                    "p-2 rounded-full hover:text-primary transition-colors duration-200",
+                    isDark ? 'text-white/30' : 'text-violet-400/60'
+                  )}
                   title="Share Feedback"
                 >
                   <MessageSquare className="w-4 h-4" />
@@ -402,7 +453,10 @@ const TopNav = () => {
                   whileHover={{ scale: 1.1, backgroundColor: 'rgba(244,63,94,0.15)' }}
                   whileTap={{ scale: 0.92 }}
                   onClick={handleLogout}
-                  className="hidden md:flex p-2 rounded-full text-white/30 hover:text-rose-400 transition-colors duration-200"
+                  className={cn(
+                    "hidden md:flex p-2 rounded-full hover:text-rose-400 transition-colors duration-200",
+                    isDark ? 'text-white/30' : 'text-violet-400/60'
+                  )}
                   title="Logout"
                 >
                   <LogOut className="w-4 h-4" />

@@ -3,12 +3,15 @@ import {
   Cpu, 
   Layers, 
   Workflow, 
-  Activity, 
+  Database, 
+  ShieldCheck, 
   ArrowLeft,
-  Settings,
-  Database,
-  ShieldCheck,
-  Zap
+  Server,
+  Lock,
+  Sparkles,
+  BarChart2,
+  FileSpreadsheet,
+  Brain
 } from 'lucide-react';
 import { Button } from '../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
@@ -16,106 +19,195 @@ import { useNavigate } from 'react-router-dom';
 const Architecture = () => {
   const navigate = useNavigate();
 
+  const productFlow = [
+    {
+      step: '01',
+      title: 'Academic Data Layer',
+      desc: 'Raw student inputs: semester records, course evaluation marks (CA1, CA2, MTE, ETE), attendance percentages, and credit weightings.',
+      icon: FileSpreadsheet,
+      color: 'text-violet-400',
+      bg: 'bg-violet-500/10',
+      border: 'border-violet-500/20'
+    },
+    {
+      step: '02',
+      title: 'Academic Memory Engine',
+      desc: 'Normalized multi-term aggregation creating longitudinal deltas, subject weakness vectors, and attendance stability indicators.',
+      icon: Brain,
+      color: 'text-indigo-400',
+      bg: 'bg-indigo-500/10',
+      border: 'border-indigo-500/20'
+    },
+    {
+      step: '03',
+      title: 'Pattern Detection',
+      desc: 'Algorithmic calculations of CGPA progression, credit velocity, and workload concentration without probabilistic guessing.',
+      icon: BarChart2,
+      color: 'text-blue-400',
+      bg: 'bg-blue-500/10',
+      border: 'border-blue-500/20'
+    },
+    {
+      step: '04',
+      title: 'AI Interpretation',
+      desc: 'Server-side LLM proxies analyze detected patterns in context, explaining academic changes in plain, actionable language.',
+      icon: Sparkles,
+      color: 'text-purple-400',
+      bg: 'bg-purple-500/10',
+      border: 'border-purple-500/20'
+    },
+    {
+      step: '05',
+      title: 'Action & Recommendations',
+      desc: 'Synthesized study priority schedules, exam target calculators, and early risk alerts provided to the student.',
+      icon: Workflow,
+      color: 'text-fuchsia-400',
+      bg: 'bg-fuchsia-500/10',
+      border: 'border-fuchsia-500/20'
+    }
+  ];
+
+  const engineeringLayers = [
+    {
+      title: 'React & TypeScript Client',
+      role: 'Presentation & Interaction',
+      details: 'Strictly typed frontend utilizing modular React components, client-side routing, and responsive data visualizers with zero fake metrics.',
+      icon: Layers,
+      color: 'text-violet-400'
+    },
+    {
+      title: 'Firebase & Cloud Firestore',
+      role: 'Secure Persistence & Realtime Sync',
+      details: 'User-scoped document trees with strict security rules ensuring student privacy and multi-device synchronization.',
+      icon: Database,
+      color: 'text-emerald-400'
+    },
+    {
+      title: 'Secure AI Proxy & Health Service',
+      role: 'Serverless Execution Boundary',
+      details: 'Protected API handlers insulating API credentials, enforcing prompt structures, and checking AI subsystem availability.',
+      icon: Server,
+      color: 'text-amber-400'
+    },
+    {
+      title: 'Google Gemini Pro Intelligence',
+      role: 'Contextual Academic Reasoning',
+      details: 'Structured generative synthesis producing grounded academic retrospectives strictly anchored to provided records.',
+      icon: Cpu,
+      color: 'text-purple-400'
+    }
+  ];
+
   return (
-    <div className="min-h-screen pt-24 pb-32 px-6">
+    <div className="min-h-screen pt-12 pb-32 max-w-5xl mx-auto px-4">
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl mx-auto"
+        className="space-y-16"
       >
-        <Button 
-          variant="ghost" 
-          onClick={() => navigate(-1)}
-          className="mb-8 text-muted-foreground hover:text-white"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" /> Back
-        </Button>
+        <div>
+          <Button 
+            variant="ghost" 
+            onClick={() => navigate(-1)}
+            className="mb-6 text-xs text-muted-foreground hover:text-white"
+          >
+            <ArrowLeft className="w-4 h-4 mr-2" /> Back
+          </Button>
 
-        <header className="mb-16">
-          <div className="w-16 h-16 rounded-2xl bg-primary/20 flex items-center justify-center mb-6 border border-primary/30">
-            <Cpu className="w-8 h-8 text-primary" />
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 mb-4">
+            <Cpu className="w-3.5 h-3.5 text-violet-400" />
+            <span className="text-xs font-semibold text-violet-300 uppercase tracking-widest">
+              System Architecture
+            </span>
           </div>
-          <h1 className="text-4xl md:text-6xl font-black mb-6 tracking-tight">Engineering Methodology</h1>
-          <p className="text-xl text-muted-foreground font-medium max-w-2xl leading-relaxed">
-            APIS AI is built using rigorous engineering practices inspired by structured software lifecycle management and quality-driven iterative refinement.
+
+          <h1 className="text-4xl md:text-5xl font-black font-heading text-white tracking-tight mb-4">
+            How APIS Is Built
+          </h1>
+          <p className="text-lg text-muted-foreground max-w-3xl leading-relaxed">
+            APIS separates raw academic records from analytical intelligence and AI interpretation. AI is a reasoning layer on top of verifiable data — not the source of truth.
           </p>
-        </header>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-          <section className="p-8 rounded-[32px] bg-white/5 border border-white/10 hover:border-primary/30 transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mb-6 border border-primary/20 group-hover:neural-glow">
-              <Layers className="w-6 h-6 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold mb-4">Structured Lifecycle</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Our development process follows a phased evolution model inspired by <strong>IEEE software engineering lifecycle</strong> thinking. Every feature undergoes a research, planning, execution, and verification cycle before reaching production.
-            </p>
-          </section>
-
-          <section className="p-8 rounded-[32px] bg-white/5 border border-white/10 hover:border-secondary/30 transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center mb-6 border border-secondary/20 group-hover:neural-glow">
-              <Activity className="w-6 h-6 text-secondary" />
-            </div>
-            <h3 className="text-xl font-bold mb-4">Operational Maturity</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              We prioritize <strong>Telemetry-Driven Iteration</strong>. By monitoring system health, sync latency, and UI friction in real-time, we can refine the platform based on objective performance data rather than assumptions.
-            </p>
-          </section>
-
-          <section className="p-8 rounded-[32px] bg-white/5 border border-white/10 hover:border-amber-500/30 transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-amber-500/20 flex items-center justify-center mb-6 border border-amber-500/20 group-hover:neural-glow">
-              <Database className="w-6 h-6 text-amber-400" />
-            </div>
-            <h3 className="text-xl font-bold mb-4">Offline-First Resilience</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Inspired by <strong>CMMI-style quality management</strong>, we implemented multi-tab IndexedDB persistence and smart recovery paths to ensure your academic memory remains stable under stress or network failure.
-            </p>
-          </section>
-
-          <section className="p-8 rounded-[32px] bg-white/5 border border-white/10 hover:border-violet-500/30 transition-all group">
-            <div className="w-12 h-12 rounded-xl bg-violet-500/20 flex items-center justify-center mb-6 border border-violet-500/20 group-hover:neural-glow">
-              <ShieldCheck className="w-6 h-6 text-violet-400" />
-            </div>
-            <h3 className="text-xl font-bold mb-4">Security Hardening</h3>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              Utilizing <strong>Firebase App Check</strong> and strict data isolation, we ensure that your academic intelligence vault is protected from unauthorized access while maintaining low-latency synchronization.
-            </p>
-          </section>
         </div>
 
-        <div className="p-10 rounded-[40px] bg-gradient-to-br from-primary/10 via-primary/5 to-transparent border border-primary/20">
-          <div className="flex items-center gap-4 mb-6">
-            <Workflow className="w-8 h-8 text-primary" />
-            <h2 className="text-2xl font-bold">The Quality Loop</h2>
+      {/* SECTION 1: PRODUCT ARCHITECTURE */}
+        <section className="space-y-6">
+          <div className="border-b border-white/[0.08] pb-3">
+            <h2 className="text-xl font-bold text-white tracking-tight">1. Product Flow Architecture</h2>
+            <p className="text-sm text-muted-foreground">The end-to-end transformation of raw student records into verified intelligence.</p>
           </div>
-          <p className="text-muted-foreground leading-relaxed mb-8">
-            APIS AI avoids "feature explosion" in favor of <strong>Process-Oriented Refinement</strong>. Every release candidate is audited for hydration consistency, typography overflow, and emotional tone to ensure it meets our production-grade standards.
-          </p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="text-center">
-              <div className="text-2xl font-black text-white mb-1">99.9%</div>
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Uptime Goal</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-black text-white mb-1">&lt;200ms</div>
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Sync Latency</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-black text-white mb-1">60FPS</div>
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Interaction</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-black text-white mb-1">100%</div>
-              <div className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold">Ownership</div>
-            </div>
-          </div>
-        </div>
 
-        <footer className="mt-16 pt-8 border-t border-white/5 text-center">
-          <p className="text-sm text-muted-foreground italic">
-            "Software engineering is not just about writing code; it is about building resilient systems that quietly serve human needs over time."
-          </p>
-        </footer>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+            {productFlow.map((item) => {
+              const Icon = item.icon;
+              return (
+                <div 
+                  key={item.step}
+                  className="p-5 rounded-2xl border border-white/[0.08] bg-card/60 space-y-3 relative group"
+                >
+                  <span className="text-[11px] font-black text-violet-400 tracking-widest">{item.step}</span>
+                  <div className={`w-9 h-9 rounded-xl ${item.bg} border ${item.border} flex items-center justify-center`}>
+                    <Icon className={`w-4 h-4 ${item.color}`} />
+                  </div>
+                  <h3 className="text-sm font-bold text-white leading-snug">{item.title}</h3>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* SECTION 2: ENGINEERING STACK & SECURITY */}
+        <section className="space-y-6">
+          <div className="border-b border-white/[0.08] pb-3">
+            <h2 className="text-xl font-bold text-white tracking-tight">2. Engineering & Infrastructure Stack</h2>
+            <p className="text-sm text-muted-foreground">Technical isolation and zero-leakage security boundaries.</p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {engineeringLayers.map((layer) => {
+              const Icon = layer.icon;
+              return (
+                <div 
+                  key={layer.title}
+                  className="p-6 rounded-2xl border border-white/[0.08] bg-card/60 space-y-2 hover:border-white/20 transition-colors"
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className="p-2 rounded-xl bg-white/[0.04] border border-white/10">
+                      <Icon className={`w-5 h-5 ${layer.color}`} />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-bold text-white">{layer.title}</h3>
+                      <span className="text-[11px] text-violet-400 font-medium">{layer.role}</span>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed">{layer.details}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* SECTION 3: CORE DATA INTEGRITY PRINCIPLES */}
+        <section className="p-8 rounded-3xl border border-white/[0.08] bg-card/40 space-y-4">
+          <div className="flex items-center gap-3">
+            <ShieldCheck className="w-6 h-6 text-emerald-400" />
+            <h3 className="text-lg font-bold text-white">Data Integrity & Trust Guarantee</h3>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 pt-2 text-xs text-muted-foreground leading-relaxed">
+            <div>
+              <strong className="text-white block mb-1">Zero Fabricated Analytics</strong>
+              Visualizations and GPA models strictly require genuine user-recorded input. The system will clearly display empty states when records are missing.
+            </div>
+            <div>
+              <strong className="text-white block mb-1">Grounded LLM Prompting</strong>
+              AI reflections are strictly bounded by user data payloads. AI models are instructed never to hallucinate grades, GPAs, or attendance values.
+            </div>
+            <div>
+              <strong className="text-white block mb-1">Client-Isolated Data</strong>
+              Academic records are bound to authenticated user accounts via Firebase security rules, with zero cross-tenant leakage.
+            </div>
+          </div>
+        </section>
       </motion.div>
     </div>
   );

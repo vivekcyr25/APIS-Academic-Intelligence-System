@@ -1,6 +1,7 @@
 import { useState, useEffect, memo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../contexts/AuthContext';
+import { useTheme } from '../contexts/ThemeContext';
 import { 
   subscribeToSemesters, 
   subscribeToSubjects,
@@ -182,6 +183,7 @@ const SubjectCard = memo(({ subject, userId, profile }: { subject: Subject, user
 
 const SemesterVault = () => {
   const { user } = useAuth();
+  const { isDark } = useTheme();
   const [profile, setProfile] = useState<AcademicProfile | null>(null);
   const [semesters, setSemesters] = useState<Semester[]>([]);
   const [subjectsBySem, setSubjectsBySem] = useState<Record<string, Subject[]>>({});
@@ -296,8 +298,12 @@ const SemesterVault = () => {
             </motion.div>
             <StatusLabel show={!!syncStatus} label={syncStatus === 'sync' ? 'Syncing Memory' : 'Synced to Vault'} type={syncStatus as any} />
           </div>
-          <h1 className="text-4xl md:text-5xl font-black font-heading tracking-tight mb-2 gradient-title">Semester Vault</h1>
-          <p className="text-muted-foreground font-medium text-lg">Your adaptive long-term academic intelligence timeline.</p>
+          <h1 className="font-condensed-heading text-4xl sm:text-5xl font-black tracking-wide text-white mb-2">
+            SEMESTER VAULT & CURRICULUM
+          </h1>
+          <p className="font-condensed text-base text-muted-foreground font-medium tracking-wide">
+            Your long-term verified academic records, credit contributions, and course syllabus timelines
+          </p>
         </div>
         
         <Button className="h-12 px-6 rounded-2xl neural-glow shadow-[0_0_20px_rgba(139,92,246,0.2)]">
@@ -327,13 +333,30 @@ const SemesterVault = () => {
               transition={{ delay: isLowEnd ? 0 : idx * 0.1 }}
             >
               <div className={cn(
-                "overflow-hidden transition-all duration-500 rounded-3xl backdrop-blur-xl border border-white/10",
-                sem.status === 'active' && "bg-[rgba(17,25,40,0.8)] border-primary/30 shadow-[0_0_40px_rgba(139,92,246,0.15)]",
-                sem.status === 'completed' && "bg-[rgba(17,25,40,0.6)] border-emerald-500/20 shadow-[0_0_20px_rgba(52,211,153,0.05)]",
-                sem.status === 'upcoming' && "border-white/5 bg-black/60 opacity-80 border-dashed",
-                !['active', 'completed', 'upcoming'].includes(sem.status) && "border-white/5 bg-black/40",
-                isExpanded ? "ring-1 ring-white/10" : "hover:border-white/20"
-              )}>
+                "overflow-hidden transition-all duration-500 rounded-3xl backdrop-blur-xl",
+                sem.status === 'active' && "border-primary/30 shadow-[0_0_40px_rgba(139,92,246,0.15)]",
+                sem.status === 'completed' && "border-emerald-500/20 shadow-[0_0_20px_rgba(52,211,153,0.05)]",
+                sem.status === 'upcoming' && "opacity-80 border-dashed",
+                isExpanded ? "ring-1 ring-white/10" : ""
+              )}
+              style={{
+                border: sem.status === 'upcoming'
+                  ? `1px dashed ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(139,92,246,0.15)'}`
+                  : undefined,
+                background: isDark
+                  ? (sem.status === 'active' ? 'rgba(17,25,40,0.8)'
+                    : sem.status === 'completed' ? 'rgba(17,25,40,0.6)'
+                    : sem.status === 'upcoming' ? 'rgba(0,0,0,0.6)'
+                    : 'rgba(0,0,0,0.4)')
+                  : (sem.status === 'active' ? 'rgba(255,255,255,0.88)'
+                    : sem.status === 'completed' ? 'rgba(255,255,255,0.80)'
+                    : sem.status === 'upcoming' ? 'rgba(248,245,255,0.60)'
+                    : 'rgba(248,245,255,0.70)'),
+                borderColor: !sem.status || sem.status === 'upcoming' ? undefined
+                  : isDark
+                    ? (sem.status === 'active' ? 'rgba(139,92,246,0.30)' : sem.status === 'completed' ? 'rgba(52,211,153,0.20)' : 'rgba(255,255,255,0.05)')
+                    : (sem.status === 'active' ? 'rgba(139,92,246,0.25)' : sem.status === 'completed' ? 'rgba(52,211,153,0.30)' : 'rgba(139,92,246,0.12)'),
+              }}>
                 {/* Semester Header Toggle */}
                 <div 
                   onClick={() => toggleExpand(sem.id!)}
@@ -430,7 +453,7 @@ const SemesterVault = () => {
                       initial={!isLowEnd ? { height: 0, opacity: 0 } : { height: 'auto', opacity: 1 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={!isLowEnd ? { height: 0, opacity: 0 } : { height: 0, opacity: 0 }}
-                      className="border-t border-white/5 bg-black/20"
+                    className={`border-t bg-black/20 ${isDark ? 'border-white/5 bg-black/20' : 'border-violet-100 bg-violet-50/30'}`}
                     >
                       <div className="p-6 space-y-6">
                         
