@@ -20,6 +20,11 @@ export const useAIStream = (options?: UseAIStreamOptions) => {
     setText('');
 
     abortControllerRef.current = new AbortController();
+    const timeoutId = setTimeout(() => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+    }, 6000); // 6s timeout for streaming connection
 
     try {
       // Point to our backend express route. Uses env var for production Render URL
@@ -34,9 +39,10 @@ export const useAIStream = (options?: UseAIStreamOptions) => {
         body: JSON.stringify({ prompt, context }),
         signal: abortControllerRef.current.signal,
       });
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
-        throw new Error(`Connection failed: ${response.statusText}`);
+        throw new Error(`Connection failed (${response.status})`);
       }
 
       const reader = response.body?.getReader();

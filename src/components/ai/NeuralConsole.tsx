@@ -16,6 +16,7 @@ import { subscribeToMarks, type MarkRecord } from '../../services/marks/marksSer
 import { useAIStream } from '../../hooks/useAIStream.ts';
 import { cn } from '../../lib/utils.ts';
 import type { ChatMessage } from '../../services/ai/aiService.ts';
+import { generateLocalAcademicResponse } from '../../services/ai/localAIAdvisor.ts';
 
 interface NeuralConsoleProps {
   isOpen: boolean;
@@ -29,18 +30,26 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
     { role: 'ai', content: "Academic Intelligence Assistant online. Ready to analyze your marks, exam targets, and workload patterns." }
   ]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const currentPromptRef = useRef<string>('');
   
   const { user } = useAuth();
   const [marks, setMarks] = useState<MarkRecord[]>([]);
 
-  // Use the fetch-based streaming hook
+  // Use the fetch-based streaming hook with intelligent local fallback
   const { startStream, abortStream, isStreaming, error, text } = useAIStream({
     onChunk: () => {},
     onComplete: () => {
       console.log('Stream completed.');
     },
-    onError: (err) => {
-      setMessages(prev => [...prev, { role: 'ai', content: `⚠️ Signal Error: ${err.message}` }]);
+    onError: (_err) => {
+      // Offline/Cloud-cold failsafe: synthesize immediate local academic intelligence
+      const prompt = currentPromptRef.current;
+      const fallbackReply = generateLocalAcademicResponse(prompt, user, marks);
+      
+      setMessages(prev => {
+        const filtered = prev.filter(m => !(m.role === 'ai' && m.content === ''));
+        return [...filtered, { role: 'ai', content: fallbackReply }];
+      });
     }
   });
 
@@ -83,15 +92,15 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
   const handleSend = async () => {
     if (!input.trim() || isStreaming) return;
 
-    const userMsg: ChatMessage = { role: 'user', content: input };
+    const userPrompt = input.trim();
+    currentPromptRef.current = userPrompt;
+    
+    const userMsg: ChatMessage = { role: 'user', content: userPrompt };
     setMessages(prev => [...prev, userMsg]);
     setInput('');
-    
-    // Add empty AI message placeholder
-    setMessages(prev => [...prev, { role: 'ai', content: "" }]);
 
     const context = getContextString();
-    startStream(input, context);
+    startStream(userPrompt, context);
   };
 
   return (

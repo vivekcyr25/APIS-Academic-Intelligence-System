@@ -16,6 +16,7 @@ import {
 import { useAuth } from '../../contexts/AuthContext.tsx';
 import { subscribeToMarks, type MarkRecord } from '../../services/marks/marksService.ts';
 import { askAI, type ChatMessage } from '../../services/ai/aiService.ts';
+import { generateLocalAcademicResponse } from '../../services/ai/localAIAdvisor.ts';
 import { Button } from '../ui/Button.tsx';
 import { cn } from '../../lib/utils.ts';
 
@@ -64,8 +65,10 @@ const AICompanion = () => {
       const response = await askAI(input, context);
       const aiMsg: ChatMessage = { role: 'ai', content: response };
       setMessages(prev => [...prev, aiMsg]);
-    } catch (err: any) {
-      setMessages(prev => [...prev, { role: 'ai', content: `⚠️ Signal Error: ${err.message}` }]);
+    } catch (_err: any) {
+      // Offline / cloud unavailable fallback
+      const fallbackReply = generateLocalAcademicResponse(userMsg.content, user, marks);
+      setMessages(prev => [...prev, { role: 'ai', content: fallbackReply }]);
     } finally {
       setIsTyping(false);
     }
