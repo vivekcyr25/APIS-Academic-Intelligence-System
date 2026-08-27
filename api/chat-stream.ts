@@ -39,6 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     : 'You are APIS, an advanced AI academic advisor. Be helpful, analytical, and encouraging.';
 
   try {
+    const model = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
     const groqRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -46,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
+        model,
         messages: [
           { role: 'system', content: systemMessage },
           { role: 'user', content: prompt.trim() },

@@ -27,22 +27,57 @@ export const useAIStream = (options?: UseAIStreamOptions) => {
     }, 6000); // 6s timeout for streaming connection
 
     try {
-      // Point to our backend express route. Uses env var for production Render URL
       const baseUrl = getApiBaseUrl();
-      const endpoint = `${baseUrl}/api/chat-stream`;
+      const directKey = import.meta.env.VITE_GROQ_API_KEY;
+      let response: Response | null = null;
 
-      const response = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ prompt, context }),
-        signal: abortControllerRef.current.signal,
-      });
+      try {
+        const endpoint = `${baseUrl}/api/chat-stream`;
+        const res = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ prompt, context }),
+          signal: abortControllerRef.current.signal,
+        });
+        if (res.ok) {
+          response = res;
+        }
+      } catch (_backendErr) {
+        // Fall through to direct Groq call
+      }
+
+      if (!response && directKey) {
+        const systemMessage = context
+          ? `You are APIS (Academic Performance Intelligence System), an advanced AI academic advisor.\nContext:\n${context}`
+          : 'You are APIS, an advanced AI academic advisor.';
+        const model = import.meta.env.VITE_GROQ_MODEL || 'openai/gpt-oss-120b';
+
+        response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${directKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            model,
+            messages: [
+              { role: 'system', content: systemMessage },
+              { role: 'user', content: prompt.trim() },
+            ],
+            stream: true,
+            temperature: 0.7,
+            max_tokens: 1024,
+          }),
+          signal: abortControllerRef.current.signal,
+        });
+      }
+
       clearTimeout(timeoutId);
 
-      if (!response.ok) {
-        throw new Error(`Connection failed (${response.status})`);
+      if (!response || !response.ok) {
+        throw new Error(`Connection failed (${response ? response.status : 'offline'})`);
       }
 
       const reader = response.body?.getReader();

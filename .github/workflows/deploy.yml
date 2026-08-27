@@ -48,6 +48,9 @@ jobs:
           VITE_BASE_PATH: /APIS-Academic-Intelligence-System/
           # Production backend URL (public — not a secret)
           VITE_API_URL: https://apis-academic-intelligence-system.vercel.app
+          # AI Engine Groq Key for Pages deployment
+          VITE_GROQ_API_KEY: ${{ secrets.GROQ_API_KEY || secrets.VITE_GROQ_API_KEY }}
+          VITE_GROQ_MODEL: ${{ secrets.GROQ_MODEL || 'openai/gpt-oss-120b' }}
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

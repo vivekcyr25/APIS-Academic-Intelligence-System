@@ -53,26 +53,45 @@ Guidelines:
       }),
     });
 
-    const data = await response.json();
-
-    if (!response.ok) {
-      const errMsg = data?.error || 'Failed to connect to AI Intelligence';
-      throw new Error(errMsg);
+    if (response.ok) {
+      const data = await response.json();
+      const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (text) return text;
     }
-
-    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-    if (!text) throw new Error('Intelligence synthesis resulted in no actionable data');
-    
-    return text;
-  } catch (err: any) {
-    // Semantic Failsafe Logic
-    const isTimeout = err.message?.includes('timed out');
-    if (isTimeout) {
-      return "The Neural Intelligence layer is currently experiencing high latency. Academic systems remain operational. Please try again in a few moments.";
-    }
-    
-    throw err;
+  } catch (proxyErr) {
+    console.warn('[aiService] Backend proxy unavailable, attempting direct fallback...', proxyErr);
   }
+
+  // Direct Groq Fallback (e.g. GitHub Pages static deployment)
+  const directKey = import.meta.env.VITE_GROQ_API_KEY;
+  if (directKey) {
+    try {
+      const model = import.meta.env.VITE_GROQ_MODEL || 'openai/gpt-oss-120b';
+      const directRes = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${directKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          model,
+          messages: [{ role: 'user', content: fullPrompt }],
+          temperature: 0.7,
+          max_tokens: 1024
+        })
+      });
+
+      if (directRes.ok) {
+        const directData = await directRes.json();
+        const content = directData?.choices?.[0]?.message?.content;
+        if (content) return content;
+      }
+    } catch (directErr) {
+      console.warn('[aiService] Direct Groq call failed:', directErr);
+    }
+  }
+
+  throw new Error('AI Intelligence currently unavailable.');
 };
 
 export const getPerformanceAnalysis = async (marksData: any[]): Promise<string> => {
