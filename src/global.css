@@ -853,10 +853,9 @@ img { max-width: 100%; height: auto; }
   transform: scale(1.1);
 }
 
-/* ── Light mode academic doodle ornaments color ── */
-[data-theme="light"] .academic-doodle-layer {
-  opacity: 0.12 !important;
-  filter: invert(1) hue-rotate(240deg) saturate(0.6);
+/* ── Academic doodle ornaments layer ── */
+.academic-doodle-layer {
+  opacity: 1;
 }
 
 /* ── Light mode NeuralConsole ── */

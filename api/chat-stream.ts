@@ -34,9 +34,32 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return res.end();
   }
 
+  // ── Explicit / Inappropriate Content Safety Guardrail ──
+  const EXPLICIT_PATTERN = /\b(sex|sexual|porn|pornography|nude|nudity|nsfw|erotic|orgasm|masturbat|fetish|boobs|penis|vagina|intercourse|stripper|blowjob|hookup|hentai|xxx|kill\s+yourself|suicide|self-harm|bomb\s+making|terrorist|weapon\s+assembly|rape|molest|bitch|slut|whore|motherfucker|cock|cunt)\b/i;
+  const SAFETY_REFUSAL_MESSAGE = "Sorry, I can't answer that. What can I help you with regarding any other request?";
+
+  if (EXPLICIT_PATTERN.test(prompt)) {
+    res.write(`data: ${JSON.stringify({ text: SAFETY_REFUSAL_MESSAGE })}\n\n`);
+    res.write('data: [DONE]\n\n');
+    return res.end();
+  }
+
   const systemMessage = context
-    ? `You are APIS (Academic Performance Intelligence System), an advanced AI academic advisor for a university student.\nContext about the student:\n${context}\nGuidelines:\n1. Be data-driven and analytical.\n2. Provide actionable advice for academic improvement.\n3. Keep responses concise and well-structured (use markdown).\n4. Use a futuristic, professional, and encouraging tone.\n5. Always reference the student's actual data when available.`
-    : 'You are APIS, an advanced AI academic advisor. Be helpful, analytical, and encouraging.';
+    ? `You are APIS (Academic Performance Intelligence System), a sharp and ultra-concise AI academic advisor.
+Student Context:
+${context}
+
+CRITICAL FORMATTING & LENGTH RULES:
+1. POINT-TO-POINT ONLY: Output strictly 2 to 4 short bullet points. Total response MUST be under 100 words.
+2. NO TABLES: NEVER output markdown tables, grids, or multi-column structures.
+3. NO LONG PARAGRAPHS OR ESSAYS: Strictly no multi-section breakdowns, long introductions, or filler text.
+4. DIRECT & ACTIONABLE: Highlight the core score and exact next step immediately.
+5. SAFETY REFUSAL: If asked anything sexually explicit, inappropriate, harmful, or non-academic violations, reply ONLY with: "${SAFETY_REFUSAL_MESSAGE}".`
+    : `You are APIS, a concise AI academic advisor.
+CRITICAL RULES:
+1. POINT-TO-POINT ONLY: Output strictly 2 to 4 short bullet points (under 80 words total).
+2. NO TABLES, NO ESSAYS, NO FLUFF: Answer directly and crisply.
+3. SAFETY REFUSAL: If asked anything sexually explicit, inappropriate, or harmful, reply ONLY with: "${SAFETY_REFUSAL_MESSAGE}".`;
 
   try {
     const model = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
@@ -53,8 +76,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
           { role: 'user', content: prompt.trim() },
         ],
         stream: true,
-        temperature: 0.7,
-        max_tokens: 1024,
+        temperature: 0.4,
+        max_tokens: 250,
       }),
     });
 

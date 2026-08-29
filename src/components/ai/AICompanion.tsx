@@ -13,10 +13,12 @@ import {
   Zap,
   BookOpen
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../../contexts/AuthContext.tsx';
 import { subscribeToMarks, type MarkRecord } from '../../services/marks/marksService.ts';
 import { askAI, type ChatMessage } from '../../services/ai/aiService.ts';
 import { generateLocalAcademicResponse } from '../../services/ai/localAIAdvisor.ts';
+import { isExplicitOrInappropriate, SAFETY_REFUSAL_MESSAGE } from '../../services/ai/safetyFilter.ts';
 import { Button } from '../ui/Button.tsx';
 import { cn } from '../../lib/utils.ts';
 
@@ -55,19 +57,31 @@ const AICompanion = () => {
   const handleSend = async () => {
     if (!input.trim() || isTyping) return;
 
-    const userMsg: ChatMessage = { role: 'user', content: input };
-    setMessages(prev => [...prev, userMsg]);
+    const userPrompt = input.trim();
+    const userMsg: ChatMessage = { role: 'user', content: userPrompt };
     setInput('');
+
+    // Instant Safety Filter Evaluation
+    if (isExplicitOrInappropriate(userPrompt)) {
+      setMessages(prev => [
+        ...prev, 
+        userMsg, 
+        { role: 'ai', content: SAFETY_REFUSAL_MESSAGE }
+      ]);
+      return;
+    }
+
+    setMessages(prev => [...prev, userMsg]);
     setIsTyping(true);
 
     try {
       const context = getContextString();
-      const response = await askAI(input, context);
+      const response = await askAI(userPrompt, context);
       const aiMsg: ChatMessage = { role: 'ai', content: response };
       setMessages(prev => [...prev, aiMsg]);
     } catch (_err: any) {
       // Offline / cloud unavailable fallback
-      const fallbackReply = generateLocalAcademicResponse(userMsg.content, user, marks);
+      const fallbackReply = generateLocalAcademicResponse(userPrompt, user, marks);
       setMessages(prev => [...prev, { role: 'ai', content: fallbackReply }]);
     } finally {
       setIsTyping(false);
@@ -152,9 +166,13 @@ const AICompanion = () => {
                       ? "bg-primary/20 text-foreground rounded-tr-none border border-primary/20" 
                       : "bg-white/5 text-foreground rounded-tl-none border border-white/5"
                   )}>
-                    {msg.content.split('\n').map((line, idx) => (
-                      <p key={idx} className={line ? "mb-2" : "mb-4"}>{line}</p>
-                    ))}
+                    {msg.role === 'user' ? (
+                      <p>{msg.content}</p>
+                    ) : (
+                      <div className="prose prose-invert prose-p:my-1 prose-ul:my-2 prose-li:my-0.5 prose-strong:text-primary text-sm leading-relaxed">
+                        <ReactMarkdown>{msg.content}</ReactMarkdown>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               ))}

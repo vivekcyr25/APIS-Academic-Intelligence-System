@@ -32,10 +32,18 @@ export default async function handler(req, res) {
         return res.status(400).json({ success: false, message: 'Prompt too long (max 8000 chars)' });
     }
 
+    // ── Explicit / Inappropriate Content Safety Guardrail ──
+    const EXPLICIT_PATTERN = /\b(sex|sexual|porn|pornography|nude|nudity|nsfw|erotic|orgasm|masturbat|fetish|boobs|penis|vagina|intercourse|stripper|blowjob|hookup|hentai|xxx|kill\s+yourself|suicide|self-harm|bomb\s+making|terrorist|weapon\s+assembly|rape|molest|bitch|slut|whore|motherfucker|cock|cunt)\b/i;
+    const SAFETY_REFUSAL_MESSAGE = "Sorry, I can't answer that. What can I help you with regarding any other request?";
+
+    if (EXPLICIT_PATTERN.test(prompt)) {
+        return res.status(200).json({ success: true, text: SAFETY_REFUSAL_MESSAGE });
+    }
+
     // ── CALL GROQ ────────────────────────────────────────────────────────────
     const systemMessage = context
-        ? `You are APIS (Academic Performance Intelligence System), an advanced AI academic advisor.\nContext about the student:\n${context}\nGuidelines:\n1. Be data-driven and analytical.\n2. Provide actionable advice for academic improvement.\n3. Keep responses concise and well-structured.\n4. Use a futuristic, professional, and encouraging tone.`
-        : 'You are APIS, an AI academic advisor. Be helpful, concise, and professional.';
+        ? `You are APIS (Academic Performance Intelligence System), an ultra-concise AI academic advisor.\nContext about the student:\n${context}\nSTRICT RULES:\n1. POINT-TO-POINT ONLY: Output strictly 2 to 4 short bullet points (under 100 words total).\n2. NO TABLES: Never generate markdown tables or multi-column grids.\n3. NO ESSAYS OR FLUFF: Be completely direct.\n4. SAFETY REFUSAL: If asked anything sexually explicit, inappropriate, or harmful, reply ONLY with: "${SAFETY_REFUSAL_MESSAGE}".`
+        : `You are APIS, a concise AI academic advisor.\nSTRICT RULES:\n1. POINT-TO-POINT ONLY: Output strictly 2 to 4 bullet points (under 80 words total).\n2. NO TABLES, NO ESSAYS, NO FLUFF.\n3. SAFETY REFUSAL: If asked anything sexually explicit or inappropriate, reply ONLY with: "${SAFETY_REFUSAL_MESSAGE}".`;
 
     console.log('[chat] calling Groq with prompt length:', prompt.length);
 
@@ -53,8 +61,8 @@ export default async function handler(req, res) {
                     { role: 'system', content: systemMessage },
                     { role: 'user', content: prompt.trim() }
                 ],
-                temperature: 0.7,
-                max_tokens: 512
+                temperature: 0.4,
+                max_tokens: 220
             })
         });
 

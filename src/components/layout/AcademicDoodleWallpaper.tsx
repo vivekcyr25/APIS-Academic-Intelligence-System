@@ -1,23 +1,32 @@
 import { memo } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { usePerformanceMode } from '../../hooks/usePerformanceMode';
+import { useTheme } from '../../contexts/ThemeContext';
 
 /**
  * AcademicDoodleWallpaper
  * 
- * Elegant, subtle academic doodle wallpaper replacing the sci-fi starfield.
- * Uses lightweight hand-drawn SVG vector line-art of study desk objects,
- * books, graduation caps, math formulas, code brackets, and academic tools.
+ * Highlighting academic doodle wallpaper with crisp, illuminated line-art
+ * of study desk objects, books, graduation caps, math formulas, code brackets, and academic tools.
  * 
  * Features:
- * - Low-opacity lavender/muted violet/soft purple line-art.
- * - Center-clearing radial mask for maximum headline readability.
+ * - High-clarity illuminated line art for both Dark and Light themes.
+ * - Perfectly balanced radial mask preserving headline readability while keeping doodles visible.
  * - Seamless distribution around margins, edges, and corners.
- * - Ultra-subtle calm floating animation for organic depth.
+ * - Organic floating depth animations.
  */
 export const AcademicDoodleWallpaper = memo(() => {
   const { isLowEnd } = usePerformanceMode();
   const shouldReduceMotion = useReducedMotion();
+  const { isDark } = useTheme();
+
+  // Dynamic theme colors for optimal visibility & contrast
+  const strokeColor = isDark ? '#c4b5fd' : '#6d28d9';
+  const strokeWidth = isDark ? '1.5' : '1.5';
+  const groupOpacity = isDark ? '0.38' : '0.30';
+  const accentFill = isDark ? '#c084fc' : '#7c3aed';
+  const starFill = isDark ? '#e9d5ff' : '#8b5cf6';
+  const pinFill = isDark ? '#d8b4fe' : '#9333ea';
 
   return (
     <div 
@@ -28,24 +37,26 @@ export const AcademicDoodleWallpaper = memo(() => {
       <div 
         className="absolute inset-0 opacity-40"
         style={{
-          background: 'radial-gradient(ellipse 90% 60% at 50% 20%, rgba(99, 60, 220, 0.15) 0%, rgba(20, 10, 45, 0.4) 60%, transparent 100%)'
+          background: isDark
+            ? 'radial-gradient(ellipse 90% 60% at 50% 20%, rgba(139, 92, 246, 0.22) 0%, rgba(20, 10, 45, 0.3) 60%, transparent 100%)'
+            : 'radial-gradient(ellipse 90% 60% at 50% 20%, rgba(167, 139, 250, 0.20) 0%, rgba(237, 233, 254, 0.4) 60%, transparent 100%)'
         }}
       />
 
       {/* ── 2. Seamless SVG Doodle Pattern Layer ── */}
       <svg
-        className="absolute inset-0 w-full h-full opacity-60"
+        className="absolute inset-0 w-full h-full opacity-90"
         xmlns="http://www.w3.org/2000/svg"
         width="100%"
         height="100%"
       >
         <defs>
-          {/* Subtle Radial Gradient to fade out doodles in center for maximum text legibility */}
+          {/* Subtle Radial Gradient to fade out doodles in center for maximum text legibility while remaining visible */}
           <mask id="hero-center-mask">
-            <radialGradient id="center-fade" cx="50%" cy="38%" r="65%">
-              <stop offset="0%" stopColor="white" stopOpacity="0.08" />
-              <stop offset="35%" stopColor="white" stopOpacity="0.35" />
-              <stop offset="70%" stopColor="white" stopOpacity="0.85" />
+            <radialGradient id="center-fade" cx="50%" cy="38%" r="70%">
+              <stop offset="0%" stopColor="white" stopOpacity="0.25" />
+              <stop offset="40%" stopColor="white" stopOpacity="0.55" />
+              <stop offset="75%" stopColor="white" stopOpacity="0.88" />
               <stop offset="100%" stopColor="white" stopOpacity="1" />
             </radialGradient>
             <rect width="100%" height="100%" fill="url(#center-fade)" />
@@ -60,11 +71,11 @@ export const AcademicDoodleWallpaper = memo(() => {
           >
             <g
               fill="none"
-              stroke="#a78bfa"
-              strokeWidth="1.3"
+              stroke={strokeColor}
+              strokeWidth={strokeWidth}
               strokeLinecap="round"
               strokeLinejoin="round"
-              opacity="0.14"
+              opacity={groupOpacity}
             >
               {/* 1. Open Book (Top Left) */}
               <g transform="translate(30, 40) rotate(-6)">
@@ -81,7 +92,7 @@ export const AcademicDoodleWallpaper = memo(() => {
                 <polygon points="24,6 48,16 24,26 0,16" />
                 <path d="M10,21 L10,32 C10,32 16,36 24,36 C32,36 38,32 38,32 L38,21" />
                 <path d="M48,16 L48,34" />
-                <circle cx="48" cy="35" r="1.5" fill="#a78bfa" />
+                <circle cx="48" cy="35" r="1.5" fill={accentFill} />
               </g>
 
               {/* 3. Pencil & Ruler Cross (Top Middle) */}
@@ -146,7 +157,7 @@ export const AcademicDoodleWallpaper = memo(() => {
                 <line x1="10" y1="13" x2="10" y2="22" strokeWidth="0.8" />
                 {/* Top Book with Bookmark */}
                 <rect x="2" y="2" width="36" height="9" rx="2" />
-                <path d="M28,2 L28,8 L31,6 L34,8 L34,2" fill="#a78bfa" opacity="0.3" />
+                <path d="M28,2 L28,8 L31,6 L34,8 L34,2" fill={accentFill} opacity="0.4" />
               </g>
 
               {/* 10. Calculator (Far Right Middle) */}
@@ -154,15 +165,15 @@ export const AcademicDoodleWallpaper = memo(() => {
                 <rect x="0" y="0" width="28" height="40" rx="4" />
                 <rect x="4" y="4" width="20" height="9" rx="1" strokeWidth="0.9" />
                 {/* Keypad */}
-                <circle cx="8" cy="19" r="1.5" fill="#a78bfa" />
-                <circle cx="14" cy="19" r="1.5" fill="#a78bfa" />
-                <circle cx="20" cy="19" r="1.5" fill="#a78bfa" />
-                <circle cx="8" cy="26" r="1.5" fill="#a78bfa" />
-                <circle cx="14" cy="26" r="1.5" fill="#a78bfa" />
-                <circle cx="20" cy="26" r="1.5" fill="#a78bfa" />
-                <circle cx="8" cy="33" r="1.5" fill="#a78bfa" />
-                <circle cx="14" cy="33" r="1.5" fill="#a78bfa" />
-                <circle cx="20" cy="33" r="1.5" fill="#a78bfa" />
+                <circle cx="8" cy="19" r="1.5" fill={accentFill} />
+                <circle cx="14" cy="19" r="1.5" fill={accentFill} />
+                <circle cx="20" cy="19" r="1.5" fill={accentFill} />
+                <circle cx="8" cy="26" r="1.5" fill={accentFill} />
+                <circle cx="14" cy="26" r="1.5" fill={accentFill} />
+                <circle cx="20" cy="26" r="1.5" fill={accentFill} />
+                <circle cx="8" cy="33" r="1.5" fill={accentFill} />
+                <circle cx="14" cy="33" r="1.5" fill={accentFill} />
+                <circle cx="20" cy="33" r="1.5" fill={accentFill} />
               </g>
 
               {/* 11. Diploma / Scroll with Ribbon (Bottom Left) */}
@@ -170,7 +181,7 @@ export const AcademicDoodleWallpaper = memo(() => {
                 <path d="M0,6 C6,2 18,2 24,6 L48,6 C54,2 66,2 72,6 L72,22 C66,18 54,18 48,22 L24,22 C18,18 6,18 0,22 Z" />
                 <ellipse cx="72" cy="14" rx="3" ry="8" />
                 {/* Ribbon Tag */}
-                <path d="M34,14 L30,28 L36,25 L42,28 L38,14" fill="#a78bfa" opacity="0.25" />
+                <path d="M34,14 L30,28 L36,25 L42,28 L38,14" fill={accentFill} opacity="0.35" />
               </g>
 
               {/* 12. Sticky Note with Pushpin (Bottom Center-Left) */}
@@ -178,9 +189,9 @@ export const AcademicDoodleWallpaper = memo(() => {
                 <path d="M0,0 L26,0 L26,20 L20,26 L0,26 Z" />
                 <path d="M20,20 L26,20 L20,26 Z" strokeWidth="0.9" />
                 {/* Push pin */}
-                <circle cx="13" cy="4" r="2" fill="#c084fc" opacity="0.6" />
-                <line x1="4" y1="10" x2="18" y2="10" strokeWidth="0.8" opacity="0.6" />
-                <line x1="4" y1="15" x2="21" y2="15" strokeWidth="0.8" opacity="0.6" />
+                <circle cx="13" cy="4" r="2" fill={pinFill} opacity="0.75" />
+                <line x1="4" y1="10" x2="18" y2="10" strokeWidth="0.8" opacity="0.7" />
+                <line x1="4" y1="15" x2="21" y2="15" strokeWidth="0.8" opacity="0.7" />
               </g>
 
               {/* 13. Upward Trend Chart (Bottom Center-Right) */}
@@ -188,7 +199,7 @@ export const AcademicDoodleWallpaper = memo(() => {
                 <line x1="0" y1="30" x2="40" y2="30" />
                 <line x1="0" y1="0" x2="0" y2="30" />
                 <polyline points="4,24 14,18 24,22 36,6" strokeWidth="1.5" />
-                <circle cx="36" cy="6" r="2" fill="#a78bfa" />
+                <circle cx="36" cy="6" r="2" fill={accentFill} />
               </g>
 
               {/* 14. Geometry Compass & Pi (Bottom Right) */}
@@ -197,27 +208,27 @@ export const AcademicDoodleWallpaper = memo(() => {
                 <path d="M4,10 L24,10 M10,10 L8,26 M18,10 L20,26" strokeWidth="1.4" />
                 {/* Square Root */}
                 <path d="M28,20 L31,26 L35,12 L46,12" strokeWidth="1.2" />
-                <text x="37" y="24" fontSize="10" stroke="none" fill="#a78bfa" fontFamily="sans-serif">x</text>
+                <text x="37" y="24" fontSize="10" stroke="none" fill={accentFill} fontFamily="sans-serif">x</text>
               </g>
 
               {/* 15. Sparkles & Little Study Stars (Scattered Accents) */}
               <g transform="translate(90, 20)">
-                <path d="M4,0 L5,3 L8,4 L5,5 L4,8 L3,5 L0,4 L3,3 Z" fill="#d8b4fe" opacity="0.4" stroke="none" />
+                <path d="M4,0 L5,3 L8,4 L5,5 L4,8 L3,5 L0,4 L3,3 Z" fill={starFill} opacity="0.7" stroke="none" />
               </g>
               <g transform="translate(240, 60)">
-                <path d="M3,0 L4,2 L6,3 L4,4 L3,6 L2,4 L0,3 L2,2 Z" fill="#d8b4fe" opacity="0.4" stroke="none" />
+                <path d="M3,0 L4,2 L6,3 L4,4 L3,6 L2,4 L0,3 L2,2 Z" fill={starFill} opacity="0.7" stroke="none" />
               </g>
               <g transform="translate(390, 90)">
-                <path d="M4,0 L5,3 L8,4 L5,5 L4,8 L3,5 L0,4 L3,3 Z" fill="#d8b4fe" opacity="0.4" stroke="none" />
+                <path d="M4,0 L5,3 L8,4 L5,5 L4,8 L3,5 L0,4 L3,3 Z" fill={starFill} opacity="0.7" stroke="none" />
               </g>
               <g transform="translate(100, 260)">
-                <path d="M3,0 L4,2 L6,3 L4,4 L3,6 L2,4 L0,3 L2,2 Z" fill="#d8b4fe" opacity="0.4" stroke="none" />
+                <path d="M3,0 L4,2 L6,3 L4,4 L3,6 L2,4 L0,3 L2,2 Z" fill={starFill} opacity="0.7" stroke="none" />
               </g>
               <g transform="translate(220, 270)">
-                <path d="M4,0 L5,3 L8,4 L5,5 L4,8 L3,5 L0,4 L3,3 Z" fill="#d8b4fe" opacity="0.4" stroke="none" />
+                <path d="M4,0 L5,3 L8,4 L5,5 L4,8 L3,5 L0,4 L3,3 Z" fill={starFill} opacity="0.7" stroke="none" />
               </g>
               <g transform="translate(310, 140)">
-                <path d="M3,0 L4,2 L6,3 L4,4 L3,6 L2,4 L0,3 L2,2 Z" fill="#d8b4fe" opacity="0.4" stroke="none" />
+                <path d="M3,0 L4,2 L6,3 L4,4 L3,6 L2,4 L0,3 L2,2 Z" fill={starFill} opacity="0.7" stroke="none" />
               </g>
             </g>
           </pattern>
@@ -237,7 +248,9 @@ export const AcademicDoodleWallpaper = memo(() => {
         <>
           {/* Floating Book on Top-Left Edge */}
           <motion.div
-            className="absolute top-24 left-8 lg:left-16 opacity-30 text-violet-300 pointer-events-none hidden sm:block"
+            className={`absolute top-24 left-8 lg:left-16 pointer-events-none hidden sm:block ${
+              isDark ? 'opacity-60 text-violet-300' : 'opacity-50 text-violet-600'
+            }`}
             animate={{
               y: [0, -8, 0],
               rotate: [-6, -4, -6],
@@ -248,19 +261,21 @@ export const AcademicDoodleWallpaper = memo(() => {
               ease: 'easeInOut',
             }}
           >
-            <svg width="60" height="48" viewBox="0 0 60 48" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="60" height="48" viewBox="0 0 60 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M4,12 C14,6 24,6 30,10 C36,6 46,6 56,12 L56,38 C46,32 36,32 30,36 C24,32 14,32 4,38 Z" />
               <path d="M30,10 L30,36" />
-              <line x1="10" y1="18" x2="24" y2="16" opacity="0.6" strokeWidth="0.9" />
-              <line x1="10" y1="24" x2="24" y2="22" opacity="0.6" strokeWidth="0.9" />
-              <line x1="36" y1="16" x2="50" y2="18" opacity="0.6" strokeWidth="0.9" />
-              <line x1="36" y1="22" x2="50" y2="24" opacity="0.6" strokeWidth="0.9" />
+              <line x1="10" y1="18" x2="24" y2="16" opacity="0.7" strokeWidth="1" />
+              <line x1="10" y1="24" x2="24" y2="22" opacity="0.7" strokeWidth="1" />
+              <line x1="36" y1="16" x2="50" y2="18" opacity="0.7" strokeWidth="1" />
+              <line x1="36" y1="22" x2="50" y2="24" opacity="0.7" strokeWidth="1" />
             </svg>
           </motion.div>
 
           {/* Floating Graduation Cap on Top-Right Edge */}
           <motion.div
-            className="absolute top-28 right-8 lg:right-20 opacity-30 text-purple-300 pointer-events-none hidden sm:block"
+            className={`absolute top-28 right-8 lg:right-20 pointer-events-none hidden sm:block ${
+              isDark ? 'opacity-60 text-purple-300' : 'opacity-50 text-purple-600'
+            }`}
             animate={{
               y: [0, 8, 0],
               rotate: [8, 11, 8],
@@ -272,7 +287,7 @@ export const AcademicDoodleWallpaper = memo(() => {
               delay: 1,
             }}
           >
-            <svg width="56" height="44" viewBox="0 0 56 44" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="56" height="44" viewBox="0 0 56 44" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="28,4 54,16 28,28 2,16" />
               <path d="M12,22 L12,34 C12,34 18,38 28,38 C38,38 44,34 44,34 L44,22" />
               <path d="M54,16 L54,34" />
@@ -282,7 +297,9 @@ export const AcademicDoodleWallpaper = memo(() => {
 
           {/* Floating Idea Lightbulb on Mid-Left */}
           <motion.div
-            className="absolute top-[48vh] left-6 lg:left-12 opacity-25 text-indigo-300 pointer-events-none hidden md:block"
+            className={`absolute top-[48vh] left-6 lg:left-12 pointer-events-none hidden md:block ${
+              isDark ? 'opacity-55 text-indigo-300' : 'opacity-45 text-indigo-600'
+            }`}
             animate={{
               y: [0, -6, 0],
               rotate: [4, 0, 4],
@@ -294,17 +311,19 @@ export const AcademicDoodleWallpaper = memo(() => {
               delay: 2,
             }}
           >
-            <svg width="40" height="48" viewBox="0 0 40 48" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="40" height="48" viewBox="0 0 40 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M20,2 C10,2 2,10 2,20 C2,26 6,31 10,35 L10,40 L30,40 L30,35 C34,31 38,26 38,20 C38,10 30,2 20,2 Z" />
               <line x1="14" y1="44" x2="26" y2="44" />
               <line x1="16" y1="47" x2="24" y2="47" />
-              <path d="M15,22 L20,13 L25,22" strokeWidth="0.9" opacity="0.7" />
+              <path d="M15,22 L20,13 L25,22" strokeWidth="1" opacity="0.8" />
             </svg>
           </motion.div>
 
           {/* Floating Code Snippet on Mid-Right */}
           <motion.div
-            className="absolute top-[52vh] right-6 lg:right-16 opacity-25 text-violet-300 pointer-events-none hidden md:block"
+            className={`absolute top-[52vh] right-6 lg:right-16 pointer-events-none hidden md:block ${
+              isDark ? 'opacity-55 text-violet-300' : 'opacity-45 text-violet-600'
+            }`}
             animate={{
               y: [0, 7, 0],
               rotate: [-5, -2, -5],
@@ -316,10 +335,10 @@ export const AcademicDoodleWallpaper = memo(() => {
               delay: 0.5,
             }}
           >
-            <svg width="48" height="36" viewBox="0 0 48 36" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="48" height="36" viewBox="0 0 48 36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12,4 L2,18 L12,32" />
               <path d="M36,4 L46,18 L36,32" />
-              <line x1="28" y1="4" x2="20" y2="32" strokeWidth="1.2" />
+              <line x1="28" y1="4" x2="20" y2="32" strokeWidth="1.4" />
             </svg>
           </motion.div>
         </>
@@ -329,7 +348,9 @@ export const AcademicDoodleWallpaper = memo(() => {
       <div 
         className="absolute inset-0 pointer-events-none"
         style={{
-          background: 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent 40%, rgba(6, 3, 15, 0.4) 100%)'
+          background: isDark
+            ? 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent 60%, rgba(6, 3, 15, 0.25) 100%)'
+            : 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent 65%, rgba(245, 243, 255, 0.2) 100%)'
         }}
       />
     </div>

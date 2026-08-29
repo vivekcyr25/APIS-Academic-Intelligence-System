@@ -50,10 +50,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     const prompt = contents[0]?.parts?.[0]?.text || '';
-    const temp = generationConfig?.temperature || 0.7;
-    const maxTokens = generationConfig?.maxOutputTokens || 1024;
+    const temp = generationConfig?.temperature || 0.5;
+    const maxTokens = generationConfig?.maxOutputTokens || 512;
 
-    // 5. Proxy request to Google Gemini with Timeout Handling
+    // ── Explicit / Inappropriate Content Safety Guardrail ──
+    const EXPLICIT_PATTERN = /\b(sex|sexual|porn|pornography|nude|nudity|nsfw|erotic|orgasm|masturbat|fetish|boobs|penis|vagina|intercourse|stripper|blowjob|hookup|hentai|xxx|kill\s+yourself|suicide|self-harm|bomb\s+making|terrorist|weapon\s+assembly|rape|molest|bitch|slut|whore|motherfucker|cock|cunt)\b/i;
+    const SAFETY_REFUSAL_MESSAGE = "Sorry, I can't answer that. What can I help you with regarding any other request?";
+
+    if (EXPLICIT_PATTERN.test(prompt)) {
+      return res.status(200).json({
+        candidates: [{ content: { parts: [{ text: SAFETY_REFUSAL_MESSAGE }] } }]
+      });
+    }
+
+    // 5. Proxy request to Groq with Timeout Handling
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout for serverless safety
 

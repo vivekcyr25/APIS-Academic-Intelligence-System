@@ -42,8 +42,8 @@ export const NeuralBackground = memo(() => {
         className="absolute inset-0"
         style={{
           background: isDark
-            ? 'radial-gradient(ellipse 90% 80% at 50% 40%, transparent 40%, rgba(6, 3, 15, 0.75) 100%)'
-            : 'radial-gradient(ellipse 90% 80% at 50% 40%, transparent 40%, rgba(240, 237, 255, 0.6) 100%)',
+            ? 'radial-gradient(ellipse 90% 80% at 50% 40%, transparent 60%, rgba(6, 3, 15, 0.40) 100%)'
+            : 'radial-gradient(ellipse 90% 80% at 50% 40%, transparent 65%, rgba(240, 237, 255, 0.30) 100%)',
           transition: 'background 0.4s ease',
         }}
       />

@@ -1,6 +1,7 @@
 import { createWorker } from 'tesseract.js';
 import { calculateConfidence } from './visionParser';
 import { getApiBaseUrl } from '../../lib/apiConfig';
+import { isExplicitOrInappropriate, SAFETY_REFUSAL_MESSAGE } from './safetyFilter';
 
 // Production Throttling: 1 request per 10 seconds for general AI actions
 const AI_THROTTLE_MS = 10000;
@@ -16,25 +17,30 @@ export interface ChatMessage {
  * Communicates with the /api/ai proxy to prevent key exposure.
  */
 export const askAI = async (prompt: string, context: string): Promise<string> => {
+  // ── Explicit / Inappropriate Content Pre-Filter ──
+  if (isExplicitOrInappropriate(prompt)) {
+    return SAFETY_REFUSAL_MESSAGE;
+  }
+
   const now = Date.now();
   if (now - lastRequestTime < AI_THROTTLE_MS) {
     throw new Error('AI Intelligence is cooling down. Please wait a few seconds before the next synthesis.');
   }
   lastRequestTime = now;
 
-  const fullPrompt = `You are APIS (Academic Performance Intelligence System), an advanced AI academic advisor for a university student.
+  const fullPrompt = `You are APIS (Academic Performance Intelligence System), a sharp and ultra-concise AI academic advisor.
 
-Context about the student:
+Student Context:
 ${context}
 
 User question: ${prompt}
 
-Guidelines:
-1. Be data-driven and analytical.
-2. Provide actionable advice for academic improvement.
-3. Keep responses concise and well-structured (use markdown formatting like **bold** and bullet points).
-4. Use a futuristic, professional, and encouraging tone.
-5. Always reference the student's actual data when available.`;
+CRITICAL RULES:
+1. POINT-TO-POINT ONLY: Output strictly 2 to 4 short, crisp bullet points (under 100 words total).
+2. NO TABLES: NEVER generate markdown tables or multi-column grids.
+3. NO ESSAYS OR FLUFF: Avoid long paragraphs, greetings, and multi-section outlines. Get straight to the point.
+4. DATA-DRIVEN: Directly state key scores and required next steps.
+5. SAFETY REFUSAL: If the question contains sexually explicit content, adult topics, harassment, violence, or inappropriate non-academic violations, reply ONLY with: "${SAFETY_REFUSAL_MESSAGE}".`;
 
   try {
     const baseUrl = getApiBaseUrl();
@@ -47,8 +53,8 @@ Guidelines:
       body: JSON.stringify({
         contents: [{ parts: [{ text: fullPrompt }] }],
         generationConfig: {
-          temperature: 0.7,
-          maxOutputTokens: 1024,
+          temperature: 0.4,
+          maxOutputTokens: 250,
         },
       }),
     });

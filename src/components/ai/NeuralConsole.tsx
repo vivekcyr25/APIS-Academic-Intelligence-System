@@ -11,12 +11,14 @@ import {
   Sparkles,
   Square
 } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 import { useAuth } from '../../contexts/AuthContext.tsx';
 import { subscribeToMarks, type MarkRecord } from '../../services/marks/marksService.ts';
 import { useAIStream } from '../../hooks/useAIStream.ts';
 import { cn } from '../../lib/utils.ts';
 import type { ChatMessage } from '../../services/ai/aiService.ts';
 import { generateLocalAcademicResponse } from '../../services/ai/localAIAdvisor.ts';
+import { isExplicitOrInappropriate, SAFETY_REFUSAL_MESSAGE } from '../../services/ai/safetyFilter.ts';
 
 interface NeuralConsoleProps {
   isOpen: boolean;
@@ -96,8 +98,19 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
     currentPromptRef.current = userPrompt;
     
     const userMsg: ChatMessage = { role: 'user', content: userPrompt };
-    setMessages(prev => [...prev, userMsg]);
     setInput('');
+
+    // Instant Safety Filter Evaluation
+    if (isExplicitOrInappropriate(userPrompt)) {
+      setMessages(prev => [
+        ...prev, 
+        userMsg, 
+        { role: 'ai', content: SAFETY_REFUSAL_MESSAGE }
+      ]);
+      return;
+    }
+
+    setMessages(prev => [...prev, userMsg]);
 
     const context = getContextString();
     startStream(userPrompt, context);
@@ -240,9 +253,13 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
                         ? "bg-violet-600/30 text-white rounded-tr-none border border-violet-500/30 shadow-[0_4px_20px_rgba(139,92,246,0.15)]"
                         : "bg-white/[0.04] text-white/90 rounded-tl-none border border-white/[0.08]"
                     )}>
-                      {msg.content.split('\n').map((line, idx) => (
-                        <p key={idx} className={line ? "mb-1.5" : "mb-3"}>{line}</p>
-                      ))}
+                      {msg.role === 'user' ? (
+                        <p>{msg.content}</p>
+                      ) : (
+                        <div className="prose prose-invert prose-p:my-1 prose-ul:my-2 prose-li:my-0.5 prose-strong:text-violet-300 text-sm sm:text-base leading-relaxed">
+                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+                        </div>
+                      )}
                     </div>
                   </motion.div>
                 );
