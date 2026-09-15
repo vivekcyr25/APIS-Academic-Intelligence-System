@@ -22,7 +22,7 @@ export const AuthSuccessTransition = () => {
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
           transition={{ type: "spring", stiffness: 260, damping: 20 }}
-          className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/30 flex items-center justify-center shadow-[0_0_40px_rgba(139,92,246,0.3)] mb-8"
+          className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/30 flex items-center justify-center shadow-[0_0_40px_rgba(31, 129, 118, 0.3)] mb-8"
         >
           <ShieldCheck className="w-10 h-10 text-primary" />
         </motion.div>

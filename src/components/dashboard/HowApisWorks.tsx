@@ -23,11 +23,11 @@ const steps = [
       'Real-Time Lecture Attendance Registry & Shortage Limits',
       'Accredited Credit Weights per Subject (Theory vs Lab vs Electives)',
     ],
-    color: 'text-violet-400',
-    bg: 'bg-violet-500/10',
-    border: 'border-violet-500/20',
-    tagBg: 'bg-violet-500/15 text-violet-300 border-violet-500/30',
-    accentGrad: 'from-violet-500/15 via-transparent to-transparent'
+    color: 'text-primary',
+    bg: 'bg-primary/10',
+    border: 'border-primary/20',
+    tagBg: 'bg-primary/15 text-teal-bright border-primary/30',
+    accentGrad: 'from-primary/15 via-transparent to-transparent'
   },
   {
     number: '02',
@@ -42,11 +42,11 @@ const steps = [
       'Persistent Historical Memory & Cumulative CGPA Weighting',
       'Consistency & Stability Index (0–100 Rating)',
     ],
-    color: 'text-indigo-400',
-    bg: 'bg-indigo-500/10',
-    border: 'border-indigo-500/20',
-    tagBg: 'bg-indigo-500/15 text-indigo-300 border-indigo-500/30',
-    accentGrad: 'from-indigo-500/15 via-transparent to-transparent'
+    color: 'text-info',
+    bg: 'bg-info/10',
+    border: 'border-info/20',
+    tagBg: 'bg-info/15 text-info border-info/30',
+    accentGrad: 'from-info/15 via-transparent to-transparent'
   },
   {
     number: '03',
@@ -61,11 +61,11 @@ const steps = [
       'Mandatory 75% Attendance Shortage Early-Warning Warnings',
       'Subject Category Clustering (Weakness identification)',
     ],
-    color: 'text-blue-400',
-    bg: 'bg-blue-500/10',
-    border: 'border-blue-500/20',
-    tagBg: 'bg-blue-500/15 text-blue-300 border-blue-500/30',
-    accentGrad: 'from-blue-500/15 via-transparent to-transparent'
+    color: 'text-amber',
+    bg: 'bg-amber/10',
+    border: 'border-amber/20',
+    tagBg: 'bg-amber/15 text-amber-bright border-amber/30',
+    accentGrad: 'from-amber/15 via-transparent to-transparent'
   },
   {
     number: '04',
@@ -80,11 +80,11 @@ const steps = [
       'Workload Pressure Analysis (Balanced vs High-Concentration)',
       'Zero Fabricated Metrics — 100% Grounded in User Data',
     ],
-    color: 'text-purple-400',
-    bg: 'bg-purple-500/10',
-    border: 'border-purple-500/20',
-    tagBg: 'bg-purple-500/15 text-purple-300 border-purple-500/30',
-    accentGrad: 'from-purple-500/15 via-transparent to-transparent'
+    color: 'text-teal-bright',
+    bg: 'bg-teal-bright/10',
+    border: 'border-teal-bright/20',
+    tagBg: 'bg-teal-bright/15 text-teal-bright border-teal-bright/30',
+    accentGrad: 'from-teal-bright/15 via-transparent to-transparent'
   },
   {
     number: '05',
@@ -99,11 +99,11 @@ const steps = [
       'Tailored Study Priority Timelines based on Credit Impact',
       'Proactive Risk Mitigation before Examination Deadlines',
     ],
-    color: 'text-fuchsia-400',
-    bg: 'bg-fuchsia-500/10',
-    border: 'border-fuchsia-500/20',
-    tagBg: 'bg-fuchsia-500/15 text-fuchsia-300 border-fuchsia-500/30',
-    accentGrad: 'from-fuchsia-500/20 via-transparent to-transparent'
+    color: 'text-success',
+    bg: 'bg-success/10',
+    border: 'border-success/20',
+    tagBg: 'bg-success/15 text-success border-success/30',
+    accentGrad: 'from-success/15 via-transparent to-transparent'
   },
 ];
 
@@ -179,13 +179,13 @@ export const HowApisWorks = memo(() => {
         whileInView={{ opacity: 1, scaleY: 1, y: 0 }}
         viewport={{ once: true, margin: '-30px' }}
         transition={{ duration: 0.6, ease: LUXURY_EASE }}
-        className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/[0.08] pb-6 origin-bottom"
+        className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/60 pb-6 origin-bottom"
       >
         <div>
-          <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+          <span className="font-condensed-heading text-xs font-bold text-primary tracking-widest block mb-1">
             CORE ARCHITECTURE & PIPELINE
           </span>
-          <h2 className="font-condensed-heading text-3xl sm:text-4xl font-extrabold text-white tracking-wide">
+          <h2 className="font-condensed-heading text-3xl sm:text-4xl font-extrabold text-foreground tracking-wide">
             HOW APIS WORKS — STEP BY STEP
           </h2>
         </div>
@@ -198,7 +198,7 @@ export const HowApisWorks = memo(() => {
       <div className="w-full space-y-5 sm:space-y-6 relative">
         {/* Subtle vertical connection spine */}
         <div 
-          className="hidden md:block absolute left-[3.75rem] top-12 bottom-12 w-px bg-gradient-to-b from-violet-500/40 via-indigo-500/25 to-fuchsia-500/40 pointer-events-none" 
+          className="hidden md:block absolute left-[3.75rem] top-12 bottom-12 w-px bg-gradient-to-b from-teal/40 via-info/25 to-amber/40 pointer-events-none" 
           aria-hidden="true" 
         />
 
@@ -220,11 +220,11 @@ export const HowApisWorks = memo(() => {
                 contain: 'content',
                 willChange: 'transform, opacity'
               }}
-              className="w-full relative overflow-hidden rounded-2xl sm:rounded-3xl border border-white/[0.08] bg-card/85 backdrop-blur-md shadow-xl transition-all duration-300 origin-bottom"
+              className="w-full relative overflow-hidden rounded-2xl sm:rounded-3xl border border-border/60 bg-card/90 backdrop-blur-md shadow-sm transition-all duration-300 origin-bottom"
             >
               {/* Soft corner gradient accent */}
               <div 
-                className={`absolute top-0 right-0 w-72 h-72 bg-gradient-to-bl ${step.accentGrad} opacity-30 rounded-bl-full pointer-events-none transition-opacity duration-500`}
+                className={`absolute top-0 right-0 w-72 h-72 bg-gradient-to-bl ${step.accentGrad} opacity-40 rounded-bl-full pointer-events-none transition-opacity duration-500`}
                 aria-hidden="true"
               />
 
@@ -234,7 +234,7 @@ export const HowApisWorks = memo(() => {
                   <div className="flex items-center md:flex-col gap-4 shrink-0 md:w-20 text-center">
                     <motion.span 
                       variants={numberStretchVariant}
-                      className="font-condensed font-black text-4xl sm:text-5xl text-white/35 group-hover:text-white/80 transition-colors select-none tracking-tight origin-bottom block"
+                      className="font-condensed font-black text-4xl sm:text-5xl text-muted-foreground/50 transition-colors select-none tracking-tight origin-bottom block"
                     >
                       {step.number}
                     </motion.span>
@@ -261,7 +261,7 @@ export const HowApisWorks = memo(() => {
                       {/* Title */}
                       <motion.h3 
                         variants={textStretchVariant}
-                        className="font-condensed-heading text-xl sm:text-2xl lg:text-3xl font-black text-white tracking-wide break-words origin-bottom"
+                        className="font-condensed-heading text-xl sm:text-2xl lg:text-3xl font-black text-foreground tracking-wide break-words origin-bottom"
                       >
                         {step.title}
                       </motion.h3>
@@ -269,7 +269,7 @@ export const HowApisWorks = memo(() => {
                       {/* Subtitle */}
                       <motion.p 
                         variants={textStretchVariant}
-                        className="font-condensed text-sm sm:text-base font-semibold text-violet-300/80 tracking-wider"
+                        className="font-condensed text-sm sm:text-base font-semibold text-primary tracking-wider"
                       >
                         {step.subtitle}
                       </motion.p>
@@ -286,11 +286,11 @@ export const HowApisWorks = memo(() => {
                     {/* Bulleted Insights List */}
                     <motion.div 
                       variants={textStretchVariant}
-                      className="pt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 border-t border-white/[0.06]"
+                      className="pt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5 border-t border-border/50"
                     >
                       {step.keyInsights.map((insight, i) => (
-                        <div key={i} className="flex items-start gap-2 text-xs sm:text-sm font-condensed text-white/75 font-semibold tracking-wider">
-                          <CheckCircle2 className="w-4 h-4 text-violet-400 shrink-0 mt-0.5" />
+                        <div key={i} className="flex items-start gap-2 text-xs sm:text-sm font-condensed text-foreground/75 font-semibold tracking-wider">
+                          <CheckCircle2 className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                           <span className="leading-snug">{insight}</span>
                         </div>
                       ))}
@@ -309,10 +309,10 @@ export const HowApisWorks = memo(() => {
         whileInView={{ opacity: 1, scaleY: 1 }}
         viewport={{ once: true, margin: '-20px' }}
         transition={{ duration: 0.5, ease: LUXURY_EASE }}
-        className="p-4 sm:p-5 rounded-2xl border border-white/[0.08] bg-white/[0.02] text-center origin-bottom"
+        className="p-4 sm:p-5 rounded-2xl border border-border/60 bg-muted/50 text-center origin-bottom"
       >
-        <p className="font-condensed text-xs sm:text-sm text-white/50 font-bold tracking-widest uppercase">
-          ✦ AI acts as an analytical reasoning layer over your records — never guessing or generating fake academic statistics.
+        <p className="font-condensed text-xs sm:text-sm text-foreground/80 font-semibold tracking-wide">
+          AI acts as an analytical reasoning layer over your records — never guessing or generating fake academic statistics.
         </p>
       </motion.div>
     </section>

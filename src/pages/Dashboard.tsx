@@ -203,7 +203,7 @@ const Dashboard = () => {
             className="p-5 rounded-2xl bg-card border border-white/[0.08] relative overflow-hidden"
           >
             <div className="flex items-center gap-2 mb-2">
-              <ShieldAlert className="w-4 h-4 text-violet-400" />
+              <ShieldAlert className="w-4 h-4 text-primary" />
               <h4 className="text-xs font-black text-white/90 uppercase tracking-wider">
                 Academic Memory Backup
               </h4>
@@ -284,13 +284,13 @@ const Dashboard = () => {
       {/* 4. AI Interpretation Section */}
       <Card className="relative overflow-hidden bg-card/75 border-white/[0.08]">
         <div className="p-6 md:p-8 flex flex-col md:flex-row items-start md:items-center gap-6">
-          <div className="w-12 h-12 rounded-xl bg-violet-500/10 border border-violet-500/20 flex items-center justify-center shrink-0 text-violet-400">
+          <div className="w-12 h-12 rounded-xl bg-teal/10 border border-primary/20 flex items-center justify-center shrink-0 text-primary">
             <Sparkles className="w-6 h-6" />
           </div>
 
           <div className="flex-1 space-y-2">
             <div className="flex flex-wrap items-center gap-3">
-              <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest uppercase">
+              <span className="font-condensed-heading text-xs font-bold text-primary tracking-widest uppercase">
                 REASONING LAYER
               </span>
               <h3 className="font-condensed-heading text-xl sm:text-2xl font-bold text-white tracking-wide">
@@ -339,7 +339,7 @@ const Dashboard = () => {
               descriptionClassName="font-condensed text-sm text-muted-foreground font-medium tracking-wide"
               className="mb-6"
               rightAction={
-                <div className="p-2 bg-violet-500/10 rounded-lg text-violet-400 border border-violet-500/20">
+                <div className="p-2 bg-teal/10 rounded-lg text-primary border border-primary/20">
                   <TrendingUp className="w-4 h-4" />
                 </div>
               }
@@ -351,8 +351,8 @@ const Dashboard = () => {
                   <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                     <defs>
                       <linearGradient id="colorGpa" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25} />
-                        <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+                        <stop offset="5%" stopColor="#1F8176" stopOpacity={0.25} />
+                        <stop offset="95%" stopColor="#1F8176" stopOpacity={0} />
                       </linearGradient>
                     </defs>
                     <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
@@ -374,19 +374,19 @@ const Dashboard = () => {
                     />
                     <Tooltip
                       contentStyle={{
-                        backgroundColor: 'rgba(10,10,18,0.95)',
+                        backgroundColor: 'rgba(23, 32, 31, 0.95)',
                         border: '1px solid rgba(255,255,255,0.1)',
                         borderRadius: '12px',
                         boxShadow: '0 10px 30px rgba(0,0,0,0.5)',
                         color: '#fff'
                       }}
-                      itemStyle={{ color: '#a78bfa', fontWeight: 'bold' }}
+                      itemStyle={{ color: '#2C9589', fontWeight: 'bold' }}
                     />
                     <Area
                       type="monotone"
                       dataKey="sgpa"
                       name="SGPA"
-                      stroke="#8b5cf6"
+                      stroke="#1F8176"
                       strokeWidth={2.5}
                       fillOpacity={1}
                       fill="url(#colorGpa)"
@@ -431,14 +431,14 @@ const Dashboard = () => {
               <ApisActionButton
                 icon={GraduationCap}
                 label="Semester Vault"
-                iconClassName="text-violet-400"
+                iconClassName="text-primary"
                 onClick={() => navigate('/semester-vault')}
               />
 
               <ApisActionButton
                 icon={BookOpen}
                 label="Assignments & Tasks"
-                iconClassName="text-indigo-400"
+                iconClassName="text-info"
                 onClick={() => navigate('/assignments')}
                 badge={pendingAssignments.length > 0 && (
                   <Badge variant="destructive">

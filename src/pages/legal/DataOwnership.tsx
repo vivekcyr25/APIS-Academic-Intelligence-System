@@ -50,7 +50,7 @@ const DataOwnership = () => {
 
           <section>
             <h2 className="text-2xl font-bold mb-4 flex items-center gap-3">
-              <History className="w-6 h-6 text-violet-400" /> Continuity & Deletion
+              <History className="w-6 h-6 text-primary" /> Continuity & Deletion
             </h2>
             <p className="text-muted-foreground leading-relaxed">
               You have the absolute right to delete your academic profile. Upon request, we will purge all your semesters, subjects, and analytical history from our production databases. Note that local device caches may need to be cleared manually via browser settings.

@@ -13,7 +13,7 @@ export const HeroSection = () => {
         <div 
           className="w-[700px] h-[700px] rounded-full blur-[140px] opacity-40 mix-blend-screen"
           style={{
-            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.25) 0%, rgba(99, 102, 241, 0.15) 45%, transparent 70%)'
+            background: 'radial-gradient(circle, rgba(31, 129, 118, 0.28) 0%, rgba(23, 107, 99, 0.12) 45%, transparent 70%)'
           }}
         />
       </div>
@@ -28,18 +28,18 @@ export const HeroSection = () => {
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3, duration: 0.6 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-violet-500/10 border border-violet-500/30 mb-8 backdrop-blur-md"
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-teal/10 border border-primary/30 mb-8 backdrop-blur-md"
         >
-          <div className="w-2 h-2 rounded-full bg-violet-400 animate-pulse" />
-          <span className="text-xs font-bold uppercase tracking-widest text-violet-300">Identity Verified</span>
+          <div className="w-2 h-2 rounded-full bg-teal-bright animate-pulse" />
+          <span className="text-xs font-bold uppercase tracking-widest text-teal-bright">Identity Verified</span>
         </motion.div>
 
-        <h1 className="text-6xl md:text-8xl font-black font-heading tracking-tight leading-[1.1] mb-6 drop-shadow-2xl text-white">
+        <h1 className="text-6xl md:text-8xl font-black font-hero tracking-tight leading-[1.1] mb-6 drop-shadow-2xl text-white">
           Welcome to <br />
           <span 
-            className="text-transparent bg-clip-text select-none"
+            className="text-transparent bg-clip-text select-none font-hero"
             style={{
-              backgroundImage: 'linear-gradient(90deg, #ffffff 0%, #e9d5ff 18%, #a855f7 36%, #7c3aed 55%, #6b21a8 76%, #3b0764 100%)'
+              backgroundImage: 'linear-gradient(90deg, #F7F4EC 0%, #EEEADF 22%, #2C9589 48%, #1F8176 72%, #176B63 100%)'
             }}
           >
             APIS AI
@@ -66,7 +66,7 @@ export const HeroSection = () => {
           animate={{ y: [0, 6, 0] }}
           transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
         >
-          <ChevronDown className="w-4 h-4 text-violet-400" />
+          <ChevronDown className="w-4 h-4 text-primary" />
         </motion.div>
       </motion.div>
     </div>

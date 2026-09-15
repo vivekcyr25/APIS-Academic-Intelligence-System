@@ -29,7 +29,7 @@ const categories: { id: FeedbackCategory; label: string; icon: any; color: strin
   { id: 'friction', label: 'UX Friction', icon: Frown, color: 'text-amber-400' },
   { id: 'feature', label: 'Idea', icon: Lightbulb, color: 'text-emerald-400' },
   { id: 'performance', label: 'Performance', icon: Zap, color: 'text-blue-400' },
-  { id: 'sync', label: 'Sync/Offline', icon: CloudOff, color: 'text-violet-400' },
+  { id: 'sync', label: 'Sync/Offline', icon: CloudOff, color: 'text-primary' },
   { id: 'general', label: 'General', icon: MessageSquare, color: 'text-slate-400' },
 ];
 
@@ -161,7 +161,7 @@ export const FeedbackModal = ({ isOpen, onClose, defaultCategory = 'general' }: 
                           className={cn(
                             "flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all duration-300",
                             isActive 
-                              ? "bg-primary/10 border-primary/50 shadow-[0_0_20px_rgba(139,92,246,0.1)]" 
+                              ? "bg-primary/10 border-primary/50 shadow-[0_0_20px_rgba(31, 129, 118, 0.1)]" 
                               : "bg-white/5 border-white/10 hover:border-white/20"
                           )}
                         >

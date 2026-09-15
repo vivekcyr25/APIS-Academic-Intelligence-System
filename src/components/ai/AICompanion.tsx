@@ -95,7 +95,7 @@ const AICompanion = () => {
         whileHover={{ scale: 1.1, rotate: 5 }}
         whileTap={{ scale: 0.9 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-8 right-8 w-16 h-16 bg-primary rounded-[24px] flex items-center justify-center shadow-[0_0_50px_rgba(139,92,246,0.6)] z-[200] neural-glow group"
+        className="fixed bottom-8 right-8 w-16 h-16 bg-primary rounded-[24px] flex items-center justify-center shadow-[0_0_50px_rgba(31, 129, 118, 0.6)] z-[200] neural-glow group"
       >
         <BrainCircuit className="text-white w-8 h-8 transition-transform group-hover:scale-125" />
         <div className="absolute -top-1 -right-1 w-4 h-4 bg-green-400 rounded-full border-4 border-background animate-pulse" />

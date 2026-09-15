@@ -20,26 +20,26 @@ export const AcademicDoodleWallpaper = memo(() => {
   const shouldReduceMotion = useReducedMotion();
   const { isDark } = useTheme();
 
-  // Dynamic theme colors for optimal visibility & contrast
-  const strokeColor = isDark ? '#c4b5fd' : '#6d28d9';
+  // Ink / teal / amber — no purple
+  const strokeColor = isDark ? '#2C9589' : '#176B63';
   const strokeWidth = isDark ? '1.5' : '1.5';
-  const groupOpacity = isDark ? '0.38' : '0.30';
-  const accentFill = isDark ? '#c084fc' : '#7c3aed';
-  const starFill = isDark ? '#e9d5ff' : '#8b5cf6';
-  const pinFill = isDark ? '#d8b4fe' : '#9333ea';
+  const groupOpacity = isDark ? '0.28' : '0.22';
+  const accentFill = isDark ? '#CE8B32' : '#B87524';
+  const starFill = isDark ? '#F5E5CA' : '#CE8B32';
+  const pinFill = isDark ? '#2C9589' : '#1F8176';
 
   return (
     <div 
       className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0"
       aria-hidden="true"
     >
-      {/* ── 1. Base Ambient Lighting (Rich Deep Violet/Navy Glow) ── */}
+      {/* ── 1. Base ambient wash (ink / paper) ── */}
       <div 
         className="absolute inset-0 opacity-40"
         style={{
           background: isDark
-            ? 'radial-gradient(ellipse 90% 60% at 50% 20%, rgba(139, 92, 246, 0.22) 0%, rgba(20, 10, 45, 0.3) 60%, transparent 100%)'
-            : 'radial-gradient(ellipse 90% 60% at 50% 20%, rgba(167, 139, 250, 0.20) 0%, rgba(237, 233, 254, 0.4) 60%, transparent 100%)'
+            ? 'radial-gradient(ellipse 90% 60% at 50% 20%, rgba(31, 129, 118, 0.14) 0%, rgba(23, 32, 31, 0.4) 60%, transparent 100%)'
+            : 'radial-gradient(ellipse 90% 60% at 50% 20%, rgba(31, 129, 118, 0.12) 0%, rgba(238, 234, 223, 0.4) 60%, transparent 100%)'
         }}
       />
 
@@ -249,7 +249,7 @@ export const AcademicDoodleWallpaper = memo(() => {
           {/* Floating Book on Top-Left Edge */}
           <motion.div
             className={`absolute top-24 left-8 lg:left-16 pointer-events-none hidden sm:block ${
-              isDark ? 'opacity-60 text-violet-300' : 'opacity-50 text-violet-600'
+              isDark ? 'opacity-60 text-teal-bright' : 'opacity-50 text-teal-deep'
             }`}
             animate={{
               y: [0, -8, 0],
@@ -274,7 +274,7 @@ export const AcademicDoodleWallpaper = memo(() => {
           {/* Floating Graduation Cap on Top-Right Edge */}
           <motion.div
             className={`absolute top-28 right-8 lg:right-20 pointer-events-none hidden sm:block ${
-              isDark ? 'opacity-60 text-purple-300' : 'opacity-50 text-purple-600'
+              isDark ? 'opacity-60 text-amber-bright' : 'opacity-50 text-amber'
             }`}
             animate={{
               y: [0, 8, 0],
@@ -298,7 +298,7 @@ export const AcademicDoodleWallpaper = memo(() => {
           {/* Floating Idea Lightbulb on Mid-Left */}
           <motion.div
             className={`absolute top-[48vh] left-6 lg:left-12 pointer-events-none hidden md:block ${
-              isDark ? 'opacity-55 text-indigo-300' : 'opacity-45 text-indigo-600'
+              isDark ? 'opacity-55 text-info' : 'opacity-45 text-ink-soft'
             }`}
             animate={{
               y: [0, -6, 0],
@@ -322,7 +322,7 @@ export const AcademicDoodleWallpaper = memo(() => {
           {/* Floating Code Snippet on Mid-Right */}
           <motion.div
             className={`absolute top-[52vh] right-6 lg:right-16 pointer-events-none hidden md:block ${
-              isDark ? 'opacity-55 text-violet-300' : 'opacity-45 text-violet-600'
+              isDark ? 'opacity-55 text-teal-bright' : 'opacity-45 text-teal-deep'
             }`}
             animate={{
               y: [0, 7, 0],

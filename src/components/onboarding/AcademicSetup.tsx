@@ -117,7 +117,7 @@ export const AcademicSetup = ({ onComplete }: { onComplete: () => void }) => {
                         className={cn(
                           "p-6 rounded-2xl cursor-pointer transition-all border",
                           domain === config.domain
-                            ? "bg-primary/10 border-primary shadow-[0_0_20px_rgba(139,92,246,0.2)]"
+                            ? "bg-primary/10 border-primary shadow-[0_0_20px_rgba(31, 129, 118, 0.2)]"
                             : "bg-white/5 border-white/10 hover:border-white/20 hover:bg-white/10"
                         )}
                       >

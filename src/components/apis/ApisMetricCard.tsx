@@ -20,7 +20,7 @@ export const ApisMetricCard = memo(({ label, value, subtext, icon: Icon, trend, 
       whileHover={{ y: -5 }}
       className={cn(
         "relative group overflow-hidden rounded-3xl border backdrop-blur-xl p-6 shadow-2xl transition-all duration-500",
-        color === 'primary' ? 'bg-[rgba(17,25,40,0.6)] hover:shadow-[0_0_40px_rgba(139,92,246,0.15)] border-white/10' : 
+        color === 'primary' ? 'bg-[rgba(17,25,40,0.6)] hover:shadow-[0_0_40px_rgba(31, 129, 118, 0.15)] border-white/10' : 
         color === 'success' ? 'bg-emerald-500/5 hover:shadow-[0_0_40px_rgba(16,185,129,0.15)] border-emerald-500/20' :
         color === 'warning' ? 'bg-amber-500/5 hover:shadow-[0_0_40px_rgba(245,158,11,0.15)] border-amber-500/20' :
         color === 'danger' ? 'bg-rose-500/5 hover:shadow-[0_0_40px_rgba(244,63,94,0.15)] border-rose-500/20' :

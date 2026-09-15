@@ -19,9 +19,9 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
         animate={isLowEnd ? { opacity: 1 } : { opacity: 1, y: 0 }}
         viewport={{ once: true }}
         className={cn(
-          glass ? "glass-panel-unified" : "bg-card border border-white/5",
-          "p-8 rounded-[40px] overflow-hidden relative transition-all duration-300 hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] hover:border-white/20",
-          !isLowEnd && "liquid-glass magnetic-hover",
+          glass ? "glass-panel-unified" : "bg-card border border-border/60",
+          "p-6 sm:p-8 rounded-3xl overflow-hidden relative transition-shadow duration-300",
+          !isLowEnd && "hover:shadow-[0_12px_40px_rgba(0,0,0,0.18)]",
           className
         )}
         {...props}
@@ -59,41 +59,51 @@ export const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<
 ));
 CardFooter.displayName = "CardFooter";
 
-export const StatsCard = memo(({ label, value, icon: Icon, trend, color = "primary" }: any) => {
-  const { isLowEnd } = usePerformanceMode();
+export const StatsCard = memo(({
+  label,
+  value,
+  icon: Icon,
+  trend,
+  color = 'primary',
+  loading = false,
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ComponentType<{ className?: string }>;
+  trend?: number;
+  color?: 'primary' | 'success' | 'warning' | 'danger';
+  loading?: boolean;
+}) => {
   const colors: Record<string, string> = {
-    primary: "text-primary bg-primary/5 hover-active",
-    success: "text-emerald-400 bg-emerald-400/5 hover-success",
-    warning: "text-amber-400 bg-amber-400/5 hover-warning",
-    danger: "text-rose-400 bg-rose-400/5 hover-warning",
+    primary: 'text-primary bg-primary/10',
+    success: 'text-success bg-success/10',
+    warning: 'text-warning bg-warning/10',
+    danger: 'text-danger bg-danger/10',
   };
 
   return (
-    <Card className="flex flex-col gap-6 group cursor-default p-8">
-      {!isLowEnd && <div className="absolute -right-8 -top-8 w-32 h-32 bg-primary/[0.03] rounded-full blur-3xl group-hover:bg-primary/[0.08] transition-all duration-1000" />}
+    <Card className="flex flex-col gap-5 cursor-default p-6 sm:p-7">
       <div className="flex items-center justify-between relative z-10">
-        <div className={cn("p-4 rounded-[20px] transition-all duration-700 group-hover:scale-105", colors[color], "border border-white/[0.03]")}>
-          <Icon className="w-6 h-6 opacity-80 group-hover:opacity-100 transition-opacity" />
+        <div className={cn('p-3 rounded-2xl border border-border/40', colors[color])}>
+          <Icon className="w-5 h-5" aria-hidden />
         </div>
-        {trend !== undefined && (
-          <span className={cn(
-            "text-[10px] font-black px-4 py-1.5 rounded-full border border-white/[0.03]",
-            trend > 0 ? "text-emerald-400 bg-emerald-400/5" : "text-rose-400 bg-rose-400/5"
-          )}>
-            {trend > 0 ? '↑' : '↓'} {Math.abs(trend)}%
+        {trend !== undefined && !loading && (
+          <span
+            className={cn(
+              'text-xs font-semibold px-2.5 py-1 rounded-full',
+              trend > 0 ? 'text-success bg-success/10' : 'text-danger bg-danger/10'
+            )}
+          >
+            {trend > 0 ? '+' : ''}
+            {trend}%
           </span>
         )}
       </div>
       <div className="relative z-10 space-y-1">
-        <p className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] text-hover-premium hover-muted">
-          {label}
+        <p className="text-xs font-medium text-muted-foreground tracking-wide">{label}</p>
+        <p className="text-3xl font-bold tracking-tight text-foreground tabular-nums">
+          {loading ? '—' : value}
         </p>
-        <h3 className={cn(
-          "text-4xl font-black tracking-tighter text-hover-premium transition-all duration-700",
-          color === 'primary' ? 'hover-active' : color === 'success' ? 'hover-success' : 'hover-warning'
-        )}>
-          {value}
-        </h3>
       </div>
     </Card>
   );

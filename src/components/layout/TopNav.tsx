@@ -1,10 +1,8 @@
 import { Link, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence, useMotionValue, useSpring } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext.tsx';
 import {
-  Sparkles, LayoutDashboard, BarChart3,
-  User, LogOut, Upload, ClipboardList,
-  Table, BrainCircuit, MoreHorizontal, X, ChevronDown, MessageSquare,
+  Sparkles, LogOut, MoreHorizontal, ChevronDown, MessageSquare,
   Sun, Moon
 } from 'lucide-react';
 import { cn } from '../../lib/utils.ts';
@@ -12,85 +10,42 @@ import { useState, useEffect, useRef, memo } from 'react';
 import { checkSystemHealth, type SystemStatus } from '../../services/health/healthService.ts';
 import { FeedbackModal } from '../ui/FeedbackModal';
 import { useTheme } from '../../contexts/ThemeContext.tsx';
-
-// ─── Types ────────────────────────────────────────────────
-interface NavItem { icon: React.FC<any>; label: string; path: string; }
-
-// ─── Nav Config ───────────────────────────────────────────
-const primaryNav: NavItem[] = [
-  { icon: LayoutDashboard, label: 'Dashboard',    path: '/dashboard' },
-  { icon: Upload,          label: 'Upload',       path: '/upload'    },
-  { icon: BarChart3,       label: 'Intelligence', path: '/academic-intelligence' },
-  { icon: User,            label: 'Profile',      path: '/profile'   },
-];
-
-const secondaryNav: NavItem[] = [
-  { icon: Table,        label: 'Semester Vault', path: '/semester-vault'   },
-  { icon: Table,        label: 'Attendance',  path: '/attendance'      },
-  { icon: ClipboardList,label: 'Assignments', path: '/assignments'     },
-  { icon: MessageSquare, label: 'LMS',         path: '/lms'            },
-  { icon: BrainCircuit, label: 'Roadmap',     path: '/recommendations' },
-];
+import { primaryNav, secondaryNav, type NavItem } from '../../lib/navConfig.ts';
 
 // ─── Liquid Glass NavLink ─────────────────────────────────
 const NavLink = memo(({ item }: { item: NavItem }) => {
   const location = useLocation();
+  const { isDark } = useTheme();
   const isActive = location.pathname === item.path;
   const Icon = item.icon;
 
   return (
     <Link
       to={item.path}
+      aria-current={isActive ? 'page' : undefined}
       className={cn(
-        "relative px-4 py-2 rounded-full group flex items-center gap-2 font-condensed text-sm font-bold uppercase tracking-wider transition-all duration-300",
-        "text-hover-premium underline-reveal",
-        isActive ? "text-white" : "text-white/40 hover:text-white/80"
+        'relative px-4 py-2 rounded-full group flex items-center gap-2 text-sm font-semibold tracking-wide transition-colors duration-200',
+        isActive
+          ? isDark
+            ? 'text-white'
+            : 'text-foreground'
+          : isDark
+            ? 'text-white/45 hover:text-white/85'
+            : 'text-muted-foreground hover:text-foreground'
       )}
     >
-      {/* Active Pill (Liquid Glass) */}
       {isActive && (
         <motion.div
           layoutId="active-pill"
-          className="absolute inset-0 rounded-full border border-white/[0.14] gpu-accelerated shadow-[0_10px_28px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.12)]"
-          style={{ 
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.035))',
-            backdropFilter: 'blur(18px)',
-            WebkitBackdropFilter: 'blur(18px)'
-          }}
+          className="absolute inset-0 rounded-full border border-border/60 bg-muted/50"
           transition={{ type: 'spring', stiffness: 380, damping: 38 }}
-        />
-      )}
-      
-      {/* Hover Pill (Subtle Liquid Glass for inactive tabs) */}
-      {!isActive && (
-        <motion.div
-          className="absolute inset-0 rounded-full border border-white/[0.08] opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
-          style={{ 
-            background: 'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
-            backdropFilter: 'blur(8px)',
-            WebkitBackdropFilter: 'blur(8px)'
-          }}
         />
       )}
 
       <span className="relative z-10 flex items-center gap-2">
-        <Icon className={cn("w-4 h-4 transition-transform group-hover:scale-110", isActive ? "text-primary" : "text-inherit")} />
+        <Icon className={cn('w-4 h-4', isActive && 'text-primary')} aria-hidden />
         <span className="hidden md:block">{item.label}</span>
-        {isActive && (
-          <motion.span 
-            layoutId="active-dot"
-            className="w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.6)]" 
-            transition={{ type: 'spring', stiffness: 380, damping: 38 }}
-          />
-        )}
       </span>
-      {isActive && (
-        <motion.div
-          layoutId="active-glow"
-          className="absolute bottom-[-4px] left-1/2 -translate-x-1/2 w-3/4 h-1 bg-gradient-to-r from-transparent via-violet-400/50 to-transparent blur-md"
-          transition={{ type: 'spring', stiffness: 380, damping: 38 }}
-        />
-      )}
     </Link>
   );
 });
@@ -117,14 +72,16 @@ const MoreMenu = () => {
   return (
     <div ref={ref} className="relative">
       <button
-        ref={ref}
+        type="button"
+        aria-expanded={open}
+        aria-haspopup="menu"
         onClick={() => setOpen(!open)}
         className={cn(
           "relative px-4 py-2 rounded-full group flex items-center gap-2 font-condensed text-sm font-bold uppercase tracking-wider transition-all duration-300",
           "text-hover-premium underline-reveal",
           isActive || open
-            ? (isDark ? "text-white" : "text-violet-900")
-            : (isDark ? "text-white/40" : "text-violet-600/50")
+            ? (isDark ? "text-white" : "text-ink")
+            : (isDark ? "text-white/40" : "text-ink-soft/50")
         )}
       >
         {/* Active Pill (Liquid Glass) */}
@@ -171,18 +128,18 @@ const MoreMenu = () => {
             transition={{ type: 'spring', stiffness: 400, damping: 32 }}
             className="absolute top-full right-0 mt-3 w-52 rounded-3xl overflow-hidden gpu-accelerated"
             style={{
-              border: isDark ? '1px solid rgba(255,255,255,0.10)' : '1px solid rgba(139,92,246,0.18)',
-              background: isDark ? 'rgba(10,10,18,0.92)' : 'rgba(248,245,255,0.96)',
+              border: isDark ? '1px solid rgba(255,255,255,0.10)' : '1px solid rgba(23, 32, 31, 0.12)',
+              background: isDark ? 'rgba(23, 32, 31, 0.92)' : 'rgba(247, 244, 236, 0.96)',
               backdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
               WebkitBackdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
               boxShadow: isDark
                 ? '0 24px 60px rgba(0,0,0,0.6)'
-                : '0 24px 60px rgba(139,92,246,0.15), 0 4px 16px rgba(0,0,0,0.06)',
+                : '0 16px 40px rgba(23, 32, 31, 0.08), 0 2px 8px rgba(0,0,0,0.04)',
             }}
           >
             {/* Glass sheen */}
             <div className="absolute inset-0 rounded-3xl pointer-events-none">
-              <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent ${isDark ? 'via-white/20' : 'via-violet-300/40'} to-transparent`} />
+              <div className={`absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent ${isDark ? 'via-white/20' : 'via-teal/40'} to-transparent`} />
             </div>
 
             <div className="p-2 space-y-0.5">
@@ -196,8 +153,8 @@ const MoreMenu = () => {
                       "relative flex items-center gap-3 px-4 py-3 rounded-2xl font-condensed text-sm font-bold uppercase tracking-wide transition-all duration-300",
                       "text-hover-premium",
                       isItemActive
-                        ? (isDark ? "text-white" : "text-violet-900")
-                        : (isDark ? "text-white/50 hover:text-white/80" : "text-violet-700/60 hover:text-violet-900")
+                        ? (isDark ? "text-white" : "text-ink")
+                        : (isDark ? "text-white/50 hover:text-white/80" : "text-ink-soft/70 hover:text-ink")
                     )}
                   >
                     {/* Active Dropdown Pill */}
@@ -228,7 +185,7 @@ const MoreMenu = () => {
                       <item.icon className="w-4 h-4" />
                       <span>{item.label}</span>
                       {isItemActive && (
-                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-violet-400 shadow-[0_0_8px_rgba(139,92,246,0.6)]" />
+                        <span className="ml-auto w-1.5 h-1.5 rounded-full bg-teal-bright shadow-[0_0_8px_rgba(31, 129, 118, 0.6)]" />
                       )}
                     </span>
                   </Link>
@@ -248,7 +205,7 @@ const NeuralGradient = () => (
     <div 
       className="absolute inset-0 opacity-40"
       style={{
-        background: 'radial-gradient(ellipse 70% 50% at 50% 50%, rgba(139,92,246,0.08) 0%, transparent 80%)'
+        background: 'radial-gradient(ellipse 70% 50% at 50% 50%, rgba(31, 129, 118, 0.08) 0%, transparent 80%)'
       }}
     />
   </div>
@@ -269,28 +226,26 @@ const ProfileCapsule = memo(() => {
         WebkitBackdropFilter: 'blur(var(--blur-lg))',
       }}
     >
-      {/* Online indicator */}
       <div className="relative flex-shrink-0">
         {user?.photoURL && !imgError ? (
           <img
             src={user.photoURL}
-            alt={user?.name || 'Profile'}
+            alt=""
             referrerPolicy="no-referrer"
             onError={() => setImgError(true)}
-            className="w-7 h-7 rounded-full object-cover border border-violet-400/30"
+            className="w-7 h-7 rounded-full object-cover border border-primary/30"
           />
         ) : (
-          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center text-xs font-black text-white">
-            {user?.name?.charAt(0)?.toUpperCase() || "U"}
+          <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center text-xs font-bold text-primary-foreground" aria-hidden>
+            {user?.name?.charAt(0)?.toUpperCase() || 'U'}
           </div>
         )}
-        <span className="absolute -bottom-0.5 -right-0.5 w-2 h-2 rounded-full bg-emerald-400 border border-black" />
       </div>
       <div className="hidden sm:flex flex-col">
         <span className="text-xs font-bold text-white/80 leading-none truncate max-w-[90px]">
           {user?.name || 'User'}
         </span>
-        <span className="text-[9px] font-bold uppercase tracking-widest text-violet-400/80 leading-none mt-0.5">
+        <span className="text-[9px] font-bold uppercase tracking-widest text-primary/80 leading-none mt-0.5">
           Scholar
         </span>
       </div>
@@ -305,7 +260,6 @@ const TopNav = () => {
   const [scrolled, setScrolled] = useState(false);
   const [health, setHealth] = useState<SystemStatus | null>(null);
   const [showFeedbackModal, setShowFeedbackModal] = useState(false);
-  const location = useLocation();
 
   // Scroll reactivity
   useEffect(() => {
@@ -342,10 +296,10 @@ const TopNav = () => {
             style={{
               border: isDark
                 ? '1px solid rgba(255,255,255,0.10)'
-                : '1px solid rgba(139,92,246,0.18)',
+                : '1px solid rgba(23, 32, 31, 0.12)',
               background: isDark
-                ? (scrolled ? 'rgba(6,6,15,0.88)' : 'rgba(8,8,20,0.72)')
-                : (scrolled ? 'rgba(244,240,255,0.94)' : 'rgba(248,245,255,0.85)'),
+                ? (scrolled ? 'rgba(23, 32, 31, 0.88)' : 'rgba(32, 43, 41, 0.72)')
+                : (scrolled ? 'rgba(238, 234, 223, 0.94)' : 'rgba(247, 244, 236, 0.85)'),
               backdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
               WebkitBackdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
               boxShadow: isDark
@@ -353,8 +307,8 @@ const TopNav = () => {
                     ? '0 8px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)'
                     : '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)')
                 : (scrolled
-                    ? '0 8px 32px rgba(139,92,246,0.12), 0 1px 4px rgba(0,0,0,0.06)'
-                    : '0 4px 24px rgba(139,92,246,0.08), 0 1px 2px rgba(0,0,0,0.04)'),
+                    ? '0 8px 28px rgba(23, 32, 31, 0.08), 0 1px 4px rgba(0,0,0,0.04)'
+                    : '0 4px 20px rgba(23, 32, 31, 0.05), 0 1px 2px rgba(0,0,0,0.03)'),
             }}
           >
             <NeuralGradient />
@@ -364,14 +318,14 @@ const TopNav = () => {
               <motion.div
                 whileHover={{ scale: 1.08, rotate: 5 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-9 h-9 rounded-2xl bg-violet-600 flex items-center justify-center shadow-[0_0_16px_rgba(139,92,246,0.5)]"
+                className="w-9 h-9 rounded-2xl bg-primary flex items-center justify-center shadow-sm"
               >
                 <Sparkles className="text-white w-4 h-4" />
               </motion.div>
               <div className="hidden sm:flex flex-col">
                 <span className={cn(
                   "text-sm font-black tracking-tight leading-none",
-                  isDark ? 'text-white' : 'text-violet-900'
+                  isDark ? 'text-white' : 'text-ink'
                 )}>APIS AI</span>
                 <div className="flex items-center gap-1.5 mt-0.5">
                   <div className={cn(
@@ -438,28 +392,30 @@ const TopNav = () => {
                 </motion.button>
 
                 <motion.button
-                  whileHover={{ scale: 1.1, backgroundColor: 'rgba(139,92,246,0.15)' }}
+                  type="button"
+                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.92 }}
                   onClick={() => setShowFeedbackModal(true)}
                   className={cn(
                     "p-2 rounded-full hover:text-primary transition-colors duration-200",
-                    isDark ? 'text-white/30' : 'text-violet-400/60'
+                    isDark ? 'text-white/40' : 'text-muted-foreground'
                   )}
-                  title="Share Feedback"
+                  aria-label="Share feedback"
                 >
-                  <MessageSquare className="w-4 h-4" />
+                  <MessageSquare className="w-4 h-4" aria-hidden />
                 </motion.button>
                 <motion.button
-                  whileHover={{ scale: 1.1, backgroundColor: 'rgba(244,63,94,0.15)' }}
+                  type="button"
+                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.92 }}
                   onClick={handleLogout}
                   className={cn(
                     "hidden md:flex p-2 rounded-full hover:text-rose-400 transition-colors duration-200",
-                    isDark ? 'text-white/30' : 'text-violet-400/60'
+                    isDark ? 'text-white/40' : 'text-muted-foreground'
                   )}
-                  title="Logout"
+                  aria-label="Sign out"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-4 h-4" aria-hidden />
                 </motion.button>
               </div>
             </div>

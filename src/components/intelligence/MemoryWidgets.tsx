@@ -46,7 +46,7 @@ export const SubjectWeaknessMemory = ({ memory }: Props) => {
   return (
     <Card className="p-6 border-white/[0.08] bg-card/70">
       <div className="flex items-start gap-4">
-        <div className="p-3 rounded-xl border bg-violet-500/10 border-violet-500/20 text-violet-400">
+        <div className="p-3 rounded-xl border bg-teal/10 border-primary/20 text-primary">
           <BookOpen className="w-5 h-5" />
         </div>
         <div className="space-y-1">

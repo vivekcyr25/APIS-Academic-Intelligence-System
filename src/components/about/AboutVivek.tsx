@@ -20,7 +20,7 @@ const NeuralParticles = () => {
       {particles.map((p) => (
         <motion.div
           key={p.id}
-          className="absolute rounded-full bg-violet-400/20"
+          className="absolute rounded-full bg-teal-bright/20"
           style={{ width: p.size, height: p.size, left: `${p.x}%`, top: `${p.y}%` }}
           animate={{ y: [-20, 20, -20], x: [-10, 10, -10], opacity: [0, 0.6, 0] }}
           transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: 'easeInOut' }}
@@ -37,10 +37,10 @@ const AmbientFog = () => (
       className="absolute -inset-[200px] opacity-30"
       animate={{
         background: [
-          'radial-gradient(ellipse 60% 40% at 20% 50%, rgba(139,92,246,0.12) 0%, transparent 70%)',
+          'radial-gradient(ellipse 60% 40% at 20% 50%, rgba(31, 129, 118, 0.12) 0%, transparent 70%)',
           'radial-gradient(ellipse 60% 40% at 80% 30%, rgba(109,40,217,0.10) 0%, transparent 70%)',
-          'radial-gradient(ellipse 60% 40% at 50% 70%, rgba(167,139,250,0.08) 0%, transparent 70%)',
-          'radial-gradient(ellipse 60% 40% at 20% 50%, rgba(139,92,246,0.12) 0%, transparent 70%)',
+          'radial-gradient(ellipse 60% 40% at 50% 70%, rgba(31, 129, 118, 0.08) 0%, transparent 70%)',
+          'radial-gradient(ellipse 60% 40% at 20% 50%, rgba(31, 129, 118, 0.12) 0%, transparent 70%)',
         ],
       }}
       transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
@@ -60,17 +60,17 @@ const CinematicPortrait = () => {
       className="relative group"
     >
       {/* Outer Glow Ring */}
-      <div className="absolute -inset-4 rounded-full bg-gradient-to-tr from-violet-600/30 via-purple-500/20 to-indigo-500/30 blur-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-1000" />
+      <div className="absolute -inset-4 rounded-full bg-gradient-to-tr from-teal-deep/30 via-teal/20 to-teal-bright/30 blur-2xl opacity-60 group-hover:opacity-100 transition-opacity duration-1000" />
 
       {/* Pulse Ring */}
       <motion.div
-        className="absolute -inset-2 rounded-full border border-violet-500/30"
-        animate={{ boxShadow: ['0 0 0 0 rgba(139,92,246,0)', '0 0 0 12px rgba(139,92,246,0)'], opacity: [0.6, 0] }}
+        className="absolute -inset-2 rounded-full border border-primary/30"
+        animate={{ boxShadow: ['0 0 0 0 rgba(31, 129, 118, 0)', '0 0 0 12px rgba(31, 129, 118, 0)'], opacity: [0.6, 0] }}
         transition={{ duration: 2.5, repeat: Infinity, ease: 'easeOut' }}
       />
 
       {/* Portrait image */}
-      <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full p-[2px] bg-gradient-to-tr from-violet-500 via-purple-400 to-indigo-500 shadow-[0_0_40px_rgba(139,92,246,0.4)] group-hover:shadow-[0_0_60px_rgba(139,92,246,0.6)] transition-shadow duration-700">
+      <div className="relative w-36 h-36 md:w-44 md:h-44 rounded-full p-[2px] bg-gradient-to-tr from-teal via-teal-bright to-teal-bright shadow-[0_0_40px_rgba(31, 129, 118, 0.4)] group-hover:shadow-[0_0_60px_rgba(31, 129, 118, 0.6)] transition-shadow duration-700">
         <div className="w-full h-full rounded-full overflow-hidden bg-background relative">
           <img
             src={`${import.meta.env.BASE_URL}assets/profile/vivek-sharma.png`}
@@ -79,7 +79,7 @@ const CinematicPortrait = () => {
             onLoad={() => setImgLoaded(true)}
           />
           {!imgLoaded && (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-violet-600 to-purple-800">
+            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-teal-deep to-ink-mid">
               <span className="text-5xl font-black text-white/80">V</span>
             </div>
           )}
@@ -102,7 +102,7 @@ const SocialLink = ({
       'backdrop-blur-xl transition-all duration-500 group/link magnetic-hover gpu-accelerated',
       isDark
         ? 'bg-white/[0.03] border border-white/[0.06] text-white/50 hover:text-white hover:bg-white/[0.06] hover:border-white/[0.12]'
-        : 'bg-violet-50/80 border border-violet-200/60 text-violet-700/60 hover:text-violet-900 hover:bg-violet-100/80 hover:border-violet-300/80'
+        : 'bg-paper-mid/80 border border-paper-deep/60 text-ink-soft/70 hover:text-ink hover:bg-paper-deep/80 hover:border-teal-bright/80'
     )}
   >
     <span className="opacity-50 group-hover/link:opacity-100 transition-opacity duration-500">{icon}</span>
@@ -131,8 +131,8 @@ export const AboutVivek = () => {
       </div>
 
       {/* Orbital light blobs */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-violet-600/[0.04] rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-indigo-500/[0.03] rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/[0.04] rounded-full blur-[150px] pointer-events-none" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-info/[0.03] rounded-full blur-[120px] pointer-events-none" />
 
       {/* Main Glass Card */}
       <motion.div
@@ -147,26 +147,26 @@ export const AboutVivek = () => {
           style={{
             background: isDark
               ? 'linear-gradient(to bottom, rgba(255,255,255,0.08), transparent)'
-              : 'linear-gradient(to bottom, rgba(139,92,246,0.12), transparent)',
+              : 'linear-gradient(to bottom, rgba(31, 129, 118, 0.12), transparent)',
           }}
         />
 
         <div
           className="relative rounded-[48px] overflow-hidden gpu-accelerated"
           style={{
-            border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(139,92,246,0.16)',
+            border: isDark ? '1px solid rgba(255,255,255,0.06)' : '1px solid rgba(31, 129, 118, 0.16)',
             background: isDark ? 'rgba(8,6,18,0.70)' : 'rgba(255,255,255,0.88)',
             backdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
             WebkitBackdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
             boxShadow: isDark
               ? '0 40px 100px -20px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05)'
-              : '0 24px 80px -12px rgba(139,92,246,0.15), 0 4px 20px rgba(0,0,0,0.06)',
+              : '0 24px 80px -12px rgba(31, 129, 118, 0.15), 0 4px 20px rgba(0,0,0,0.06)',
           }}
         >
           {/* Top edge highlight */}
           <div
             className="absolute top-0 left-12 right-12 h-px bg-gradient-to-r from-transparent to-transparent"
-            style={{ background: isDark ? 'linear-gradient(90deg,transparent,rgba(255,255,255,0.20),transparent)' : 'linear-gradient(90deg,transparent,rgba(139,92,246,0.40),transparent)' }}
+            style={{ background: isDark ? 'linear-gradient(90deg,transparent,rgba(255,255,255,0.20),transparent)' : 'linear-gradient(90deg,transparent,rgba(31, 129, 118, 0.40),transparent)' }}
           />
 
           <div className="px-10 md:px-16 py-16 flex flex-col items-center text-center space-y-10">
@@ -187,7 +187,7 @@ export const AboutVivek = () => {
               >
                 Vivek Sharma
               </h1>
-              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-violet-400/80">
+              <p className="text-[10px] font-black uppercase tracking-[0.4em] text-primary/80">
                 Independent Systems Architect
               </p>
             </motion.div>
@@ -218,7 +218,7 @@ export const AboutVivek = () => {
               animate={{ opacity: 1, scaleX: 1 }}
               transition={{ delay: 1.2, duration: 0.8 }}
               className="w-16 h-px"
-              style={{ background: isDark ? 'linear-gradient(90deg,transparent,rgba(139,92,246,0.30),transparent)' : 'linear-gradient(90deg,transparent,rgba(139,92,246,0.50),transparent)' }}
+              style={{ background: isDark ? 'linear-gradient(90deg,transparent,rgba(31, 129, 118, 0.30),transparent)' : 'linear-gradient(90deg,transparent,rgba(31, 129, 118, 0.50),transparent)' }}
             />
 
             {/* CTA */}
@@ -235,9 +235,9 @@ export const AboutVivek = () => {
                 className={cn(
                   'relative group/cta px-10 py-5 rounded-full overflow-hidden font-condensed',
                   'text-sm font-black uppercase tracking-[0.2em] text-white/90',
-                  'bg-gradient-to-r from-violet-600/80 via-purple-600/80 to-indigo-600/80',
+                  'bg-gradient-to-r from-teal-deep/80 via-teal/80 to-info/80',
                   'border border-white/10 hover:border-white/20',
-                  'shadow-[0_0_30px_rgba(139,92,246,0.3)] hover:shadow-[0_0_50px_rgba(139,92,246,0.5)]',
+                  'shadow-[0_0_30px_rgba(31, 129, 118, 0.3)] hover:shadow-[0_0_50px_rgba(31, 129, 118, 0.5)]',
                   'transition-all duration-700'
                 )}
               >

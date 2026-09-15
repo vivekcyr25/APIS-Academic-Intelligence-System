@@ -49,7 +49,7 @@ const Analytics = () => {
 
   const pieData = Object.entries(gradeDist).map(([name, value]) => ({ name, value: value as number }));
   
-  const COLORS = ['#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#f43f5e', '#f97316'];
+  const COLORS = ['#1F8176', '#2C9589', '#39747A', '#B87524', '#B84A43', '#397A5B'];
 
   const avg = (arr: number[]) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
   
@@ -88,7 +88,7 @@ const Analytics = () => {
       className="p-6 md:p-10 space-y-8"
     >
       <header className="border-b border-white/[0.08] pb-4">
-        <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+        <span className="font-condensed-heading text-xs font-bold text-primary tracking-widest block mb-1">
           PERFORMANCE INSIGHTS
         </span>
         <h1 className="font-condensed-heading text-4xl sm:text-5xl font-black tracking-wide text-white mb-2">
@@ -118,8 +118,8 @@ const Analytics = () => {
                   <Radar
                     name="Performance"
                     dataKey="A"
-                    stroke="#8b5cf6"
-                    fill="#8b5cf6"
+                    stroke="#1F8176"
+                    fill="#1F8176"
                     fillOpacity={0.2}
                   />
                   <Tooltip 
@@ -194,12 +194,12 @@ const Analytics = () => {
                 <AreaChart data={areaData}>
                   <defs>
                     <linearGradient id="colorCa1" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#1F8176" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#1F8176" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="colorCa2" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#d946ef" stopOpacity={0.8}/>
-                      <stop offset="95%" stopColor="#d946ef" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="#B87524" stopOpacity={0.8}/>
+                      <stop offset="95%" stopColor="#B87524" stopOpacity={0}/>
                     </linearGradient>
                     <linearGradient id="colorMte" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.8}/>
@@ -216,8 +216,8 @@ const Analytics = () => {
                   <Tooltip 
                     contentStyle={{ backgroundColor: '#0d0f14', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
                   />
-                  <Area stackId="1" type="monotone" dataKey="ca1" stroke="#8b5cf6" fill="url(#colorCa1)" onClick={(data: any) => setSelectedSubject(data.payload)} cursor="pointer" />
-                  <Area stackId="1" type="monotone" dataKey="ca2" stroke="#d946ef" fill="url(#colorCa2)" onClick={(data: any) => setSelectedSubject(data.payload)} cursor="pointer" />
+                  <Area stackId="1" type="monotone" dataKey="ca1" stroke="#1F8176" fill="url(#colorCa1)" onClick={(data: any) => setSelectedSubject(data.payload)} cursor="pointer" />
+                  <Area stackId="1" type="monotone" dataKey="ca2" stroke="#B87524" fill="url(#colorCa2)" onClick={(data: any) => setSelectedSubject(data.payload)} cursor="pointer" />
                   <Area stackId="1" type="monotone" dataKey="mte" stroke="#3b82f6" fill="url(#colorMte)" onClick={(data: any) => setSelectedSubject(data.payload)} cursor="pointer" />
                   <Area stackId="1" type="monotone" dataKey="ete" stroke="#10b981" fill="url(#colorEte)" onClick={(data: any) => setSelectedSubject(data.payload)} cursor="pointer" />
                 </AreaChart>

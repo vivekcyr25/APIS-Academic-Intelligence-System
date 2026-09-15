@@ -25,18 +25,18 @@ const Architecture = () => {
       title: 'Academic Data Layer',
       desc: 'Raw student inputs: semester records, course evaluation marks (CA1, CA2, MTE, ETE), attendance percentages, and credit weightings.',
       icon: FileSpreadsheet,
-      color: 'text-violet-400',
-      bg: 'bg-violet-500/10',
-      border: 'border-violet-500/20'
+      color: 'text-primary',
+      bg: 'bg-teal/10',
+      border: 'border-primary/20'
     },
     {
       step: '02',
       title: 'Academic Memory Engine',
       desc: 'Normalized multi-term aggregation creating longitudinal deltas, subject weakness vectors, and attendance stability indicators.',
       icon: Brain,
-      color: 'text-indigo-400',
-      bg: 'bg-indigo-500/10',
-      border: 'border-indigo-500/20'
+      color: 'text-info',
+      bg: 'bg-info/10',
+      border: 'border-info/20'
     },
     {
       step: '03',
@@ -52,18 +52,18 @@ const Architecture = () => {
       title: 'AI Interpretation',
       desc: 'Server-side LLM proxies analyze detected patterns in context, explaining academic changes in plain, actionable language.',
       icon: Sparkles,
-      color: 'text-purple-400',
-      bg: 'bg-purple-500/10',
-      border: 'border-purple-500/20'
+      color: 'text-amber',
+      bg: 'bg-amber/10',
+      border: 'border-amber/20'
     },
     {
       step: '05',
       title: 'Action & Recommendations',
       desc: 'Synthesized study priority schedules, exam target calculators, and early risk alerts provided to the student.',
       icon: Workflow,
-      color: 'text-fuchsia-400',
-      bg: 'bg-fuchsia-500/10',
-      border: 'border-fuchsia-500/20'
+      color: 'text-amber',
+      bg: 'bg-amber/10',
+      border: 'border-amber/20'
     }
   ];
 
@@ -73,7 +73,7 @@ const Architecture = () => {
       role: 'Presentation & Interaction',
       details: 'Strictly typed frontend utilizing modular React components, client-side routing, and responsive data visualizers with zero fake metrics.',
       icon: Layers,
-      color: 'text-violet-400'
+      color: 'text-primary'
     },
     {
       title: 'Firebase & Cloud Firestore',
@@ -94,7 +94,7 @@ const Architecture = () => {
       role: 'Contextual Academic Reasoning',
       details: 'Structured generative synthesis producing grounded academic retrospectives strictly anchored to provided records.',
       icon: Cpu,
-      color: 'text-purple-400'
+      color: 'text-amber'
     }
   ];
 
@@ -114,9 +114,9 @@ const Architecture = () => {
             <ArrowLeft className="w-4 h-4 mr-2" /> Back
           </Button>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 mb-4">
-            <Cpu className="w-3.5 h-3.5 text-violet-400" />
-            <span className="text-xs font-semibold text-violet-300 uppercase tracking-widest">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal/10 border border-primary/20 mb-4">
+            <Cpu className="w-3.5 h-3.5 text-primary" />
+            <span className="text-xs font-semibold text-teal-bright uppercase tracking-widest">
               System Architecture
             </span>
           </div>
@@ -144,7 +144,7 @@ const Architecture = () => {
                   key={item.step}
                   className="p-5 rounded-2xl border border-white/[0.08] bg-card/60 space-y-3 relative group"
                 >
-                  <span className="text-[11px] font-black text-violet-400 tracking-widest">{item.step}</span>
+                  <span className="text-[11px] font-black text-primary tracking-widest">{item.step}</span>
                   <div className={`w-9 h-9 rounded-xl ${item.bg} border ${item.border} flex items-center justify-center`}>
                     <Icon className={`w-4 h-4 ${item.color}`} />
                   </div>
@@ -177,7 +177,7 @@ const Architecture = () => {
                     </div>
                     <div>
                       <h3 className="text-sm font-bold text-white">{layer.title}</h3>
-                      <span className="text-[11px] text-violet-400 font-medium">{layer.role}</span>
+                      <span className="text-[11px] text-primary font-medium">{layer.role}</span>
                     </div>
                   </div>
                   <p className="text-xs text-muted-foreground leading-relaxed">{layer.details}</p>

@@ -72,7 +72,7 @@ const IntelligenceDashboard = () => {
       
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-2 border-b border-white/[0.08] pb-4">
         <div>
-          <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+          <span className="font-condensed-heading text-xs font-bold text-primary tracking-widest block mb-1">
             LONGITUDINAL ANALYTICS
           </span>
           <div className="flex items-center gap-3 mb-1">

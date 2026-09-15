@@ -53,7 +53,7 @@ export const EvolutionGraph = memo(({ semesters }: Props) => {
     sgpa: {
       key: 'sgpa',
       name: 'SGPA (0–10 Scale)',
-      color: '#8b5cf6',
+      color: '#1F8176',
       domain: [0, 10] as [number, number],
       unit: '',
     },
@@ -67,7 +67,7 @@ export const EvolutionGraph = memo(({ semesters }: Props) => {
     credits: {
       key: 'credits',
       name: 'Credits Earned',
-      color: '#6366f1',
+      color: '#39747A',
       domain: [0, 'auto'] as [number, string],
       unit: ' cr',
     },
@@ -94,7 +94,7 @@ export const EvolutionGraph = memo(({ semesters }: Props) => {
             onClick={() => setViewMode('sgpa')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
               viewMode === 'sgpa'
-                ? 'bg-violet-500/20 text-violet-300 border border-violet-500/30'
+                ? 'bg-teal/20 text-teal-bright border border-primary/30'
                 : 'text-muted-foreground hover:text-white'
             }`}
           >
@@ -116,7 +116,7 @@ export const EvolutionGraph = memo(({ semesters }: Props) => {
             onClick={() => setViewMode('credits')}
             className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1.5 ${
               viewMode === 'credits'
-                ? 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30'
+                ? 'bg-info/20 text-info border border-info/30'
                 : 'text-muted-foreground hover:text-white'
             }`}
           >
@@ -152,7 +152,7 @@ export const EvolutionGraph = memo(({ semesters }: Props) => {
             />
             <Tooltip 
               contentStyle={{ 
-                backgroundColor: 'rgba(10,10,18,0.95)', 
+                backgroundColor: 'rgba(23, 32, 31, 0.95)', 
                 border: '1px solid rgba(255,255,255,0.1)',
                 borderRadius: '12px',
                 color: '#fff',

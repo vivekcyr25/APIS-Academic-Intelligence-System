@@ -30,31 +30,30 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
     <div
       className={cn(
         'flex flex-col items-center justify-center text-center',
-        compact ? 'py-8 px-6 gap-3' : 'py-16 px-8 gap-5',
+        compact ? 'py-8 px-6 gap-3' : 'py-14 px-8 gap-5',
         className
       )}
       role="status"
-      aria-label={title}
     >
       <div
         className={cn(
-          'rounded-2xl border border-white/[0.08] bg-white/[0.03] flex items-center justify-center',
-          compact ? 'w-12 h-12' : 'w-16 h-16'
+          'rounded-2xl border border-border/60 bg-muted/40 flex items-center justify-center',
+          compact ? 'w-12 h-12' : 'w-14 h-14'
         )}
+        aria-hidden
       >
         <Icon
           className={cn(
-            'text-white/30',
-            compact ? 'w-5 h-5' : 'w-7 h-7'
+            'text-muted-foreground',
+            compact ? 'w-5 h-5' : 'w-6 h-6'
           )}
-          aria-hidden="true"
         />
       </div>
 
-      <div className="space-y-2 max-w-sm">
+      <div className="space-y-2 max-w-md">
         <h3
           className={cn(
-            'font-bold text-white/70',
+            'font-semibold text-foreground',
             compact ? 'text-sm' : 'text-base'
           )}
         >
@@ -69,13 +68,11 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
           {description}
         </p>
         {hint && (
-          <p className="text-xs text-white/25 font-medium italic mt-1">
-            {hint}
-          </p>
+          <p className="text-xs text-muted-foreground/70 mt-1">{hint}</p>
         )}
       </div>
 
-      {action && <div className="mt-2">{action}</div>}
+      {action && <div className="mt-1">{action}</div>}
     </div>
   );
 };

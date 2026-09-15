@@ -128,14 +128,14 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
             className={cn(
               "rounded-3xl flex flex-col overflow-hidden transition-all duration-500 mt-6 relative",
               "backdrop-blur-2xl border border-white/10 bg-[rgba(10,8,22,0.92)]",
-              "shadow-[0_0_80px_rgba(139,92,246,0.15)]",
+              "shadow-[0_0_80px_rgba(31, 129, 118, 0.15)]",
               isExpanded ? "h-[800px]" : "h-[520px]"
             )}
           >
             {/* ── Background Academic Doodle Ornaments Overlay ── */}
             <div className="absolute inset-0 pointer-events-none overflow-hidden select-none z-0 opacity-20">
               <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                <g fill="none" stroke="#a78bfa" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+                <g fill="none" stroke="#2C9589" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
                   {/* Top-Right Open Book */}
                   <g transform="translate(480, 20) scale(0.8) rotate(8)">
                     <path d="M0,18 C8,12 18,12 26,16 C34,12 44,12 52,18 L52,38 C44,32 34,32 26,36 C18,32 8,32 0,38 Z" />
@@ -171,10 +171,10 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
                   </g>
                   {/* Sparkle accents */}
                   <g transform="translate(320, 90)">
-                    <path d="M4,0 L5,3 L8,4 L5,5 L4,8 L3,5 L0,4 L3,3 Z" fill="#d8b4fe" opacity="0.5" stroke="none" />
+                    <path d="M4,0 L5,3 L8,4 L5,5 L4,8 L3,5 L0,4 L3,3 Z" fill="#CE8B32" opacity="0.5" stroke="none" />
                   </g>
                   <g transform="translate(540, 260)">
-                    <path d="M3,0 L4,2 L6,3 L4,4 L3,6 L2,4 L0,3 L2,2 Z" fill="#d8b4fe" opacity="0.5" stroke="none" />
+                    <path d="M3,0 L4,2 L6,3 L4,4 L3,6 L2,4 L0,3 L2,2 Z" fill="#2C9589" opacity="0.5" stroke="none" />
                   </g>
                 </g>
               </svg>
@@ -182,14 +182,14 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
 
             {/* Ambient Corner Glow */}
             <div 
-              className="absolute top-0 right-0 w-80 h-80 bg-violet-600/10 rounded-full blur-[90px] pointer-events-none"
+              className="absolute top-0 right-0 w-80 h-80 bg-primary/10 rounded-full blur-[90px] pointer-events-none"
               aria-hidden="true"
             />
 
             {/* ── AI Header with Elongated Condensed Typography ── */}
             <div className="p-6 sm:p-7 border-b border-white/5 flex items-center justify-between bg-white/[0.02] relative z-10">
               <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-violet-500/20 border border-violet-500/30 flex items-center justify-center text-violet-300 relative shadow-inner">
+                <div className="w-12 h-12 rounded-2xl bg-teal/20 border border-primary/30 flex items-center justify-center text-teal-bright relative shadow-inner">
                   <Sparkles className="w-6 h-6" />
                 </div>
                 <div>
@@ -242,21 +242,21 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
                     <div className={cn(
                       "w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 shadow-lg border",
                       msg.role === 'user'
-                        ? "bg-primary text-white border-primary/50 shadow-[0_0_15px_rgba(139,92,246,0.4)]"
-                        : "bg-white/5 text-violet-300 border-white/10"
+                        ? "bg-primary text-white border-primary/50 shadow-[0_0_15px_rgba(31, 129, 118, 0.4)]"
+                        : "bg-white/5 text-teal-bright border-white/10"
                     )}>
                       {msg.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4" />}
                     </div>
                     <div className={cn(
                       "max-w-[85%] px-5 py-4 rounded-2xl font-condensed text-base font-medium tracking-wide leading-relaxed",
                       msg.role === 'user'
-                        ? "bg-violet-600/30 text-white rounded-tr-none border border-violet-500/30 shadow-[0_4px_20px_rgba(139,92,246,0.15)]"
+                        ? "bg-primary/30 text-white rounded-tr-none border border-primary/30 shadow-[0_4px_20px_rgba(31, 129, 118, 0.15)]"
                         : "bg-white/[0.04] text-white/90 rounded-tl-none border border-white/[0.08]"
                     )}>
                       {msg.role === 'user' ? (
                         <p>{msg.content}</p>
                       ) : (
-                        <div className="prose prose-invert prose-p:my-1 prose-ul:my-2 prose-li:my-0.5 prose-strong:text-violet-300 text-sm sm:text-base leading-relaxed">
+                        <div className="prose prose-invert prose-p:my-1 prose-ul:my-2 prose-li:my-0.5 prose-strong:text-teal-bright text-sm sm:text-base leading-relaxed">
                           <ReactMarkdown>{msg.content}</ReactMarkdown>
                         </div>
                       )}
@@ -266,11 +266,11 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
               })}
               {isStreaming && !text && (
                 <div className="flex gap-4">
-                  <div className="w-9 h-9 rounded-xl bg-white/5 text-violet-400 border border-white/10 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-xl bg-white/5 text-primary border border-white/10 flex items-center justify-center">
                     <Loader2 className="w-4 h-4 animate-spin" />
                   </div>
                   <div className="bg-white/5 px-5 py-4 rounded-2xl rounded-tl-none border border-white/8">
-                    <span className="font-condensed text-sm text-violet-300/80 font-bold uppercase tracking-widest">
+                    <span className="font-condensed text-sm text-teal-bright/80 font-bold uppercase tracking-widest">
                       Synthesizing academic reflection...
                     </span>
                   </div>
@@ -296,7 +296,7 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
                     "absolute right-2 p-3 rounded-xl shadow-lg transition-all active:scale-95",
                     isStreaming
                       ? "bg-rose-500 hover:bg-rose-600 text-white shadow-rose-500/30"
-                      : "bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(139,92,246,0.4)] hover:scale-105 disabled:opacity-30 disabled:scale-100"
+                      : "bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(31, 129, 118, 0.4)] hover:scale-105 disabled:opacity-30 disabled:scale-100"
                   )}
                   aria-label={isStreaming ? "Stop" : "Send message"}
                 >

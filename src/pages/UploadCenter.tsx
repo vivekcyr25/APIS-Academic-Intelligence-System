@@ -188,7 +188,7 @@ const UploadCenter = () => {
   return (
     <div className="space-y-10 pb-20">
       <header className="border-b border-white/[0.08] pb-4">
-        <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+        <span className="font-condensed-heading text-xs font-bold text-primary tracking-widest block mb-1">
           RECORD INGESTION
         </span>
         <h1 className="font-condensed-heading text-4xl sm:text-5xl font-black tracking-wide text-white mb-2">
@@ -209,7 +209,7 @@ const UploadCenter = () => {
           )}
         >
           {inputMode === 'ai' && (
-            <motion.div layoutId="upload-mode-bg" className="absolute inset-0 bg-primary rounded-xl shadow-[0_0_15px_rgba(139,92,246,0.4)] -z-10" />
+            <motion.div layoutId="upload-mode-bg" className="absolute inset-0 bg-primary rounded-xl shadow-[0_0_15px_rgba(31, 129, 118, 0.4)] -z-10" />
           )}
           <Cpu className="w-4 h-4" /> AI OCR Extraction
         </button>
@@ -221,7 +221,7 @@ const UploadCenter = () => {
           )}
         >
           {inputMode === 'manual' && (
-            <motion.div layoutId="upload-mode-bg" className="absolute inset-0 bg-primary rounded-xl shadow-[0_0_15px_rgba(139,92,246,0.4)] -z-10" />
+            <motion.div layoutId="upload-mode-bg" className="absolute inset-0 bg-primary rounded-xl shadow-[0_0_15px_rgba(31, 129, 118, 0.4)] -z-10" />
           )}
           <Keyboard className="w-4 h-4" /> Manual Form Entry
         </button>
@@ -231,14 +231,14 @@ const UploadCenter = () => {
         {/* Left Col: Input Zone */}
         <div className="space-y-6">
         <div className="overflow-hidden rounded-3xl backdrop-blur-xl shadow-2xl"
-          style={{
-            border: isDark ? '1px solid rgba(255,255,255,0.10)' : '1px solid rgba(139,92,246,0.15)',
-            background: isDark ? 'rgba(17,25,40,0.7)' : 'rgba(255,255,255,0.88)',
-            boxShadow: isDark ? undefined : '0 4px 24px rgba(139,92,246,0.08)',
+            style={{
+            border: isDark ? '1px solid rgba(255,255,255,0.10)' : '1px solid hsl(var(--border))',
+            background: isDark ? 'hsl(var(--card) / 0.75)' : 'rgba(255,255,255,0.92)',
+            boxShadow: isDark ? undefined : '0 4px 24px rgba(15,23,42,0.06)',
           }}>
             <div className="p-6 border-b border-white/5 bg-primary/5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-primary rounded-lg text-white shadow-[0_0_15px_rgba(139,92,246,0.5)]">
+                <div className="p-2 bg-primary rounded-lg text-white shadow-[0_0_15px_rgba(31, 129, 118, 0.5)]">
                   {inputMode === 'ai' ? <Upload className="w-5 h-5" /> : <Keyboard className="w-5 h-5" />}
                 </div>
                 <h3 className="font-black font-heading">Data Source</h3>
@@ -295,14 +295,14 @@ const UploadCenter = () => {
                      className={cn(
                        "flex flex-col items-center text-center transition-all duration-500 rounded-2xl border-2 border-dashed p-10 group cursor-pointer",
                        dragActive
-                         ? "bg-primary/10 border-primary scale-[0.99] shadow-[0_0_60px_rgba(139,92,246,0.2)]"
+                         ? "bg-primary/10 border-primary scale-[0.99] shadow-[0_0_60px_rgba(31, 129, 118, 0.2)]"
                          : "border-white/10 hover:border-primary/40 hover:bg-primary/5",
                        file ? "py-8" : "py-20"
                      )}
                   >
                     {!file ? (
                       <>
-                         <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(139,92,246,0.3)] transition-all duration-500">
+                         <div className="w-20 h-20 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-6 group-hover:scale-110 group-hover:shadow-[0_0_30px_rgba(31, 129, 118, 0.3)] transition-all duration-500">
                            <ImageIcon className="w-10 h-10 text-primary/60 group-hover:text-primary transition-colors" />
                          </div>
                         <h4 className="text-xl font-bold mb-2">Drop academic screenshot here</h4>
@@ -376,7 +376,7 @@ const UploadCenter = () => {
                 exit={{ opacity: 0, x: 20 }}
                 className="space-y-6"
               >
-                <div className="overflow-hidden rounded-3xl backdrop-blur-xl border border-primary/20 bg-primary/5 p-6 shadow-[0_0_40px_rgba(139,92,246,0.08)]">
+                <div className="overflow-hidden rounded-3xl backdrop-blur-xl border border-primary/20 bg-primary/5 p-6 shadow-[0_0_40px_rgba(31, 129, 118, 0.08)]">
                   <div className="flex items-center gap-3 mb-6">
                     <div className="p-2 bg-primary/20 text-primary rounded-lg">
                       <BrainCircuit className="w-5 h-5" />
@@ -479,7 +479,7 @@ const UploadCenter = () => {
                       onClick={() => handleSave([manualData], 'manual_input')} 
                       isLoading={processing}
                       disabled={!manualData || (!manualData.subject && !manualData.subjectName && !manualData.title)}
-                      className="w-full h-14 rounded-2xl font-black bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(139,92,246,0.3)]"
+                      className="w-full h-14 rounded-2xl font-black bg-primary hover:bg-primary/90 text-white shadow-[0_0_20px_rgba(31, 129, 118, 0.3)]"
                     >
                       {success ? (
                         <><CheckCircle2 className="w-5 h-5 mr-2" /> Synced Successfully!</>
@@ -578,15 +578,22 @@ const UploadCenter = () => {
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
               >
-                <div className="h-full min-h-[400px] rounded-3xl backdrop-blur-xl border-2 border-dashed border-white/10 bg-[rgba(17,25,40,0.3)] flex flex-col items-center justify-center text-center p-10">
-                  <div className="p-4 bg-white/5 rounded-full mb-6">
-                    <Sparkles className="w-8 h-8 text-primary/40" />
+                <div
+                  className={cn(
+                    'h-full min-h-[400px] rounded-3xl border-2 border-dashed flex flex-col items-center justify-center text-center p-10',
+                    isDark
+                      ? 'border-white/10 bg-white/[0.03]'
+                      : 'border-border bg-muted/40'
+                  )}
+                >
+                  <div className="p-4 bg-muted/60 rounded-full mb-6">
+                    <Sparkles className="w-8 h-8 text-primary/50" aria-hidden />
                   </div>
-                  <h3 className="text-xl font-bold mb-2">Awaiting Intelligence Input...</h3>
+                  <h3 className="text-xl font-semibold mb-2">No preview yet</h3>
                   <p className="text-sm text-muted-foreground max-w-xs">
-                    {inputMode === 'ai' 
-                      ? "Upload a file and initialize AI to see structured academic data here."
-                      : "Start typing in the manual forms to see live neural projections and validation."}
+                    {inputMode === 'ai'
+                      ? 'Upload a file to extract structured academic data into this panel.'
+                      : 'Fill in the manual forms to preview and validate your entries here.'}
                   </p>
                 </div>
               </motion.div>

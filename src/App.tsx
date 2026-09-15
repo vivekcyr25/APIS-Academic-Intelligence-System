@@ -1,7 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { AppLayout } from './components/layout/AppLayout.tsx';
-import { ToastContainer } from './components/ui/ToastContainer.tsx';
 import { AuthGuard } from './components/layout/AuthGuard.tsx';
 
 // --- AUTH PAGES ---
@@ -12,7 +11,6 @@ import Register from './pages/Register.tsx';
 import Dashboard from './pages/Dashboard.tsx';
 
 // --- HEAVY MODULES (LAZY LOADED) ---
-const Analytics = lazy(() => import('./pages/Analytics.tsx'));
 const SemesterVault = lazy(() => import('./pages/SemesterVault.tsx'));
 const Recommendations = lazy(() => import('./pages/Recommendations.tsx'));
 const Profile = lazy(() => import('./pages/Profile.tsx'));
@@ -31,70 +29,77 @@ const DataOwnership = lazy(() => import('./pages/legal/DataOwnership.tsx'));
 import { Toaster } from 'react-hot-toast';
 import { MotionConfig } from 'framer-motion';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
-// import { registerSW } from 'virtual:pwa-register';
-
-// registerSW({
-//   onNeedRefresh() {
-//     // Refresh handled by autoUpdate
-//   },
-//   onOfflineReady() {
-//     // Ready for offline use
-//   },
-// });
 
 function App() {
   return (
     <ErrorBoundary>
       <MotionConfig reducedMotion="user">
-      <Toaster position="bottom-right" />
-      <Suspense fallback={
-        <div className="min-h-screen flex items-center justify-center bg-[#06030f]">
-          <div className="flex flex-col items-center gap-4">
-            <div className="w-16 h-16 rounded-full border-4 border-primary/20 border-t-primary animate-spin shadow-[0_0_15px_rgba(139,92,246,0.3)]" />
-            <p className="text-sm font-black text-white/40 tracking-[0.2em] uppercase animate-pulse">Syncing Intelligence...</p>
-          </div>
-        </div>
-      }>
-        <Routes>
-          {/* Auth Routes */}
-          <Route path="/login" element={
-            <AuthGuard requireAuth={false}>
-              <Login />
-            </AuthGuard>
-          } />
-          <Route path="/register" element={
-            <AuthGuard requireAuth={false}>
-              <Register />
-            </AuthGuard>
-          } />
+        <Toaster
+          position="bottom-right"
+          toastOptions={{
+            className: 'text-sm',
+            duration: 3500,
+          }}
+        />
+        <Suspense
+          fallback={
+            <div className="min-h-screen flex items-center justify-center bg-background">
+              <div className="flex flex-col items-center gap-4" role="status" aria-live="polite">
+                <div
+                  className="w-10 h-10 rounded-full border-2 border-primary/25 border-t-primary animate-spin"
+                  aria-hidden
+                />
+                <p className="text-sm font-medium text-muted-foreground">Loading…</p>
+              </div>
+            </div>
+          }
+        >
+          <Routes>
+            <Route
+              path="/login"
+              element={
+                <AuthGuard requireAuth={false}>
+                  <Login />
+                </AuthGuard>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <AuthGuard requireAuth={false}>
+                  <Register />
+                </AuthGuard>
+              }
+            />
 
-          {/* Main Layout */}
-          <Route path="/" element={
-            <AuthGuard requireAuth={true}>
-              <AppLayout />
-            </AuthGuard>
-          }>
-            <Route index element={<Navigate to="/dashboard" replace />} />
-            <Route path="dashboard" element={<Dashboard />} />
-            <Route path="upload" element={<UploadCenter />} />
-            <Route path="attendance" element={<Attendance />} />
-            <Route path="assignments" element={<Assignments />} />
-            <Route path="lms" element={<LMS />} />
-            <Route path="semester-vault" element={<SemesterVault />} />
-            <Route path="analytics" element={<Navigate to="/academic-intelligence" replace />} />
-            <Route path="academic-intelligence" element={<IntelligenceDashboard />} />
-            <Route path="recommendations" element={<Recommendations />} />
-            <Route path="profile" element={<Profile />} />
-            <Route path="about" element={<AboutPage />} />
-            <Route path="architecture" element={<Architecture />} />
-            <Route path="legal/privacy" element={<PrivacyPolicy />} />
-            <Route path="legal/terms" element={<TermsOfUse />} />
-            <Route path="legal/data-ownership" element={<DataOwnership />} />
-          </Route>
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
-      </Suspense>
-      <ToastContainer />
+            <Route
+              path="/"
+              element={
+                <AuthGuard requireAuth={true}>
+                  <AppLayout />
+                </AuthGuard>
+              }
+            >
+              <Route index element={<Navigate to="/dashboard" replace />} />
+              <Route path="dashboard" element={<Dashboard />} />
+              <Route path="upload" element={<UploadCenter />} />
+              <Route path="attendance" element={<Attendance />} />
+              <Route path="assignments" element={<Assignments />} />
+              <Route path="lms" element={<LMS />} />
+              <Route path="semester-vault" element={<SemesterVault />} />
+              <Route path="analytics" element={<Navigate to="/academic-intelligence" replace />} />
+              <Route path="academic-intelligence" element={<IntelligenceDashboard />} />
+              <Route path="recommendations" element={<Recommendations />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="about" element={<AboutPage />} />
+              <Route path="architecture" element={<Architecture />} />
+              <Route path="legal/privacy" element={<PrivacyPolicy />} />
+              <Route path="legal/terms" element={<TermsOfUse />} />
+              <Route path="legal/data-ownership" element={<DataOwnership />} />
+            </Route>
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          </Routes>
+        </Suspense>
       </MotionConfig>
     </ErrorBoundary>
   );

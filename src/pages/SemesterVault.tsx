@@ -130,12 +130,14 @@ const SubjectCard = memo(({ subject, userId, profile }: { subject: Subject, user
   }
 
   return (
-    <div className="p-4 rounded-3xl bg-[rgba(17,25,40,0.6)] backdrop-blur-xl border border-white/10 hover:border-white/20 hover:shadow-[0_0_30px_rgba(139,92,246,0.1)] transition-all duration-500 group relative">
-      <button 
+    <div className="p-4 rounded-3xl bg-card/80 backdrop-blur-xl border border-border/60 hover:border-border transition-colors duration-300 group relative">
+      <button
+        type="button"
         onClick={() => setIsEditing(true)}
-        className="absolute top-2 right-2 p-2 rounded-lg bg-white/0 hover:bg-white/5 text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100"
+        aria-label={`Edit ${subject.name}`}
+        className="absolute top-2 right-2 p-2 rounded-lg bg-transparent hover:bg-muted text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100 focus-visible:opacity-100"
       >
-        <Edit3 className="w-3.5 h-3.5" />
+        <Edit3 className="w-3.5 h-3.5" aria-hidden />
       </button>
 
       <div className="flex justify-between items-start mb-4 pr-6">
@@ -306,7 +308,7 @@ const SemesterVault = () => {
           </p>
         </div>
         
-        <Button className="h-12 px-6 rounded-2xl neural-glow shadow-[0_0_20px_rgba(139,92,246,0.2)]">
+        <Button className="h-12 px-6 rounded-2xl neural-glow shadow-[0_0_20px_rgba(31, 129, 118, 0.2)]">
           <History className="w-5 h-5 mr-2" /> Combine Analytics
         </Button>
       </header>
@@ -334,28 +336,28 @@ const SemesterVault = () => {
             >
               <div className={cn(
                 "overflow-hidden transition-all duration-500 rounded-3xl backdrop-blur-xl",
-                sem.status === 'active' && "border-primary/30 shadow-[0_0_40px_rgba(139,92,246,0.15)]",
+                sem.status === 'active' && "border-primary/30 shadow-[0_0_40px_rgba(31, 129, 118, 0.15)]",
                 sem.status === 'completed' && "border-emerald-500/20 shadow-[0_0_20px_rgba(52,211,153,0.05)]",
                 sem.status === 'upcoming' && "opacity-80 border-dashed",
                 isExpanded ? "ring-1 ring-white/10" : ""
               )}
               style={{
                 border: sem.status === 'upcoming'
-                  ? `1px dashed ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(139,92,246,0.15)'}`
+                  ? `1px dashed ${isDark ? 'rgba(255,255,255,0.05)' : 'rgba(31, 129, 118, 0.15)'}`
                   : undefined,
                 background: isDark
-                  ? (sem.status === 'active' ? 'rgba(17,25,40,0.8)'
-                    : sem.status === 'completed' ? 'rgba(17,25,40,0.6)'
-                    : sem.status === 'upcoming' ? 'rgba(0,0,0,0.6)'
-                    : 'rgba(0,0,0,0.4)')
-                  : (sem.status === 'active' ? 'rgba(255,255,255,0.88)'
-                    : sem.status === 'completed' ? 'rgba(255,255,255,0.80)'
-                    : sem.status === 'upcoming' ? 'rgba(248,245,255,0.60)'
-                    : 'rgba(248,245,255,0.70)'),
+                  ? (sem.status === 'active' ? 'hsl(var(--card) / 0.85)'
+                    : sem.status === 'completed' ? 'hsl(var(--card) / 0.7)'
+                    : sem.status === 'upcoming' ? 'hsl(var(--background) / 0.7)'
+                    : 'hsl(var(--background) / 0.5)')
+                  : (sem.status === 'active' ? 'rgba(255,255,255,0.92)'
+                    : sem.status === 'completed' ? 'rgba(255,255,255,0.85)'
+                    : sem.status === 'upcoming' ? 'rgba(255,255,255,0.65)'
+                    : 'rgba(255,255,255,0.75)'),
                 borderColor: !sem.status || sem.status === 'upcoming' ? undefined
                   : isDark
-                    ? (sem.status === 'active' ? 'rgba(139,92,246,0.30)' : sem.status === 'completed' ? 'rgba(52,211,153,0.20)' : 'rgba(255,255,255,0.05)')
-                    : (sem.status === 'active' ? 'rgba(139,92,246,0.25)' : sem.status === 'completed' ? 'rgba(52,211,153,0.30)' : 'rgba(139,92,246,0.12)'),
+                    ? (sem.status === 'active' ? 'hsl(var(--primary) / 0.35)' : sem.status === 'completed' ? 'rgba(52,211,153,0.20)' : 'hsl(var(--border))')
+                    : (sem.status === 'active' ? 'hsl(var(--primary) / 0.3)' : sem.status === 'completed' ? 'rgba(52,211,153,0.30)' : 'hsl(var(--border))'),
               }}>
                 {/* Semester Header Toggle */}
                 <div 
@@ -453,7 +455,7 @@ const SemesterVault = () => {
                       initial={!isLowEnd ? { height: 0, opacity: 0 } : { height: 'auto', opacity: 1 }}
                       animate={{ height: "auto", opacity: 1 }}
                       exit={!isLowEnd ? { height: 0, opacity: 0 } : { height: 0, opacity: 0 }}
-                    className={`border-t bg-black/20 ${isDark ? 'border-white/5 bg-black/20' : 'border-violet-100 bg-violet-50/30'}`}
+                    className={`border-t bg-black/20 ${isDark ? 'border-white/5 bg-black/20' : 'border-paper-deep bg-paper-mid/30'}`}
                     >
                       <div className="p-6 space-y-6">
                         

@@ -82,9 +82,9 @@ const Register = () => {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-[500px] relative z-10"
       >
-        <Card className="p-10 border-white/10 shadow-[0_0_50px_rgba(139,92,246,0.15)] bg-card/80 backdrop-blur-xl">
+        <Card className="p-10 border-white/10 shadow-[0_0_50px_rgba(31, 129, 118, 0.15)] bg-card/80 backdrop-blur-xl">
           <div className="flex flex-col items-center text-center mb-10">
-            <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(139,92,246,0.4)] neural-glow">
+            <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(31, 129, 118, 0.4)] neural-glow">
               <UserPlus className="text-white w-10 h-10" />
             </div>
             <h1 className="text-4xl font-black font-heading tracking-tight mb-2">Initialize Profile</h1>

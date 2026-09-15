@@ -35,9 +35,9 @@ export const AcademicSnapshot = memo(({
       emptyLabel: 'Awaiting semester data',
       provenance: semestersCount > 0 ? `Across ${semestersCount} semester${semestersCount > 1 ? 's' : ''}` : 'Requires completed semesters',
       icon: Trophy,
-      color: 'text-violet-400',
-      bg: 'bg-violet-500/10',
-      border: 'border-violet-500/20',
+      color: 'text-primary',
+      bg: 'bg-teal/10',
+      border: 'border-primary/20',
       status: cgpa && cgpa >= 8 ? 'Strong' : cgpa && cgpa >= 6 ? 'Steady' : null,
     },
     {
@@ -47,9 +47,9 @@ export const AcademicSnapshot = memo(({
       emptyLabel: 'No marks logged',
       provenance: marksCount > 0 ? `From ${marksCount} course evaluation${marksCount > 1 ? 's' : ''}` : 'Add marks in Semester Vault',
       icon: Target,
-      color: 'text-indigo-400',
-      bg: 'bg-indigo-500/10',
-      border: 'border-indigo-500/20',
+      color: 'text-info',
+      bg: 'bg-info/10',
+      border: 'border-info/20',
       status: sgpa && sgpa >= 8 ? 'Optimal' : sgpa && sgpa >= 6 ? 'Good' : null,
     },
     {
@@ -71,9 +71,9 @@ export const AcademicSnapshot = memo(({
       emptyLabel: 'No credits recorded',
       provenance: creditsEarned && creditsEarned > 0 ? 'From verified subjects' : 'Calculated from completed courses',
       icon: BookOpen,
-      color: 'text-purple-400',
-      bg: 'bg-purple-500/10',
-      border: 'border-purple-500/20',
+      color: 'text-amber',
+      bg: 'bg-amber/10',
+      border: 'border-amber/20',
       status: creditsEarned && totalCredits ? `${Math.round((creditsEarned / totalCredits) * 100)}% Completed` : null,
     },
   ];
@@ -82,7 +82,7 @@ export const AcademicSnapshot = memo(({
     <div className="space-y-4 pt-4">
       <div className="flex items-center justify-between border-b border-white/[0.08] pb-3">
         <div>
-          <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+          <span className="font-condensed-heading text-xs font-bold text-primary tracking-widest block mb-1">
             REALTIME REGISTRY
           </span>
           <h2 className="font-condensed-heading text-2xl sm:text-3xl font-extrabold text-white tracking-wide">
@@ -141,7 +141,7 @@ export const AcademicSnapshot = memo(({
 
               <div className="mt-4 pt-3 border-t border-white/[0.05] flex items-center justify-between">
                 <span className="font-condensed text-xs text-white/50 flex items-center gap-1.5 font-medium tracking-wide">
-                  <span className="w-1.5 h-1.5 rounded-full bg-violet-400/40" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-teal-bright/40" />
                   {metric.provenance}
                 </span>
               </div>

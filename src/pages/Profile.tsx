@@ -135,7 +135,7 @@ const Profile = () => {
     >
       {/* Header */}
       <header className="border-b border-white/[0.08] pb-4">
-        <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
+        <span className="font-condensed-heading text-xs font-bold text-primary tracking-widest block mb-1">
           ACCOUNT & SECURITY
         </span>
         <h1 className="font-condensed-heading text-4xl sm:text-5xl font-black tracking-wide text-white mb-2">
@@ -157,10 +157,10 @@ const Profile = () => {
                   src={user.photoURL}
                   alt={user?.name || 'Profile'}
                   referrerPolicy="no-referrer"
-                  className="h-32 w-32 rounded-full object-cover border border-purple-500/30 shadow-[0_0_20px_rgba(139,92,246,0.25)] transition-transform hover:scale-105 duration-300"
+                  className="h-32 w-32 rounded-full object-cover border border-amber/30 shadow-[0_0_20px_rgba(31, 129, 118, 0.25)] transition-transform hover:scale-105 duration-300"
                 />
               ) : (
-                <div className="h-32 w-32 rounded-full bg-gradient-to-br from-violet-500 to-purple-700 flex items-center justify-center text-4xl font-bold text-white transition-transform hover:scale-105 duration-300 shadow-[0_0_20px_rgba(139,92,246,0.25)]">
+                <div className="h-32 w-32 rounded-full bg-gradient-to-br from-teal to-ink-soft flex items-center justify-center text-4xl font-bold text-white transition-transform hover:scale-105 duration-300 shadow-[0_0_20px_rgba(31, 129, 118, 0.25)]">
                   {user?.name?.charAt(0)?.toUpperCase() || "U"}
                 </div>
               )}
@@ -207,7 +207,7 @@ const Profile = () => {
                 className={cn(
                   'w-full flex items-center gap-3 px-4 py-3 rounded-2xl text-sm font-bold border border-transparent transition-all duration-200 active:scale-[0.98]',
                   activeTab === tab.id
-                    ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_4px_12px_rgba(139,92,246,0.1)]'
+                    ? 'bg-primary/10 text-primary border-primary/20 shadow-[0_4px_12px_rgba(31, 129, 118, 0.1)]'
                     : 'text-muted-foreground hover:bg-white/[0.04] hover:border-white/[0.08] hover:text-foreground hover:shadow-[0_4px_12px_rgba(0,0,0,0.05)]'
                 )}
               >

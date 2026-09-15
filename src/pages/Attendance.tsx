@@ -6,13 +6,17 @@ import {
   Calendar,
   TrendingUp,
   AlertTriangle,
-  BrainCircuit,
-  Info
+  Upload,
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Card, StatsCard } from '../components/ui/Card';
+import { PageHeader } from '../components/ui/PageHeader';
+import { EmptyState } from '../components/ui/EmptyState';
+import { Skeleton } from '../components/ui/SkeletonLoader';
+import { Button } from '../components/ui/Button';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../services/firebase/config';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, onSnapshot } from 'firebase/firestore';
 import type { AttendanceRecord } from '../types/academic';
 import { cn } from '../lib/utils';
 
@@ -20,197 +24,243 @@ const Attendance = () => {
   const { user } = useAuth();
   const [records, setRecords] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
-    const q = query(
-      collection(db, 'users', user.id, 'attendance')
-    );
+    setLoading(true);
+    setError(null);
+    const q = query(collection(db, 'users', user.id, 'attendance'));
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-      const data = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      })) as AttendanceRecord[];
-      setRecords(data);
-      setLoading(false);
-    });
+    const unsubscribe = onSnapshot(
+      q,
+      (snapshot) => {
+        const data = snapshot.docs.map((docSnap) => ({
+          id: docSnap.id,
+          ...docSnap.data(),
+        })) as AttendanceRecord[];
+        setRecords(data);
+        setLoading(false);
+      },
+      () => {
+        setError('Could not load attendance records. Check your connection and try again.');
+        setLoading(false);
+      }
+    );
 
     return () => unsubscribe();
   }, [user]);
 
-  const overallAttendance = records.length > 0
+  const hasData = records.length > 0;
+  const overallAttendance = hasData
     ? records.reduce((acc, curr) => acc + curr.attendancePercentage, 0) / records.length
     : 0;
-
-  const lowAttendanceCount = records.filter(r => r.attendancePercentage < 75).length;
+  const lowAttendanceCount = records.filter((r) => r.attendancePercentage < 75).length;
+  const atRiskSubject = records.find((r) => r.attendancePercentage < 75);
 
   return (
-    <div className="space-y-10">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6 border-b border-white/[0.08] pb-4">
-        <div>
-          <span className="font-condensed-heading text-xs font-bold text-violet-400 tracking-widest block mb-1">
-            PRESENCE MONITORING
-          </span>
-          <h1 className="font-condensed-heading text-4xl sm:text-5xl font-black tracking-wide text-white mb-2">
-            ATTENDANCE ANALYTICS
-          </h1>
-          <p className="font-condensed text-base text-muted-foreground font-medium tracking-wide">
-            Real-time attendance tracking, shortage risk detection, and minimum threshold compliance
-          </p>
-        </div>
-        <div className="flex items-center gap-2 bg-white/5 px-4 py-2.5 rounded-2xl border border-white/8">
-          <Calendar className="w-4 h-4 text-violet-400" />
-          <span className="font-condensed text-xs font-bold uppercase tracking-widest text-white/80">
-            {records.length > 0 ? `${records.length} Tracked Courses` : 'Attendance Registry'}
-          </span>
-        </div>
-      </header>
+    <div className="space-y-8">
+      <PageHeader
+        eyebrow="Presence"
+        title="Attendance"
+        description="Track subject-level attendance and shortage risk from your uploaded records."
+        actions={
+          <div className="flex items-center gap-2 px-3 py-2 rounded-xl border border-border/60 bg-muted/30 text-sm text-muted-foreground">
+            <Calendar className="w-4 h-4 text-primary shrink-0" aria-hidden />
+            <span>
+              {loading ? 'Loading…' : hasData ? `${records.length} courses tracked` : 'No records yet'}
+            </span>
+          </div>
+        }
+      />
 
-      {/* KPI Overlays */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {error && (
+        <div
+          role="alert"
+          className="rounded-2xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm text-rose-300"
+        >
+          {error}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <StatsCard
-          label="Cumulative Attendance"
+          label="Average attendance"
           value={`${overallAttendance.toFixed(1)}%`}
           icon={TrendingUp}
-          color={overallAttendance >= 75 ? 'success' : 'danger'}
+          color={hasData ? (overallAttendance >= 75 ? 'success' : 'danger') : 'primary'}
+          loading={loading || !hasData}
         />
         <StatsCard
-          label="Subjects at Risk"
+          label="Subjects at risk"
           value={lowAttendanceCount}
           icon={ShieldAlert}
-          color={lowAttendanceCount > 0 ? 'danger' : 'success'}
+          color={hasData ? (lowAttendanceCount > 0 ? 'danger' : 'success') : 'primary'}
+          loading={loading || !hasData}
         />
         <StatsCard
-          label="Minimum Required"
+          label="Minimum required"
           value="75%"
           icon={ShieldCheck}
           color="primary"
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Subject Breakdown */}
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <h3 className="text-xl font-black mb-6 flex items-center gap-2">
-              Subject Vector Analysis
-            </h3>
-            <div className="space-y-4">
-              {records.length > 0 ? records.map((record) => (
-                <div key={record.id} className="p-6 rounded-2xl bg-white/3 border border-white/5 hover:bg-white/5 transition-all group">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                      <div className={cn(
-                        "w-12 h-12 rounded-xl flex items-center justify-center font-black shadow-lg",
-                        record.attendancePercentage >= 75 ? "bg-green-500/10 text-green-400" : "bg-rose-500/10 text-rose-400"
-                      )}>
-                        {record.attendancePercentage.toFixed(0)}%
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-lg">{record.subjectName}</h4>
-                        <p className="text-xs text-muted-foreground">Updated {record.updatedAt?.toDate?.().toLocaleDateString() || 'Recently'}</p>
-                      </div>
-                    </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <Card className="p-6 sm:p-8">
+            <h2 className="text-lg font-semibold mb-6">By subject</h2>
 
-                    <div className="flex items-center gap-6">
-                      <div className="hidden md:block">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1 text-right">Shortage Risk</p>
-                        <div className={cn(
-                          "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider text-right",
-                          record.attendancePercentage >= 85 ? "bg-green-500/10 text-green-400" :
-                            record.attendancePercentage >= 75 ? "bg-amber-500/10 text-amber-400" :
-                              "bg-rose-500/10 text-rose-400"
-                        )}>
-                          {record.attendancePercentage >= 85 ? 'Optimized' : record.attendancePercentage >= 75 ? 'Fair' : 'CRITICAL'}
+            {loading ? (
+              <div className="space-y-4" aria-busy="true" aria-label="Loading attendance">
+                <Skeleton className="h-24 w-full rounded-2xl" />
+                <Skeleton className="h-24 w-full rounded-2xl" />
+                <Skeleton className="h-24 w-full rounded-2xl" />
+              </div>
+            ) : hasData ? (
+              <div className="space-y-3">
+                {records.map((record) => {
+                  const safe = record.attendancePercentage >= 75;
+                  const optimized = record.attendancePercentage >= 85;
+                  const riskLabel = optimized ? 'Optimized' : safe ? 'Safe' : 'Critical';
+                  return (
+                    <div
+                      key={record.id}
+                      className="p-4 sm:p-5 rounded-2xl bg-muted/30 border border-border/50"
+                    >
+                      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 min-w-0">
+                          <div
+                            className={cn(
+                              'w-12 h-12 rounded-xl flex items-center justify-center font-bold tabular-nums shrink-0',
+                              safe
+                                ? 'bg-emerald-500/10 text-emerald-400'
+                                : 'bg-rose-500/10 text-rose-400'
+                            )}
+                            aria-label={`${record.attendancePercentage.toFixed(0)} percent`}
+                          >
+                            {record.attendancePercentage.toFixed(0)}%
+                          </div>
+                          <div className="min-w-0">
+                            <h3 className="font-semibold truncate">{record.subjectName}</h3>
+                            <p className="text-xs text-muted-foreground">
+                              Updated{' '}
+                              {record.updatedAt?.toDate?.().toLocaleDateString() || 'recently'}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-4 sm:gap-6">
+                          <div className="text-right">
+                            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-1">
+                              Risk
+                            </p>
+                            <span
+                              className={cn(
+                                'text-xs font-semibold',
+                                optimized
+                                  ? 'text-emerald-400'
+                                  : safe
+                                    ? 'text-amber-400'
+                                    : 'text-rose-400'
+                              )}
+                            >
+                              {riskLabel}
+                            </span>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground mb-1">
+                              Status
+                            </p>
+                            <span className="text-sm font-medium">
+                              {safe ? 'Above 75%' : 'Below 75%'}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                      <div className="h-10 w-[2px] bg-white/5 hidden md:block" />
-                      <div className="text-right">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-1">Status</p>
-                        <div className="flex items-center gap-2">
-                          <div className={cn(
-                            "w-2 h-2 rounded-full",
-                            record.attendancePercentage >= 75 ? "bg-green-500" : "bg-rose-500 animate-pulse"
-                          )} />
-                          <span className="text-sm font-bold">{record.attendancePercentage >= 75 ? 'Safe' : 'Shortage'}</span>
-                        </div>
+
+                      <div
+                        className="mt-4 h-1.5 w-full bg-muted rounded-full overflow-hidden"
+                        role="progressbar"
+                        aria-valuenow={Math.round(record.attendancePercentage)}
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-label={`${record.subjectName} attendance`}
+                      >
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${Math.min(record.attendancePercentage, 100)}%` }}
+                          transition={{ duration: 0.5, ease: 'easeOut' }}
+                          className={cn(
+                            'h-full rounded-full',
+                            safe ? 'bg-primary' : 'bg-rose-500'
+                          )}
+                        />
                       </div>
                     </div>
-                  </div>
-
-                  {/* Progress Bar */}
-                  <div className="mt-6 h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                    <motion.div
-                      initial={{ width: 0 }}
-                      animate={{ width: `${record.attendancePercentage}%` }}
-                      className={cn(
-                        "h-full rounded-full shadow-[0_0_10px_rgba(0,0,0,0.5)]",
-                        record.attendancePercentage >= 75 ? "bg-primary" : "bg-rose-500"
-                      )}
-                    />
-                  </div>
-                </div>
-              )) : (
-                <div className="py-20 text-center space-y-4">
-                  <div className="w-16 h-16 rounded-3xl bg-white/5 flex items-center justify-center mx-auto text-muted-foreground">
-                    <Info className="w-8 h-8" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">No attendance records found. Use the Upload Center to import your data.</p>
-                </div>
-              )}
-            </div>
+                  );
+                })}
+              </div>
+            ) : (
+              <EmptyState
+                icon={Calendar}
+                title="No attendance data yet"
+                description="Upload your attendance sheet from the Upload Center. Once imported, subject-level percentages and shortage risk will appear here."
+                action={
+                  <Link to="/upload">
+                    <Button className="gap-2">
+                      <Upload className="w-4 h-4" aria-hidden /> Go to Upload
+                    </Button>
+                  </Link>
+                }
+              />
+            )}
           </Card>
         </div>
 
-        {/* AI Insight Sidebar */}
-        <div className="space-y-6">
-          <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-primary text-white rounded-lg neural-glow">
-                <BrainCircuit className="w-5 h-5" />
-              </div>
-              <h3 className="text-xl font-black font-heading tracking-tight">AI Strategy</h3>
-            </div>
-
-            <div className="space-y-4">
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                <div className="flex items-center gap-2 mb-2">
-                  <AlertTriangle className="w-4 h-4 text-amber-400" />
-                  <span className="text-xs font-black uppercase tracking-widest text-amber-400">Recovery Plan</span>
-                </div>
-                <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-                  {lowAttendanceCount > 0
-                    ? `You need to attend the next 4 lectures of ${records.find(r => r.attendancePercentage < 75)?.subjectName} to reach 75%.`
-                    : "Your attendance vectors are stable. Maintain the current rhythm to optimize performance."}
-                </p>
-              </div>
-
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                <p className="text-xs font-black text-primary uppercase tracking-widest mb-2">Optimization Tip</p>
-                <p className="text-sm font-medium text-muted-foreground leading-relaxed italic">
-                  "Students with &gt;85% attendance typically score 1.2 points higher in ETE exams."
-                </p>
-              </div>
-            </div>
+        <div className="space-y-4">
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <AlertTriangle className="w-4 h-4 text-amber-400" aria-hidden />
+              Guidance
+            </h2>
+            {loading ? (
+              <Skeleton className="h-24 w-full rounded-2xl" />
+            ) : !hasData ? (
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Insights appear after attendance records are uploaded. Most universities require at
+                least 75% attendance per subject.
+              </p>
+            ) : lowAttendanceCount > 0 ? (
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                {lowAttendanceCount} subject{lowAttendanceCount === 1 ? '' : 's'} below 75%
+                {atRiskSubject ? `, including ${atRiskSubject.subjectName}` : ''}. Prioritize those
+                classes until you clear the threshold — exact lectures needed depend on remaining
+                sessions in your timetable.
+              </p>
+            ) : (
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                All tracked subjects are at or above 75%. Keep the current attendance rhythm.
+              </p>
+            )}
           </Card>
 
-          <Card>
-            <h4 className="font-bold mb-4">Legend</h4>
-            <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Optimized</span>
-                <span className="text-green-400 font-bold">85% - 100%</span>
+          <Card className="p-6">
+            <h2 className="text-sm font-semibold mb-4">Threshold legend</h2>
+            <dl className="space-y-3 text-sm">
+              <div className="flex items-center justify-between">
+                <dt className="text-muted-foreground">Optimized</dt>
+                <dd className="text-emerald-400 font-medium">85–100%</dd>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Safe</span>
-                <span className="text-primary font-bold">75% - 85%</span>
+              <div className="flex items-center justify-between">
+                <dt className="text-muted-foreground">Safe</dt>
+                <dd className="text-primary font-medium">75–84%</dd>
               </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="text-muted-foreground">Critical</span>
-                <span className="text-rose-400 font-bold">&lt; 75%</span>
+              <div className="flex items-center justify-between">
+                <dt className="text-muted-foreground">Critical</dt>
+                <dd className="text-rose-400 font-medium">&lt; 75%</dd>
               </div>
-            </div>
+            </dl>
           </Card>
         </div>
       </div>

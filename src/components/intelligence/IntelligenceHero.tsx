@@ -55,7 +55,7 @@ export const IntelligenceHero = ({ semesters, memory }: Props) => {
         {/* Left: Summary & Interpretation */}
         <div className="max-w-2xl space-y-4">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-violet-500/10 text-violet-300 text-xs font-bold uppercase tracking-wider border border-violet-500/20">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-teal/10 text-teal-bright text-xs font-bold uppercase tracking-wider border border-primary/20">
               <Sparkles className="w-3.5 h-3.5" />
               Academic Interpretation
             </span>
@@ -98,7 +98,7 @@ export const IntelligenceHero = ({ semesters, memory }: Props) => {
         <div className="grid grid-cols-2 gap-3 shrink-0 sm:w-80">
           <div className="p-4 rounded-xl bg-white/[0.03] border border-white/[0.08]">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1 flex items-center gap-1">
-              <TrendingUp className="w-3 h-3 text-violet-400" /> Current CGPA
+              <TrendingUp className="w-3 h-3 text-primary" /> Current CGPA
             </p>
             <p className="text-2xl font-black font-mono text-white">{currentCgpa > 0 ? currentCgpa.toFixed(2) : '—'}</p>
             <span className="text-[10px] text-white/30 block mt-1">Weighted average</span>
@@ -118,7 +118,7 @@ export const IntelligenceHero = ({ semesters, memory }: Props) => {
             </p>
             <div className="flex items-center justify-between mt-1">
               <p className="text-sm font-bold text-white/90">{strongestSem.label || `Semester ${strongestSem.number}`}</p>
-              <p className="text-violet-400 font-black font-mono text-sm">{strongestSem.sgpa.toFixed(2)} SGPA</p>
+              <p className="text-primary font-black font-mono text-sm">{strongestSem.sgpa.toFixed(2)} SGPA</p>
             </div>
           </div>
         </div>
