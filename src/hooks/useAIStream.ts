@@ -13,18 +13,20 @@ export const useAIStream = (options?: UseAIStreamOptions) => {
   const [text, setText] = useState('');
   
   const abortControllerRef = useRef<AbortController | null>(null);
+  const isManualAbortRef = useRef<boolean>(false);
 
   const startStream = useCallback(async (prompt: string, context: string) => {
     setIsStreaming(true);
     setError(null);
     setText('');
+    isManualAbortRef.current = false;
 
     abortControllerRef.current = new AbortController();
     const timeoutId = setTimeout(() => {
       if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
+        abortControllerRef.current.abort('timeout');
       }
-    }, 6000); // 6s timeout for streaming connection
+    }, 25000); // 25s timeout for AI synthesis
 
     try {
       // Point to our backend express route. Uses env var for production backend URL
@@ -79,10 +81,10 @@ export const useAIStream = (options?: UseAIStreamOptions) => {
 
       options?.onComplete?.(fullText);
     } catch (err: any) {
-      if (err.name === 'AbortError') {
-        console.log('Stream aborted by user');
+      if (isManualAbortRef.current) {
+        console.log('Stream manually stopped by user');
       } else {
-        const errMsg = err.message || 'Stream connection lost';
+        const errMsg = err?.name === 'AbortError' ? 'Stream timed out' : (err.message || 'Stream connection lost');
         setError(errMsg);
         options?.onError?.(new Error(errMsg));
       }
@@ -93,6 +95,7 @@ export const useAIStream = (options?: UseAIStreamOptions) => {
   }, [options]);
 
   const abortStream = useCallback(() => {
+    isManualAbortRef.current = true;
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
     }

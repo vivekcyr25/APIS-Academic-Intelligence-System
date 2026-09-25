@@ -20,10 +20,10 @@ export const AcademicDoodleWallpaper = memo(() => {
   const shouldReduceMotion = useReducedMotion();
   const { isDark } = useTheme();
 
-  // Ink / teal / amber — no purple
+  // Ink / teal — no purple
   const strokeColor = isDark ? '#2C9589' : '#176B63';
   const strokeWidth = isDark ? '1.5' : '1.5';
-  const groupOpacity = isDark ? '0.28' : '0.22';
+  const groupOpacity = isDark ? '0.10' : '0.08';
   const accentFill = isDark ? '#CE8B32' : '#B87524';
   const starFill = isDark ? '#F5E5CA' : '#CE8B32';
   const pinFill = isDark ? '#2C9589' : '#1F8176';
@@ -33,13 +33,13 @@ export const AcademicDoodleWallpaper = memo(() => {
       className="fixed inset-0 pointer-events-none overflow-hidden select-none z-0"
       aria-hidden="true"
     >
-      {/* ── 1. Base ambient wash (ink / paper) ── */}
-      <div 
-        className="absolute inset-0 opacity-40"
+      {/* ── 1. Base ambient wash ── */}
+      <div
+        className="absolute inset-0 opacity-20"
         style={{
           background: isDark
-            ? 'radial-gradient(ellipse 90% 60% at 50% 20%, rgba(31, 129, 118, 0.14) 0%, rgba(23, 32, 31, 0.4) 60%, transparent 100%)'
-            : 'radial-gradient(ellipse 90% 60% at 50% 20%, rgba(31, 129, 118, 0.12) 0%, rgba(238, 234, 223, 0.4) 60%, transparent 100%)'
+            ? 'radial-gradient(ellipse 90% 60% at 50% 20%, rgba(31, 129, 118, 0.10) 0%, transparent 70%)'
+            : 'radial-gradient(ellipse 90% 60% at 50% 20%, rgba(31, 129, 118, 0.08) 0%, transparent 70%)'
         }}
       />
 
@@ -243,116 +243,6 @@ export const AcademicDoodleWallpaper = memo(() => {
         />
       </svg>
 
-      {/* ── 3. Subtle Floating Accent Clusters on Margins (Depth Layering) ── */}
-      {!isLowEnd && !shouldReduceMotion && (
-        <>
-          {/* Floating Book on Top-Left Edge */}
-          <motion.div
-            className={`absolute top-24 left-8 lg:left-16 pointer-events-none hidden sm:block ${
-              isDark ? 'opacity-60 text-teal-bright' : 'opacity-50 text-teal-deep'
-            }`}
-            animate={{
-              y: [0, -8, 0],
-              rotate: [-6, -4, -6],
-            }}
-            transition={{
-              duration: 8,
-              repeat: Infinity,
-              ease: 'easeInOut',
-            }}
-          >
-            <svg width="60" height="48" viewBox="0 0 60 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4,12 C14,6 24,6 30,10 C36,6 46,6 56,12 L56,38 C46,32 36,32 30,36 C24,32 14,32 4,38 Z" />
-              <path d="M30,10 L30,36" />
-              <line x1="10" y1="18" x2="24" y2="16" opacity="0.7" strokeWidth="1" />
-              <line x1="10" y1="24" x2="24" y2="22" opacity="0.7" strokeWidth="1" />
-              <line x1="36" y1="16" x2="50" y2="18" opacity="0.7" strokeWidth="1" />
-              <line x1="36" y1="22" x2="50" y2="24" opacity="0.7" strokeWidth="1" />
-            </svg>
-          </motion.div>
-
-          {/* Floating Graduation Cap on Top-Right Edge */}
-          <motion.div
-            className={`absolute top-28 right-8 lg:right-20 pointer-events-none hidden sm:block ${
-              isDark ? 'opacity-60 text-amber-bright' : 'opacity-50 text-amber'
-            }`}
-            animate={{
-              y: [0, 8, 0],
-              rotate: [8, 11, 8],
-            }}
-            transition={{
-              duration: 9,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: 1,
-            }}
-          >
-            <svg width="56" height="44" viewBox="0 0 56 44" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="28,4 54,16 28,28 2,16" />
-              <path d="M12,22 L12,34 C12,34 18,38 28,38 C38,38 44,34 44,34 L44,22" />
-              <path d="M54,16 L54,34" />
-              <circle cx="54" cy="35" r="1.5" fill="currentColor" />
-            </svg>
-          </motion.div>
-
-          {/* Floating Idea Lightbulb on Mid-Left */}
-          <motion.div
-            className={`absolute top-[48vh] left-6 lg:left-12 pointer-events-none hidden md:block ${
-              isDark ? 'opacity-55 text-info' : 'opacity-45 text-ink-soft'
-            }`}
-            animate={{
-              y: [0, -6, 0],
-              rotate: [4, 0, 4],
-            }}
-            transition={{
-              duration: 7.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: 2,
-            }}
-          >
-            <svg width="40" height="48" viewBox="0 0 40 48" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M20,2 C10,2 2,10 2,20 C2,26 6,31 10,35 L10,40 L30,40 L30,35 C34,31 38,26 38,20 C38,10 30,2 20,2 Z" />
-              <line x1="14" y1="44" x2="26" y2="44" />
-              <line x1="16" y1="47" x2="24" y2="47" />
-              <path d="M15,22 L20,13 L25,22" strokeWidth="1" opacity="0.8" />
-            </svg>
-          </motion.div>
-
-          {/* Floating Code Snippet on Mid-Right */}
-          <motion.div
-            className={`absolute top-[52vh] right-6 lg:right-16 pointer-events-none hidden md:block ${
-              isDark ? 'opacity-55 text-teal-bright' : 'opacity-45 text-teal-deep'
-            }`}
-            animate={{
-              y: [0, 7, 0],
-              rotate: [-5, -2, -5],
-            }}
-            transition={{
-              duration: 8.5,
-              repeat: Infinity,
-              ease: 'easeInOut',
-              delay: 0.5,
-            }}
-          >
-            <svg width="48" height="36" viewBox="0 0 48 36" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12,4 L2,18 L12,32" />
-              <path d="M36,4 L46,18 L36,32" />
-              <line x1="28" y1="4" x2="20" y2="32" strokeWidth="1.4" />
-            </svg>
-          </motion.div>
-        </>
-      )}
-
-      {/* ── 4. Smooth Ambient Base ── */}
-      <div 
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: isDark
-            ? 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent 60%, rgba(6, 3, 15, 0.25) 100%)'
-            : 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent 65%, rgba(245, 243, 255, 0.2) 100%)'
-        }}
-      />
     </div>
   );
 });

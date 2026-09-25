@@ -89,7 +89,7 @@ const MoreMenu = () => {
           <motion.div
             layoutId="active-pill"
             className="absolute inset-0 rounded-full border border-white/[0.14] gpu-accelerated shadow-[0_10px_28px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.12)]"
-            style={{ 
+            style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.035))',
               backdropFilter: 'blur(18px)',
               WebkitBackdropFilter: 'blur(18px)'
@@ -97,12 +97,12 @@ const MoreMenu = () => {
             transition={{ type: 'spring', stiffness: 380, damping: 38 }}
           />
         )}
-        
+
         {/* Hover Pill (Subtle Liquid Glass for inactive state) */}
         {!(isActive || open) && (
           <motion.div
             className="absolute inset-0 rounded-full border border-white/[0.08] opacity-0 group-hover:opacity-100 transition-opacity duration-300 shadow-[0_4px_12px_rgba(0,0,0,0.1)]"
-            style={{ 
+            style={{
               background: 'linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01))',
               backdropFilter: 'blur(8px)',
               WebkitBackdropFilter: 'blur(8px)'
@@ -162,19 +162,19 @@ const MoreMenu = () => {
                       <motion.div
                         layoutId="active-dropdown-pill"
                         className="absolute inset-0 rounded-2xl border border-white/[0.14] gpu-accelerated shadow-[0_10px_28px_rgba(0,0,0,0.24),inset_0_1px_0_rgba(255,255,255,0.12)]"
-                        style={{ 
+                        style={{
                           background: 'linear-gradient(180deg, rgba(255,255,255,0.09), rgba(255,255,255,0.035))',
                           backdropFilter: 'blur(18px)',
                           WebkitBackdropFilter: 'blur(18px)'
                         }}
                       />
                     )}
-                    
+
                     {/* Hover Pill for dropdown items */}
                     {!isItemActive && (
                       <div
                         className="absolute inset-0 rounded-2xl border border-transparent hover:border-white/[0.08] hover:bg-white/[0.04] transition-all duration-300"
-                        style={{ 
+                        style={{
                           backdropFilter: 'blur(8px)',
                           WebkitBackdropFilter: 'blur(8px)'
                         }}
@@ -202,7 +202,7 @@ const MoreMenu = () => {
 // ─── Calm Header Background ───────────────────────────────
 const NeuralGradient = () => (
   <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[40px]">
-    <div 
+    <div
       className="absolute inset-0 opacity-40"
       style={{
         background: 'radial-gradient(ellipse 70% 50% at 50% 50%, rgba(31, 129, 118, 0.08) 0%, transparent 80%)'
@@ -304,11 +304,11 @@ const TopNav = () => {
               WebkitBackdropFilter: 'blur(var(--blur-xl)) saturate(180%)',
               boxShadow: isDark
                 ? (scrolled
-                    ? '0 8px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)'
-                    : '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)')
+                  ? '0 8px 48px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.06)'
+                  : '0 4px 32px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05)')
                 : (scrolled
-                    ? '0 8px 28px rgba(23, 32, 31, 0.08), 0 1px 4px rgba(0,0,0,0.04)'
-                    : '0 4px 20px rgba(23, 32, 31, 0.05), 0 1px 2px rgba(0,0,0,0.03)'),
+                  ? '0 8px 28px rgba(23, 32, 31, 0.08), 0 1px 4px rgba(0,0,0,0.04)'
+                  : '0 4px 20px rgba(23, 32, 31, 0.05), 0 1px 2px rgba(0,0,0,0.03)'),
             }}
           >
             <NeuralGradient />
@@ -371,7 +371,7 @@ const TopNav = () => {
                         initial={{ rotate: -30, opacity: 0, scale: 0.7 }}
                         animate={{ rotate: 0, opacity: 1, scale: 1 }}
                         exit={{ rotate: 30, opacity: 0, scale: 0.7 }}
-                        transition={{ duration: 0.25, ease: [0.22,1,0.36,1] }}
+                        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                         className="block"
                       >
                         <Moon className="w-4 h-4" />
@@ -382,7 +382,7 @@ const TopNav = () => {
                         initial={{ rotate: 30, opacity: 0, scale: 0.7 }}
                         animate={{ rotate: 0, opacity: 1, scale: 1 }}
                         exit={{ rotate: -30, opacity: 0, scale: 0.7 }}
-                        transition={{ duration: 0.25, ease: [0.22,1,0.36,1] }}
+                        transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
                         className="block"
                       >
                         <Sun className="w-4 h-4" />
@@ -426,9 +426,9 @@ const TopNav = () => {
         </motion.div>
       </header>
 
-      <FeedbackModal 
-        isOpen={showFeedbackModal} 
-        onClose={() => setShowFeedbackModal(false)} 
+      <FeedbackModal
+        isOpen={showFeedbackModal}
+        onClose={() => setShowFeedbackModal(false)}
       />
     </>
   );

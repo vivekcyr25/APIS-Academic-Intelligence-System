@@ -12,6 +12,7 @@ import {
   Square
 } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useAuth } from '../../contexts/AuthContext.tsx';
 import { subscribeToMarks, type MarkRecord } from '../../services/marks/marksService.ts';
 import { useAIStream } from '../../hooks/useAIStream.ts';
@@ -19,6 +20,14 @@ import { cn } from '../../lib/utils.ts';
 import type { ChatMessage } from '../../services/ai/aiService.ts';
 import { generateLocalAcademicResponse } from '../../services/ai/localAIAdvisor.ts';
 import { isExplicitOrInappropriate, SAFETY_REFUSAL_MESSAGE } from '../../services/ai/safetyFilter.ts';
+
+// Helper to normalize markdown table syntax if LLM streams collapsed lines or double pipes
+const normalizeMarkdownTables = (text: string) => {
+  if (!text) return '';
+  return text
+    .replace(/\|\s*\|\s*/g, '|\n| ')
+    .replace(/(\|[^\n\r|]+\|)(\|[^\n\r|]+)/g, '$1\n$2');
+};
 
 interface NeuralConsoleProps {
   isOpen: boolean;
@@ -256,8 +265,34 @@ const NeuralConsole = ({ isOpen, onClose }: NeuralConsoleProps) => {
                       {msg.role === 'user' ? (
                         <p>{msg.content}</p>
                       ) : (
-                        <div className="prose prose-invert prose-p:my-1 prose-ul:my-2 prose-li:my-0.5 prose-strong:text-teal-bright text-sm sm:text-base leading-relaxed">
-                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+                        <div className="prose prose-invert max-w-none prose-p:my-1 prose-ul:my-2 prose-li:my-0.5 prose-strong:text-teal-bright text-sm sm:text-base leading-relaxed">
+                          <ReactMarkdown
+                            remarkPlugins={[remarkGfm]}
+                            components={{
+                              table: ({ node, ...props }) => (
+                                <div className="my-3.5 overflow-x-auto rounded-xl border border-white/15 bg-white/[0.02] shadow-[0_4px_24px_rgba(0,0,0,0.3)]">
+                                  <table className="w-full text-left text-xs sm:text-sm border-collapse" {...props} />
+                                </div>
+                              ),
+                              thead: ({ node, ...props }) => (
+                                <thead className="bg-white/[0.08] border-b border-white/15 text-teal-bright font-condensed tracking-wider uppercase font-bold text-xs" {...props} />
+                              ),
+                              tbody: ({ node, ...props }) => (
+                                <tbody className="divide-y divide-white/10 font-condensed tracking-wide text-xs sm:text-sm" {...props} />
+                              ),
+                              tr: ({ node, ...props }) => (
+                                <tr className="hover:bg-white/[0.03] transition-colors" {...props} />
+                              ),
+                              th: ({ node, ...props }) => (
+                                <th className="px-4 py-3 text-teal-bright font-bold border-r border-white/10 last:border-r-0" {...props} />
+                              ),
+                              td: ({ node, ...props }) => (
+                                <td className="px-4 py-3 text-white/90 border-r border-white/10 last:border-r-0 align-top leading-relaxed" {...props} />
+                              ),
+                            }}
+                          >
+                            {normalizeMarkdownTables(msg.content)}
+                          </ReactMarkdown>
                         </div>
                       )}
                     </div>

@@ -45,7 +45,20 @@ export function generateLocalAcademicResponse(
 • **Next Step:** Ask for target ETE marks, revision priority, or assignment schedules.`;
   }
 
-  // 2. Marks, Grades, or GPA queries
+  // 2. Tabular / Table requests
+  if (/(table|tabular|grid|columns?|matrix)/i.test(q)) {
+    if (totalSubjects === 0) {
+      return `| Category | Status | Next Step |\n| :--- | :--- | :--- |\n| **Academic Vault** | No Data | Upload via Upload Center |\n| **Attendance** | Baseline 75% | Track in Attendance Tab |\n| **AI Strategy** | Ready | Add subjects to generate projections |`;
+    }
+
+    const rows = marks.slice(0, 6).map(m => 
+      `| ${m.subject} | ${m.total}/100 | ${m.grade || 'Pending'} | ${Number(m.total) >= 75 ? 'Optimal' : (Number(m.total) < 50 ? 'High Risk' : 'Moderate')} |`
+    ).join('\n');
+
+    return `| Subject | Total Score | Grade | Trajectory |\n| :--- | :--- | :--- | :--- |\n${rows}\n\n*Overall Average: **${avgMarks}%** across ${totalSubjects} courses.*`;
+  }
+
+  // 3. Marks, Grades, or GPA queries
   if (/(mark|grade|score|sgpa|cgpa|gpa|percentage|result|performance)/i.test(q)) {
     if (totalSubjects === 0) {
       return `• **No Records Found:** Please upload marks via **Upload Center** or add them in **Semester Vault**.`;

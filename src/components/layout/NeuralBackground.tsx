@@ -25,9 +25,9 @@ export const NeuralBackground = memo(() => {
         style={{
           backgroundImage: isDark
             ? `linear-gradient(rgba(247, 244, 236, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(247, 244, 236, 0.06) 1px, transparent 1px)`
-            : `linear-gradient(rgba(23, 32, 31, 0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(23, 32, 31, 0.06) 1px, transparent 1px)`,
+            : `linear-gradient(rgba(23, 32, 31, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(23, 32, 31, 0.05) 1px, transparent 1px)`,
           backgroundSize: '48px 48px',
-          opacity: isDark ? 0.4 : 0.55,
+          opacity: isDark ? 0.20 : 0.25,
           transition: 'opacity 0.4s ease',
         }}
       />
@@ -42,8 +42,8 @@ export const NeuralBackground = memo(() => {
         className="absolute inset-0"
         style={{
           background: isDark
-            ? 'radial-gradient(ellipse 90% 80% at 50% 40%, transparent 60%, rgba(6, 3, 15, 0.40) 100%)'
-            : 'radial-gradient(ellipse 90% 80% at 50% 40%, transparent 65%, rgba(240, 237, 255, 0.30) 100%)',
+            ? 'radial-gradient(ellipse 90% 80% at 50% 40%, transparent 60%, rgba(0, 0, 0, 0.30) 100%)'
+            : 'radial-gradient(ellipse 90% 80% at 50% 40%, transparent 65%, rgba(238, 234, 223, 0.25) 100%)',
           transition: 'background 0.4s ease',
         }}
       />

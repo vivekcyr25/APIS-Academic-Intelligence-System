@@ -45,21 +45,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
   const systemMessage = context
-    ? `You are APIS (Academic Performance Intelligence System), a sharp and ultra-concise AI academic advisor.
+    ? `You are APIS (Academic Performance Intelligence System), a sharp and concise AI academic advisor.
 Student Context:
 ${context}
 
-CRITICAL FORMATTING & LENGTH RULES:
-1. POINT-TO-POINT ONLY: Output strictly 2 to 4 short bullet points. Total response MUST be under 100 words.
-2. NO TABLES: NEVER output markdown tables, grids, or multi-column structures.
-3. NO LONG PARAGRAPHS OR ESSAYS: Strictly no multi-section breakdowns, long introductions, or filler text.
-4. DIRECT & ACTIONABLE: Highlight the core score and exact next step immediately.
+CRITICAL FORMATTING RULES:
+1. POINT-TO-POINT & STRUCTURED: Output concise points or structured GitHub-Flavored Markdown tables when comparing subjects, marks, or timelines.
+2. TABLES ALLOWED: If the user asks for tabular form or structured comparisons, provide a clean Markdown table with headers.
+3. NO ESSAYS OR FLUFF: Avoid unnecessary conversational filler. Keep answers direct and actionable.
+4. DIRECT & ACTIONABLE: Highlight core scores and exact next steps.
 5. SAFETY REFUSAL: If asked anything sexually explicit, inappropriate, harmful, or non-academic violations, reply ONLY with: "${SAFETY_REFUSAL_MESSAGE}".`
     : `You are APIS, a concise AI academic advisor.
 CRITICAL RULES:
-1. POINT-TO-POINT ONLY: Output strictly 2 to 4 short bullet points (under 80 words total).
-2. NO TABLES, NO ESSAYS, NO FLUFF: Answer directly and crisply.
-3. SAFETY REFUSAL: If asked anything sexually explicit, inappropriate, or harmful, reply ONLY with: "${SAFETY_REFUSAL_MESSAGE}".`;
+1. CONCISE & ACTIONABLE: Answer directly and crisply.
+2. TABLES ALLOWED: If requested, provide structured Markdown tables.
+3. NO FLUFF: Avoid long essays.
+4. SAFETY REFUSAL: If asked anything sexually explicit, inappropriate, or harmful, reply ONLY with: "${SAFETY_REFUSAL_MESSAGE}".`;
 
   try {
     const model = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
@@ -77,7 +78,7 @@ CRITICAL RULES:
         ],
         stream: true,
         temperature: 0.4,
-        max_tokens: 250,
+        max_tokens: 500,
       }),
     });
 

@@ -169,9 +169,16 @@ html.origami-active::view-transition-new(root) {
     --blur-lg: 10px;
     --blur-md: 6px;
     --blur-sm: 3px;
-    --glow-opacity: 0.18;
+    --glow-opacity: 0.10;
     --anim-scale: 1;
     --glass-opacity: 0.72;
+
+    /* BORDER RADIUS DISCIPLINE SYSTEM */
+    --radius-xs: 4px;
+    --radius-sm: 6px;
+    --radius-md: 10px;
+    --radius-lg: 14px;
+    --radius-xl: 18px;
 
     /* DATA PROVENANCE SYSTEM */
     --provenance-color: hsl(173 54% 45% / 0.7);
@@ -442,10 +449,10 @@ html.origami-active::view-transition-new(root) {
 }
 .liquid-glass:hover::before { @apply translate-x-full; }
 
-/* ── Gradient title (replaces heavy animated gradient) ── */
+/* ── Gradient title — restrained, mostly neutral with teal accent ── */
 .gradient-title {
   @apply font-black tracking-tight;
-  background: linear-gradient(135deg, #F7F4EC 0%, #EEEADF 45%, #2C9589 100%);
+  background: linear-gradient(135deg, #F7F4EC 0%, #EEEADF 70%, #2C9589 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -883,7 +890,7 @@ img { max-width: 100%; height: auto; }
 }
 [data-theme="light"] input::placeholder,
 [data-theme="light"] textarea::placeholder {
-  color: rgba(100, 80, 180, 0.4) !important;
+  color: rgba(23, 32, 31, 0.35) !important;
 }
 
 /* ── Light mode cards (Card component) ── */
@@ -926,9 +933,9 @@ img { max-width: 100%; height: auto; }
   transform: scale(1.1);
 }
 
-/* ── Academic doodle ornaments layer ── */
+/* ── Academic doodle ornaments layer — quiet texture, not decoration ── */
 .academic-doodle-layer {
-  opacity: 1;
+  opacity: 0.6;
 }
 
 /* ── Light mode NeuralConsole ── */
